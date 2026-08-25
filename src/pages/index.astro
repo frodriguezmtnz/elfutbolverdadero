@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const entrevistas = (await getCollection('entrevistas')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Base title="Futbolverdadero · El fútbol del patio de colegio">
+  <main>
+    <h1>Futbolverdadero</h1>
+    <p>El fútbol del patio de colegio.</p>
+
+    <section>
+      <h2>Entrevistas</h2>
+      <ul>
+        {
+          entrevistas.map((post) => (
+            <li>
+              <article>
+                <h3>
+                  <a href={`/entrevistas/${post.data.legacySlug.split('/').pop()}/`}>
+                    {post.data.title}
+                  </a>
+                </h3>
+                <p>{post.data.description}</p>
+                <time datetime={post.data.pubDate.toISOString()}>
+                  {post.data.pubDate.toLocaleDateString('es-ES')}
+                </time>
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</Base>
