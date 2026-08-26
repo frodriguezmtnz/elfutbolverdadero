@@ -1,5 +1,15 @@
 import type { SchemaTypeDefinition } from 'sanity';
 
-// Los tipos de schema se irán añadiendo en el paso 2 (Fase 2):
-// publicacion, autor, categoria, etiqueta
-export const schemaTypes: SchemaTypeDefinition[] = [];
+import { publicacion } from './publicacion';
+import { autor } from './autor';
+import { categoria } from './categoria';
+import { etiqueta } from './etiqueta';
+import { embed } from './embed';
+
+export const schemaTypes: SchemaTypeDefinition[] = [
+  publicacion,
+  autor,
+  categoria,
+  etiqueta,
+  embed,
+];
