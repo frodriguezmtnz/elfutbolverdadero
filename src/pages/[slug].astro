@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import { getAllSlugs, getPublicacionBySlug } from '../lib/sanity';
+
+export async function getStaticPaths() {
+  const slugs = await getAllSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const post = await getPublicacionBySlug(slug!);
+
+if (!post) {
+  return Astro.rewrite('/404');
+}
+
+const seoTitle = post.seoTitle ?? post.title;
+const seoDescription = post.seoDescription ?? post.description ?? '';
+const ogImage = post.mainImage?.asset?.url;
+---
+
+<Base
+  title={seoTitle}
+  description={seoDescription}
+  canonicalURL={`/${post.slug}/`}
+  image={ogImage}
+>
+  <article>
+    <header>
+      <p>{post.tipo}</p>
+      <h1>{post.title}</h1>
+      {post.description && <p>{post.description}</p>}
+      {post.author && <p>Por {post.author.name}</p>}
+      {post.publishedAt && (
+        <time datetime={post.publishedAt}>
+          {new Date(post.publishedAt).toLocaleDateString('es-ES')}
+        </time>
+      )}
+    </header>
+
+    {post.mainImage?.asset?.url && (
+      <img
+        src={post.mainImage.asset.url}
+        alt={post.mainImage.alt ?? ''}
+        loading="lazy"
+      />
+    )}
+
+    <div class="categorias">
+      {post.categorias?.map((c) => <span>{c.name}</span>)}
+    </div>
+
+    <div class="body">
+      {post.body?.map((block: any) => {
+        if (block._type === 'block') {
+          const style = block.style ?? 'normal';
+          if (style === 'h2') return <h2>{block.children?.map((ch: any) => ch.text).join('')}</h2>;
+          if (style === 'h3') return <h3>{block.children?.map((ch: any) => ch.text).join('')}</h3>;
+          return <p>{block.children?.map((ch: any) => ch.text).join('')}</p>;
+        }
+        if (block._type === 'image') {
+          const src = block.asset?.url;
+          return src ? <img src={src} alt="" loading="lazy" /> : null;
+        }
+        if (block._type === 'embed' && block.url) {
+          return (
+            <div class="embed">
+              <iframe
+                src={block.url}
+                title={block.title ?? 'Audio/vídeo'}
+                loading="lazy"
+                style="width:100%; aspect-ratio:16/9; border:0"
+              />
+            </div>
+          );
+        }
+        return null;
+      })}
+    </div>
+
+    {post.etiquetas && post.etiquetas.length > 0 && (
+      <footer>
+        {post.etiquetas.map((t) => <span>{t.name}</span>)}
+      </footer>
+    )}
+  </article>
+</Base>

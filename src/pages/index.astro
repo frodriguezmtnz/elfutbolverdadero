@@ -1,10 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import { getPublicaciones } from '../lib/sanity';
 
-const entrevistas = (await getCollection('entrevistas')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const publicaciones = await getPublicaciones();
 ---
 
 <Base title="Futbolverdadero · El fútbol del patio de colegio">
@@ -13,26 +11,28 @@ const entrevistas = (await getCollection('entrevistas')).sort(
     <p>El fútbol del patio de colegio.</p>
 
     <section>
-      <h2>Entrevistas</h2>
-      <ul>
-        {
-          entrevistas.map((post) => (
+      <h2>Publicaciones</h2>
+      {publicaciones.length === 0 ? (
+        <p>No hay publicaciones todavía en Sanity ({import.meta.env.SANITY_DATASET ?? 'staging'}).</p>
+      ) : (
+        <ul>
+          {publicaciones.map((p) => (
             <li>
               <article>
                 <h3>
-                  <a href={`/entrevistas/${post.data.legacySlug.split('/').pop()}/`}>
-                    {post.data.title}
-                  </a>
+                  <a href={`/${p.slug}/`}>{p.title}</a>
                 </h3>
-                <p>{post.data.description}</p>
-                <time datetime={post.data.pubDate.toISOString()}>
-                  {post.data.pubDate.toLocaleDateString('es-ES')}
-                </time>
+                <p>{p.description}</p>
+                {p.publishedAt && (
+                  <time datetime={p.publishedAt}>
+                    {new Date(p.publishedAt).toLocaleDateString('es-ES')}
+                  </time>
+                )}
               </article>
             </li>
-          ))
-        }
-      </ul>
+          ))}
+        </ul>
+      )}
     </section>
   </main>
 </Base>

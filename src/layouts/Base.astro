@@ -3,15 +3,17 @@ interface Props {
   title: string;
   description?: string;
   canonicalURL?: string;
+  image?: string;
 }
 const {
   title,
   description = 'El fútbol del patio de colegio. Entrevistas y noticias de fútbol base.',
   canonicalURL = new URL(Astro.url.pathname, Astro.site),
+  image,
 } = Astro.props;
 
 const siteName = 'Futbolverdadero';
-const ogImage = new URL('/og.png', Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : new URL('/og.png', Astro.site);
 ---
 
 <!doctype html>
