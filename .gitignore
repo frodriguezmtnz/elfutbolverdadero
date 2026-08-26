@@ -22,3 +22,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# docs de seguimiento
+*TRACKING.md
+
+# Sanity Studio runtime (auto-generado en 'sanity dev')
+.sanity/
+
+# Vercel build output (artefactos de despliegue)
+.vercel/output/
