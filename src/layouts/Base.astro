@@ -14,6 +14,8 @@ const {
 
 const siteName = 'Futbolverdadero';
 const ogImage = image ? new URL(image, Astro.site) : new URL('/og.png', Astro.site);
+// canonical siempre absoluta
+const canonical = new URL(canonicalURL, Astro.site).href;
 ---
 
 <!doctype html>
@@ -23,7 +25,7 @@ const ogImage = image ? new URL(image, Astro.site) : new URL('/og.png', Astro.si
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
@@ -31,7 +33,7 @@ const ogImage = image ? new URL(image, Astro.site) : new URL('/og.png', Astro.si
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -44,7 +46,7 @@ const ogImage = image ? new URL(image, Astro.site) : new URL('/og.png', Astro.si
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: siteName,
-      url: Astro.site?.href ?? canonicalURL,
+      url: canonical,
     })} />
   </head>
   <body>

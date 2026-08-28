@@ -58,7 +58,8 @@ const publicacionFields = `
     caption
   },
   'categorias': categorias[]->{ name, 'slug': slug.current },
-  'etiquetas': etiquetas[]->{ name }
+  'etiquetas': etiquetas[]->{ name },
+  'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url}, null) }
 `;
 
 export async function getPublicaciones(): Promise<Publicacion[]> {

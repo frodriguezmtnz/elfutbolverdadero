@@ -31,3 +31,6 @@ pnpm-debug.log*
 
 # Vercel build output (artefactos de despliegue)
 .vercel/output/
+
+# Checkpoint/logs del import WordPress->Sanity
+.import/
