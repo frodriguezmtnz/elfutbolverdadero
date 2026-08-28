@@ -1,4 +1,5 @@
 // @ts-check
+import 'dotenv/config';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
@@ -23,6 +24,9 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
+  server: {
+    allowedHosts: process.env.DEV_ALLOWED_HOSTS?.split(',').map((h) => h.trim()) ?? [],
+  },
   vite: {
     plugins: [tailwindcss()],
   },
