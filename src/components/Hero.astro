@@ -20,7 +20,7 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
 
 <section class="bg-primary text-primary-foreground">
   <div class="mx-auto grid max-w-7xl gap-0 px-4 py-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-12">
-    <div class="flex flex-col justify-between border-b border-primary-foreground p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+    <div data-reveal="up" class="flex flex-col justify-between border-b border-primary-foreground p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
       <div>
         <div class="flex items-center gap-3">
           <span class="h-px w-10 bg-tertiary"></span>
@@ -54,7 +54,7 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
       </div>
     </div>
 
-    <div class="relative min-h-80 overflow-hidden lg:min-h-0">
+    <div data-reveal="fade" data-speed="fast" class="relative min-h-80 overflow-hidden lg:min-h-0">
       {imagen && <img src={imagen} alt={altImagen} class="h-full w-full object-cover grayscale" width="1280" height="1280" loading="eager" fetchpriority="high" />}
       <div class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7">
         <div>

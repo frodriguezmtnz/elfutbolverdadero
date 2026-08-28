@@ -27,6 +27,7 @@
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.6",
+    "astro-reveal": "^0.3.1",
     "dotenv": "^17.4.2",
     "reading-time": "^1.5.0",
     "sanity": "^6.11.0",

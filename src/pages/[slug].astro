@@ -55,7 +55,7 @@ const masConversaciones = await getUltimasEntrevistas(3, post._id);
     <main class="flex-1">
       <article>
         <header class="bg-background">
-          <div class="mx-auto max-w-3xl px-4 pt-8 lg:px-8 lg:pt-12">
+          <div data-reveal="up" class="mx-auto max-w-3xl px-4 pt-8 lg:px-8 lg:pt-12">
             <nav class="flex items-center gap-2 text-xs font-semibold text-muted-foreground" aria-label="Migas de pan">
               <a class="hover:text-primary" href="/entrevistas/">La Pizarra</a>
               {
@@ -94,7 +94,7 @@ const masConversaciones = await getUltimasEntrevistas(3, post._id);
 
         {
           imagenDestacada && (
-            <figure class="mx-auto mt-8 max-w-4xl px-4 lg:px-8">
+            <figure data-reveal="fade" class="mx-auto mt-8 max-w-4xl px-4 lg:px-8">
               <img
                 src={imagenDestacada}
                 alt={altImagen}
@@ -133,11 +133,11 @@ const masConversaciones = await getUltimasEntrevistas(3, post._id);
         masConversaciones.length > 0 && (
           <section class="bg-muted">
             <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Sigue leyendo</p>
-              <h2 class="mt-2 font-heading text-lg font-semibold uppercase sm:text-3xl">Más conversaciones</h2>
+              <p data-reveal="up" class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Sigue leyendo</p>
+              <h2 data-reveal="up" style="--reveal-index: 1" class="mt-2 font-heading text-lg font-semibold uppercase sm:text-3xl">Más conversaciones</h2>
               <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
                 {masConversaciones.map((pub, i) => (
-                  <EntrevistaCard pub={pub} chipAcento={i === 1} />
+                  <EntrevistaCard pub={pub} chipAcento={i === 1} data-reveal="up" style={`--reveal-index: ${i % 3}`} />
                 ))}
               </div>
             </div>

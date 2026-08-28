@@ -3,14 +3,15 @@ import Icon from './Icon.astro';
 import { urlFor } from '../lib/images';
 import { limpiarDescripcion } from '../lib/texto';
 import type { Publicacion } from '../lib/sanity';
+import type { HTMLAttributes } from 'astro/types';
 
-interface Props {
+interface Props extends HTMLAttributes<'article'> {
   pub: Publicacion;
   ctaLabel?: string;
   chipAcento?: boolean;
 }
 
-const { pub, ctaLabel = 'Leer conversación', chipAcento = false } = Astro.props;
+const { pub, ctaLabel = 'Leer conversación', chipAcento = false, ...rest } = Astro.props;
 
 const badge = pub.categorias?.[0]?.name;
 const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 800) : null;
@@ -18,7 +19,7 @@ const altImagen = pub.mainImage?.alt || pub.title;
 const descripcion = limpiarDescripcion(pub.description);
 ---
 
-<article class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md">
+<article {...rest} class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md">
   <div class="aspect-[16/9] overflow-hidden bg-muted">
     {
       imagen && (
