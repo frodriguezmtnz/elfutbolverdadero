@@ -1,7 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileNav from '../components/MobileNav.astro';
+import Chip from '../components/Chip.astro';
+import EntrevistaCard from '../components/EntrevistaCard.astro';
 import PortableText from '../components/PortableText.astro';
-import { getAllSlugs, getPublicacionBySlug } from '../lib/sanity';
+import { getAllSlugs, getPublicacionBySlug, getUltimasEntrevistas } from '../lib/sanity';
+import { urlFor } from '../lib/images';
+import { limpiarDescripcion, tiempoLectura } from '../lib/texto';
 
 export async function getStaticPaths() {
   const slugs = await getAllSlugs();
@@ -15,50 +22,131 @@ if (!post) {
   return Astro.rewrite('/404');
 }
 
+const TIPOS: Record<string, string> = {
+  entrevista: 'Entrevista',
+  articulo: 'Artículo',
+  opinion: 'Opinión',
+};
+
 const seoTitle = post.seoTitle ?? post.title;
-const seoDescription = post.seoDescription ?? post.description ?? '';
+const seoDescription = post.seoDescription ?? limpiarDescripcion(post.description) ?? '';
 const ogImage = post.mainImage?.asset?.url;
+
+const tipoLabel = TIPOS[post.tipo] ?? post.tipo;
+const descripcion = limpiarDescripcion(post.description);
+const lectura = tiempoLectura(post.body, post.readingTime);
+const fecha = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
+const imagenDestacada = post.mainImage?.asset ? urlFor(post.mainImage.asset, 1400) : null;
+const altImagen = post.mainImage?.alt || post.title;
+const pieImagen = post.mainImage?.caption;
+const primeraCategoria = post.categorias?.[0];
+const masConversaciones = await getUltimasEntrevistas(3, post._id);
 ---
 
-<Base
-  title={seoTitle}
-  description={seoDescription}
-  canonicalURL={`/${post.slug}/`}
-  image={ogImage}
->
-  <article>
-    <header>
-      <p>{post.tipo}</p>
-      <h1>{post.title}</h1>
-      {post.description && <p>{post.description}</p>}
-      {post.author && <p>Por {post.author.name}</p>}
-      {post.publishedAt && (
-        <time datetime={post.publishedAt}>
-          {new Date(post.publishedAt).toLocaleDateString('es-ES')}
-        </time>
-      )}
-    </header>
+<Base title={seoTitle} description={seoDescription} canonicalURL={`/${post.slug}/`} image={ogImage}>
+  <div class="flex min-h-screen flex-col">
+    <Header lecturaHref="/entrevistas/" />
+    <main class="flex-1">
+      <article>
+        <header class="bg-background">
+          <div class="mx-auto max-w-3xl px-4 pt-8 lg:px-8 lg:pt-12">
+            <nav class="flex items-center gap-2 text-xs font-semibold text-muted-foreground" aria-label="Migas de pan">
+              <a class="hover:text-primary" href="/entrevistas/">La Pizarra</a>
+              {
+                primeraCategoria && (
+                  <>
+                    <span>/</span>
+                    <a class="hover:text-primary" href={`/categoria/${primeraCategoria.slug}/`}>
+                      {primeraCategoria.name}
+                    </a>
+                  </>
+                )
+              }
+            </nav>
 
-    {post.mainImage?.asset?.url && (
-      <img
-        src={post.mainImage.asset.url}
-        alt={post.mainImage.alt ?? ''}
-        loading="lazy"
-      />
-    )}
+            <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-tertiary">{tipoLabel}</p>
+            <h1 class="mt-3 font-heading text-3xl font-bold uppercase leading-tight sm:text-5xl">{post.title}</h1>
+            {descripcion && <p class="mt-5 text-lg leading-7 text-muted-foreground">{descripcion}</p>}
 
-    <div class="categorias">
-      {post.categorias?.map((c) => <span>{c.name}</span>)}
-    </div>
+            <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+              {post.author?.name && <p class="font-bold text-primary">Por {post.author.name}</p>}
+              {fecha && <time class="text-muted-foreground" datetime={post.publishedAt}>{fecha}</time>}
+              {lectura && <p class="text-muted-foreground">{lectura}</p>}
+            </div>
 
-    <div class="body">
-      {post.body && post.body.length > 0 && <PortableText blocks={post.body} />}
-    </div>
+            {
+              post.categorias && post.categorias.length > 0 && (
+                <div class="mt-5 flex flex-wrap gap-2">
+                  {post.categorias.map((c) => (
+                    <Chip href={`/categoria/${c.slug}/`} label={c.name} />
+                  ))}
+                </div>
+              )
+            }
+          </div>
+        </header>
 
-    {post.etiquetas && post.etiquetas.length > 0 && (
-      <footer>
-        {post.etiquetas.map((t) => <span>{t.name}</span>)}
-      </footer>
-    )}
-  </article>
+        {
+          imagenDestacada && (
+            <figure class="mx-auto mt-8 max-w-4xl px-4 lg:px-8">
+              <img
+                src={imagenDestacada}
+                alt={altImagen}
+                class="aspect-[16/9] w-full rounded-xl object-cover grayscale shadow-lg"
+                width="1400"
+                height="788"
+                loading="eager"
+                fetchpriority="high"
+              />
+              {pieImagen && <figcaption class="mt-2 text-center text-xs text-muted-foreground">{pieImagen}</figcaption>}
+            </figure>
+          )
+        }
+
+        <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8 lg:py-12">
+          {post.body && post.body.length > 0 && <PortableText blocks={post.body} />}
+        </div>
+
+        {
+          post.etiquetas && post.etiquetas.length > 0 && (
+            <div class="mx-auto max-w-3xl px-4 pb-12 lg:px-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Temas</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                {post.etiquetas.map((t) => (
+                  <span class="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
+                    #{t.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        }
+      </article>
+
+      {
+        masConversaciones.length > 0 && (
+          <section class="bg-muted">
+            <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Sigue leyendo</p>
+              <h2 class="mt-2 font-heading text-lg font-semibold uppercase sm:text-3xl">Más conversaciones</h2>
+              <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+                {masConversaciones.map((pub, i) => (
+                  <EntrevistaCard pub={pub} chipAcento={i === 1} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
 </Base>
