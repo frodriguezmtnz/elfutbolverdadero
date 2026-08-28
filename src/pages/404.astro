@@ -1,11 +1,47 @@
 ---
 import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileNav from '../components/MobileNav.astro';
+import Icon from '../components/Icon.astro';
 ---
 
-<Base title="404 · No encontrada" description="La página que buscas no existe.">
-  <article>
-    <h1>404</h1>
-    <p>La página que buscas no existe o ha cambiado de dirección.</p>
-    <p><a href="/">Volver al inicio</a></p>
-  </article>
+<Base title="Página no encontrada · El Fútbol Verdadero" description="La página que buscas no existe o ha cambiado de dirección.">
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-background">
+        <div class="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center lg:py-28">
+          <p class="font-heading text-7xl font-bold uppercase leading-none text-primary sm:text-8xl">404</p>
+          <p class="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Fuera de juego</p>
+          <h1 class="mt-3 font-heading text-2xl font-bold uppercase sm:text-3xl">
+            La página que buscas no existe
+          </h1>
+          <p class="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
+            Puede que la jugada se haya anulado o que la dirección haya cambiado. Pero el partido continúa:
+            te proponemos dos reinicios.
+          </p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a
+              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/"
+            >
+              <Icon name="house" class="text-lg" />
+              Volver al inicio
+            </a>
+            <a
+              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 text-sm font-bold text-foreground hover:border-primary"
+              href="/entrevistas/"
+            >
+              <Icon name="book-open" class="text-lg" />
+              Ver entrevistas
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
 </Base>
