@@ -1,0 +1,181 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = 'w-48 sm:w-60' } = Astro.props;
+---
+
+<svg viewBox="0 30 240 120" fill="none" class={className} aria-hidden="true">
+  <!-- césped -->
+  <path
+    d="M6 130h228"
+    stroke="var(--color-primary)"
+    stroke-opacity="0.3"
+    stroke-width="3"
+    stroke-linecap="round"></path>
+  <path
+    d="M20 138h18M204 138h18"
+    stroke="var(--color-border)"
+    stroke-width="2.5"
+    stroke-linecap="round"></path>
+
+  <g class="goal">
+    <!-- red -->
+    <path
+      d="M72 44V126M88 44V126M104 44V126M120 44V126M136 44V126M152 44V126M168 44V126"
+      stroke="var(--color-border)"
+      stroke-width="1"></path>
+    <path
+      d="M64 56h112M64 70h112M64 84h112M64 98h112M64 112h112"
+      stroke="var(--color-border)"
+      stroke-width="1"></path>
+    <!-- estructura -->
+    <path
+      d="M60 130V40M180 130V40M57 40h126"
+      stroke="var(--color-primary)"
+      stroke-width="6"
+      stroke-linecap="round"></path>
+  </g>
+
+  <!-- chispas del impacto -->
+  <g class="sparks" stroke="var(--color-tertiary)" stroke-width="3" stroke-linecap="round">
+    <path d="M39 80 32 73"></path>
+    <path d="M36 88H27"></path>
+    <path d="M39 96 32 103"></path>
+  </g>
+
+  <!-- sombra -->
+  <g transform="translate(48 134)">
+    <ellipse class="shadow" rx="11" ry="2.5" fill="var(--color-foreground)" opacity="0.16"></ellipse>
+  </g>
+
+  <!-- balón -->
+  <g transform="translate(48 88)">
+    <g class="ball">
+      <circle r="9" fill="white" stroke="var(--color-foreground)" stroke-width="2"></circle>
+      <path
+        d="M0 -3.6 3.4 -1.1 2.1 2.9H-2.1L-3.4 -1.1Z M0 -3.6V-9 M3.4 -1.1 9 -2.9 M2.1 2.9 5.6 7.6 M-2.1 2.9 -5.6 7.6 M-3.4 -1.1 -9 -2.9"
+        stroke="var(--color-foreground)"
+        stroke-width="1.5"
+        stroke-linejoin="round"></path>
+    </g>
+  </g>
+</svg>
+
+<style>
+  .ball {
+    animation: ball-flight 3.4s infinite;
+  }
+
+  .goal {
+    animation: goal-shake 3.4s infinite;
+    transform-origin: 120px 130px;
+  }
+
+  .sparks {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: right center;
+    animation: spark-flash 3.4s infinite;
+  }
+
+  .shadow {
+    animation: shadow-run 3.4s infinite;
+  }
+
+  @keyframes ball-flight {
+    0% {
+      transform: translate(-78px, 62px) rotate(0deg) scale(1);
+      animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.4);
+    }
+    38% {
+      transform: translate(0, 0) rotate(320deg) scale(0.85, 1.15);
+      animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+    }
+    43% {
+      transform: translate(-10px, -8px) rotate(370deg) scale(1.06, 0.94);
+    }
+    72% {
+      transform: translate(-64px, 78px) rotate(640deg) scale(1);
+      animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.6);
+    }
+    78%,
+    100% {
+      transform: translate(-118px, 96px) rotate(660deg);
+    }
+  }
+
+  @keyframes goal-shake {
+    0%,
+    37%,
+    54%,
+    100% {
+      transform: translateX(0);
+    }
+    40% {
+      transform: translateX(2.5px) rotate(0.5deg);
+    }
+    45% {
+      transform: translateX(-1.8px) rotate(-0.3deg);
+    }
+    50% {
+      transform: translateX(0.8px);
+    }
+  }
+
+  @keyframes spark-flash {
+    0%,
+    36%,
+    47%,
+    100% {
+      opacity: 0;
+      transform: scale(0.55);
+    }
+    39.5% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes shadow-run {
+    0% {
+      transform: translateX(-78px) scaleX(1);
+      opacity: 0.2;
+      animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.4);
+    }
+    38% {
+      transform: translateX(0) scaleX(0.5);
+      opacity: 0.1;
+      animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+    }
+    43% {
+      transform: translateX(-10px) scaleX(0.6);
+      opacity: 0.12;
+    }
+    70% {
+      transform: translateX(-58px) scaleX(1.15);
+      opacity: 0.22;
+    }
+    76%,
+    100% {
+      transform: translateX(-64px) scaleX(1.15);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ball,
+    .goal,
+    .sparks,
+    .shadow {
+      animation: none;
+    }
+    .ball {
+      transform: translate(-22px, 33px) rotate(35deg);
+    }
+    .shadow {
+      transform: translateX(-22px);
+    }
+  }
+</style>
