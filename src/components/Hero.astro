@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { urlFor } from '../lib/images';
+import { limpiarDescripcion, tiempoLectura } from '../lib/texto';
 import type { Publicacion } from '../lib/sanity';
 
 interface Props {
@@ -13,12 +14,8 @@ const badge = pub.categorias?.[0]?.name;
 const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 1280) : null;
 const altImagen = pub.mainImage?.alt || pub.title;
 const pieImagen = pub.mainImage?.caption;
-
-const lectura = pub.readingTime
-  ? /^\d+$/.test(String(pub.readingTime).trim())
-    ? `${String(pub.readingTime).trim()} min de lectura`
-    : String(pub.readingTime)
-  : null;
+const descripcion = limpiarDescripcion(pub.description);
+const lectura = tiempoLectura(pub.body, pub.readingTime);
 ---
 
 <section class="bg-primary text-primary-foreground">
@@ -39,7 +36,7 @@ const lectura = pub.readingTime
         <h1 class="mt-5 font-heading text-2xl font-bold uppercase leading-none sm:text-5xl">
           <a href={`/${pub.slug}/`}>{pub.title}</a>
         </h1>
-        {pub.description && <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{pub.description}</p>}
+        {descripcion && <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{descripcion}</p>}
       </div>
 
       <div class="mt-8 border-t border-primary-foreground pt-5">
