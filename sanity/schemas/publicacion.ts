@@ -45,6 +45,12 @@ export const publicacion = defineType({
       to: [{ type: 'autor' }],
     },
     {
+      name: 'club',
+      title: 'Club / Equipo',
+      description: 'Club o equipo del entrevistado. Se muestra en las tarjetas de la portada.',
+      type: 'string',
+    },
+    {
       name: 'mainImage',
       title: 'Imagen destacada',
       type: 'image',

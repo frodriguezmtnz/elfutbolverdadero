@@ -1,0 +1,21 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  activo?: boolean;
+}
+
+const { href, label, activo = false } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'inline-flex min-h-11 items-center whitespace-nowrap rounded-lg px-4 text-sm font-semibold',
+    activo
+      ? 'bg-primary font-bold text-primary-foreground'
+      : 'border border-border bg-card hover:border-primary',
+  ]}
+>
+  {label}
+</a>

@@ -1,0 +1,25 @@
+---
+import Icon from './Icon.astro';
+---
+
+<nav
+  class="fixed bottom-0 left-0 right-0 z-40 flex min-h-16 items-center justify-around border-t border-border bg-card pb-[env(safe-area-inset-bottom)] lg:hidden"
+  aria-label="Navegación móvil"
+>
+  <a class="flex flex-col items-center gap-1 text-xs font-bold text-primary" href="/">
+    <Icon name="house" />
+    Inicio
+  </a>
+  <a class="flex flex-col items-center gap-1 text-xs font-semibold" href="/#pizarra">
+    <Icon name="layout-dashboard" />
+    Pizarra
+  </a>
+  <a class="flex flex-col items-center gap-1 text-xs font-semibold" href="/entrevistas/">
+    <Icon name="book-open" />
+    Leer
+  </a>
+  <a class="flex flex-col items-center gap-1 text-xs font-semibold" href="/#cuaderno">
+    <Icon name="bookmark" />
+    Cuaderno
+  </a>
+</nav>

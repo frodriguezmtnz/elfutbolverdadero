@@ -1,0 +1,49 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  lecturaHref?: string;
+}
+
+const { lecturaHref = '/entrevistas/' } = Astro.props;
+
+const enHome = Astro.url.pathname === '/';
+---
+
+<header class="border-b border-border bg-card">
+  <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+    <a class="flex items-center gap-3" href="/">
+      <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
+        <Icon name="goal" />
+      </span>
+      <span class="leading-none">
+        <span class="block font-heading text-lg font-bold uppercase tracking-tight text-foreground">El Fútbol</span>
+        <span class="block font-heading text-lg font-bold uppercase tracking-tight text-tertiary">Verdadero</span>
+      </span>
+    </a>
+
+    <nav class="hidden items-center gap-7 text-sm font-semibold lg:flex" aria-label="Principal">
+      <a class:list={['hover:text-primary', enHome && 'text-primary']} href="/">Inicio</a>
+      <a class="hover:text-primary" href="/#pizarra">La Pizarra</a>
+      <a class="hover:text-primary" href="/#cuaderno">Cuaderno</a>
+      <a class="hover:text-primary" href="/#ejercicios">Ejercicios</a>
+      <a class="hover:text-primary" href="/#contacto">Contacto</a>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button
+        class="flex min-h-11 w-11 items-center justify-center rounded-lg border border-border bg-background"
+        aria-label="Buscar"
+      >
+        <Icon name="search" />
+      </button>
+      <a
+        class="hidden min-h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground sm:inline-flex"
+        href={lecturaHref}
+      >
+        <Icon name="book-open" class="text-lg" />
+        Modo lectura
+      </a>
+    </div>
+  </div>
+</header>

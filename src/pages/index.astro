@@ -1,38 +1,47 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getPublicaciones } from '../lib/sanity';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Pizarra from '../components/Pizarra.astro';
+import Cuaderno from '../components/Cuaderno.astro';
+import Newsletter from '../components/Newsletter.astro';
+import Footer from '../components/Footer.astro';
+import MobileNav from '../components/MobileNav.astro';
+import {
+  getEntrevistaDestacada,
+  getUltimasEntrevistas,
+  getCuadernoDestacado,
+  getUltimosArticulos,
+  getCategoriasConConteo,
+} from '../lib/sanity';
 
-const publicaciones = await getPublicaciones();
+const destacada = await getEntrevistaDestacada();
+const entrevistas = await getUltimasEntrevistas(3, destacada?._id ?? '');
+
+const cuaderno = await getCuadernoDestacado();
+let masLeidos = cuaderno ? await getUltimosArticulos(3, cuaderno._id) : [];
+if (masLeidos.length < 3) {
+  const extra = await getUltimasEntrevistas(3 - masLeidos.length, destacada?._id ?? '');
+  masLeidos = [...masLeidos, ...extra].slice(0, 3);
+}
+
+const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
 ---
 
-<Base title="Futbolverdadero · El fútbol del patio de colegio">
-  <main>
-    <h1>Futbolverdadero</h1>
-    <p>El fútbol del patio de colegio.</p>
-
-    <section>
-      <h2>Publicaciones</h2>
-      {publicaciones.length === 0 ? (
-        <p>No hay publicaciones todavía en Sanity ({import.meta.env.SANITY_DATASET ?? 'staging'}).</p>
-      ) : (
-        <ul>
-          {publicaciones.map((p) => (
-            <li>
-              <article>
-                <h3>
-                  <a href={`/${p.slug}/`}>{p.title}</a>
-                </h3>
-                <p>{p.description}</p>
-                {p.publishedAt && (
-                  <time datetime={p.publishedAt}>
-                    {new Date(p.publishedAt).toLocaleDateString('es-ES')}
-                  </time>
-                )}
-              </article>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  </main>
+<Base
+  title="El Fútbol Verdadero — El fútbol del patio de colegio"
+  description="Entrevistas, reflexiones y cuaderno de entrenador sobre fútbol base. Entrenar, pensar, compartir."
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1" id="inicio">
+      {destacada && <Hero pub={destacada} />}
+      <Pizarra categorias={categorias} entrevistas={entrevistas} />
+      <Cuaderno destacado={cuaderno} masLeidos={masLeidos} />
+      <Newsletter />
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
 </Base>

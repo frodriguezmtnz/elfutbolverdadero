@@ -1,0 +1,29 @@
+---
+import Icon from './Icon.astro';
+---
+
+<section id="ejercicios" class="bg-secondary">
+  <div class="mx-auto grid max-w-7xl gap-7 px-4 py-10 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
+    <div class="flex gap-4">
+      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+        <Icon name="mail" />
+      </span>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">La pizarra semanal</p>
+        <h2 class="mt-1 font-heading text-lg font-semibold uppercase sm:text-3xl">Ideas para llevar al campo</h2>
+        <p class="mt-2 text-sm text-muted-foreground">Una selección semanal de entrevistas, tareas y reflexiones para entrenar mejor.</p>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3 sm:flex-row">
+      <input
+        class="min-h-11 rounded-lg border border-input bg-card px-4 text-sm"
+        type="email"
+        placeholder="tu@email.com"
+        aria-label="Correo electrónico"
+      />
+      <button class="min-h-11 rounded-lg bg-tertiary px-5 text-sm font-bold text-tertiary-foreground" type="button">
+        Suscribirme
+      </button>
+    </div>
+  </div>
+</section>

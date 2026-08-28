@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Chip from '../../components/Chip.astro';
+import EntrevistaCard from '../../components/EntrevistaCard.astro';
+import Footer from '../../components/Footer.astro';
+import MobileNav from '../../components/MobileNav.astro';
+import { getUltimasEntrevistas, getCategoriasConConteo } from '../../lib/sanity';
+
+const entrevistas = await getUltimasEntrevistas(100);
+const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
+---
+
+<Base
+  title="Entrevistas — La Pizarra de los Mister · El Fútbol Verdadero"
+  description="Todas las entrevistas de fútbol base: entrenadores, directoras deportivas, psicólogos y analistas. Voces de banquillo."
+>
+  <div class="flex min-h-screen flex-col">
+    <Header lecturaHref="/entrevistas/" />
+    <main class="flex-1">
+      <section class="bg-muted">
+        <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+          <div class="border-b border-border pb-6">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Voces de banquillo</p>
+            <h1 class="mt-2 font-heading text-lg font-semibold uppercase sm:text-3xl">La Pizarra de los Mister</h1>
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Conversaciones con quienes forman el fútbol base: paciencia, contexto y muchísimo oficio.
+            </p>
+          </div>
+
+          <div class="mt-6 flex gap-2 overflow-x-auto pb-2">
+            <Chip href="/entrevistas/" label="Todos" activo />
+            {categorias.map((c) => <Chip href={`/categoria/${c.slug}/`} label={c.name} />)}
+          </div>
+
+          {
+            entrevistas.length > 0 ? (
+              <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+                {entrevistas.map((pub, i) => (
+                  <EntrevistaCard pub={pub} chipAcento={i % 3 === 1} />
+                ))}
+              </div>
+            ) : (
+              <p class="mt-8 text-sm text-muted-foreground">Todavía no hay entrevistas publicadas. Muy pronto.</p>
+            )
+          }
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>

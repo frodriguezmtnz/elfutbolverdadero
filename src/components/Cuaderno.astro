@@ -1,0 +1,92 @@
+---
+import Icon from './Icon.astro';
+import { urlFor } from '../lib/images';
+import type { Publicacion } from '../lib/sanity';
+
+interface Props {
+  destacado: Publicacion | null;
+  masLeidos: Publicacion[];
+}
+
+const { destacado, masLeidos } = Astro.props;
+
+const imagen = destacado?.mainImage?.asset ? urlFor(destacado.mainImage.asset, 900) : null;
+const altImagen = destacado?.mainImage?.alt || destacado?.title || 'Cuaderno de entrenador';
+---
+
+<section id="cuaderno" class="bg-background">
+  <div class="mx-auto grid max-w-7xl gap-6 px-4 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+    <article class="overflow-hidden rounded-xl bg-primary text-primary-foreground shadow-lg">
+      <div class="grid h-full md:grid-cols-2">
+        <div class="aspect-square overflow-hidden md:aspect-auto">
+          {imagen && <img src={imagen} alt={altImagen} class="h-full w-full object-cover grayscale" width="900" height="900" loading="lazy" />}
+        </div>
+        <div class="flex flex-col justify-between p-7">
+          <div>
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary text-tertiary-foreground">
+              <Icon name="pen-line" />
+            </div>
+            <p class="mt-5 text-xs font-bold uppercase tracking-[0.2em]">Cuaderno de Entrenador</p>
+            {
+              destacado ? (
+                <>
+                  <h2 class="mt-3 font-heading text-lg font-semibold uppercase leading-tight sm:text-3xl">
+                    <a href={`/${destacado.slug}/`}>{destacado.title}</a>
+                  </h2>
+                  {destacado.description && (
+                    <p class="mt-4 line-clamp-4 text-sm leading-6 text-primary-foreground">{destacado.description}</p>
+                  )}
+                </>
+              ) : (
+                <h2 class="mt-3 font-heading text-lg font-semibold uppercase leading-tight sm:text-3xl">
+                  Reflexiones y tareas para entrenar mejor
+                </h2>
+              )
+            }
+          </div>
+          {
+            destacado && (
+              <a
+                class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-card px-5 text-sm font-bold text-foreground sm:w-auto sm:self-start"
+                href={`/${destacado.slug}/`}
+              >
+                Abrir cuaderno
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </article>
+
+    <aside class="rounded-xl border border-border bg-card p-6">
+      <div class="flex items-center justify-between border-b border-border pb-5">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Selección</p>
+          <h2 class="mt-1 font-heading text-lg font-semibold uppercase">Más leídos</h2>
+        </div>
+        <Icon name="flame" class="text-2xl text-tertiary" />
+      </div>
+      {
+        masLeidos.length > 0 ? (
+          <ol class="mt-2">
+            {masLeidos.map((pub, i) => (
+              <li class:list={['flex gap-4 py-5', i < masLeidos.length - 1 && 'border-b border-border']}>
+                <span class="font-heading text-3xl font-bold text-tertiary">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {pub.categorias?.[0]?.name ?? pub.tipo}
+                  </p>
+                  <a href={`/${pub.slug}/`} class="mt-1 block font-semibold leading-5 hover:text-primary">
+                    {pub.title}
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="mt-5 text-sm text-muted-foreground">La selección se publicará en breve.</p>
+        )
+      }
+    </aside>
+  </div>
+</section>
