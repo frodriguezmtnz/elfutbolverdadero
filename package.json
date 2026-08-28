@@ -12,7 +12,8 @@
     "astro": "astro",
     "studio": "sanity dev --port 3333",
     "sanity": "sanity",
-    "import:wp": "node scripts/import-wp.mjs"
+    "import:wp": "node scripts/import-wp.mjs",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -38,5 +39,8 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1"
   }
 }

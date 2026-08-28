@@ -1,0 +1,13 @@
+diff --git a/node_modules/astro-reveal/dist/runtime/observer.js b/node_modules/astro-reveal/dist/runtime/observer.js
+index 603d648..98ddfc3 100644
+--- a/node_modules/astro-reveal/dist/runtime/observer.js
++++ b/node_modules/astro-reveal/dist/runtime/observer.js
+@@ -41,7 +41,7 @@ function reveal(el) {
+     el.classList.add(REVEALED);
+ }
+ function observe(el, config) {
+-    if (tracked.has(el) || el.classList.contains(REVEALED))
++    if (el.classList.contains(REVEALED))
+         return;
+     tracked.add(el);
+     observer.observe(el);

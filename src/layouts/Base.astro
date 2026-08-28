@@ -73,3 +73,77 @@ const canonical = new URL(canonicalURL, Astro.site).href;
     }
   }
 </style>
+
+<script>
+  const FAILSAFE_DELAY = 1500;
+  const BOTTOM_LINE = 0.9;
+  let fallbackActive = false;
+  let ticking = false;
+
+  function strictlyInView(el: Element, threshold: number): boolean {
+    const rect = el.getBoundingClientRect();
+    const line = window.innerHeight * BOTTOM_LINE;
+    const visible = Math.min(rect.bottom, line) - rect.top;
+    return visible > 0 && visible / rect.height >= threshold;
+  }
+
+  function revealInView(): boolean {
+    let revealed = false;
+    for (const el of document.querySelectorAll('[data-reveal]:not(.is-revealed)')) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('is-revealed');
+        revealed = true;
+      }
+    }
+    return revealed;
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      revealInView();
+      if (fallbackActive && !document.querySelector('[data-reveal]:not(.is-revealed)')) {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+        fallbackActive = false;
+      }
+    });
+  }
+
+  function activateFallback() {
+    if (fallbackActive) return;
+    fallbackActive = true;
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+
+  function failsafe() {
+    if (!document.documentElement.classList.contains('reveal-js')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (document.querySelector('[data-reveal].is-revealed')) return;
+    const config = (window as any).__ASTRO_REVEAL__;
+    const threshold = typeof config?.threshold === 'number' ? config.threshold : 0.15;
+    let rescued = false;
+    for (const el of document.querySelectorAll('[data-reveal]:not(.is-revealed)')) {
+      if (strictlyInView(el, threshold)) {
+        el.classList.add('is-revealed');
+        rescued = true;
+      }
+    }
+    if (rescued) activateFallback();
+  }
+
+  function schedule() {
+    window.setTimeout(failsafe, FAILSAFE_DELAY);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', schedule, { once: true });
+  } else {
+    schedule();
+  }
+  document.addEventListener('astro:page-load', schedule);
+</script>
