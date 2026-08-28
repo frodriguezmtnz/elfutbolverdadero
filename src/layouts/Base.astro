@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title: string;
   description?: string;
@@ -27,6 +29,7 @@ const canonical = new URL(canonicalURL, Astro.site).href;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#1B4D3E" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />

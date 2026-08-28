@@ -1,0 +1,57 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/oswald';
+
+/*
+  Editorial Nocturno — design tokens (handoff UXMagic)
+  primary #1B4D3E (verde) · tertiary #FF5722 (naranja) · accent #FFC107 (ámbar)
+*/
+@theme {
+  --color-background: #f8f9fa;
+  --color-foreground: #1a1a1a;
+  --color-primary: #1b4d3e;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e8f0ec;
+  --color-secondary-foreground: #1a1a1a;
+  --color-tertiary: #ff5722;
+  --color-tertiary-foreground: #2a2a2a;
+  --color-muted: #eef1f0;
+  --color-muted-foreground: #5d6863;
+  --color-accent: #ffc107;
+  --color-accent-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-destructive: #c62828;
+  --color-border: #d7e0db;
+  --color-input: #d7e0db;
+  --color-ring: #1b4d3e;
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Oswald Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+
+  --radius-lg: 0.75rem;
+
+  --shadow-theme: 0 10px 30px -8px rgb(15 23 42 / 0.12);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@utility brand-gradient {
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+}

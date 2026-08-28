@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import vercel from '@astrojs/vercel';
 import sanity from '@sanity/astro';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,4 +21,7 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
