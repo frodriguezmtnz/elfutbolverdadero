@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/inter';
-@import '@fontsource-variable/oswald';
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource/instrument-serif';
+@import '@fontsource/instrument-serif/400-italic.css';
 
 /*
   Editorial Nocturno — design tokens (handoff UXMagic)
@@ -27,7 +29,8 @@
   --color-ring: #1b4d3e;
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Oswald Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+  --font-heading: 'Archivo Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+  --font-quote: 'Instrument Serif', Georgia, serif;
 
   --radius-lg: 0.75rem;
 
@@ -54,4 +57,12 @@
 
 @utility brand-gradient {
   background-image: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+}
+
+@utility font-condensed {
+  font-stretch: 76%;
+}
+
+@utility font-expanded {
+  font-stretch: 125%;
 }

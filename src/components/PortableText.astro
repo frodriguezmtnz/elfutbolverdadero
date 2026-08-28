@@ -122,18 +122,18 @@ for (const block of lista) {
       if (grupo.kind === 'texto') {
         if (grupo.style === 'h2') {
           return (
-            <h2 class="font-heading text-2xl font-bold uppercase leading-tight text-foreground" set:html={grupo.html} />
+            <h2 class="font-heading font-black font-condensed text-2xl uppercase leading-tight text-foreground" set:html={grupo.html} />
           );
         }
         if (grupo.style === 'h3') {
           return (
-            <h3 class="font-heading text-xl font-bold uppercase leading-tight text-foreground" set:html={grupo.html} />
+            <h3 class="font-heading font-black font-condensed text-xl uppercase leading-tight text-foreground" set:html={grupo.html} />
           );
         }
         if (grupo.style === 'blockquote') {
           return (
             <blockquote
-              class="border-l-4 border-tertiary pl-5 text-lg leading-7 font-medium text-foreground/90"
+              class="font-quote italic border-l-4 border-tertiary pl-5 text-xl leading-snug sm:text-2xl text-foreground/90"
               set:html={grupo.html}
             />
           );

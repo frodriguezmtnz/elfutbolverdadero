@@ -28,11 +28,11 @@ const descripcion = limpiarDescripcion(destacado?.description);
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary text-tertiary-foreground">
               <Icon name="pen-line" />
             </div>
-            <p class="mt-5 text-xs font-bold uppercase tracking-[0.2em]">Cuaderno de Entrenador</p>
+            <p class="mt-5 font-heading font-expanded text-xs font-bold uppercase tracking-[0.2em]">Cuaderno de Entrenador</p>
             {
               destacado ? (
                 <>
-                  <h2 class="mt-3 font-heading text-lg font-semibold uppercase leading-tight sm:text-3xl">
+                  <h2 class="mt-3 font-heading font-black font-condensed text-lg uppercase leading-tight sm:text-3xl">
                     <a href={`/${destacado.slug}/`}>{destacado.title}</a>
                   </h2>
                   {descripcion && (
@@ -40,7 +40,7 @@ const descripcion = limpiarDescripcion(destacado?.description);
                   )}
                 </>
               ) : (
-                <h2 class="mt-3 font-heading text-lg font-semibold uppercase leading-tight sm:text-3xl">
+                <h2 class="mt-3 font-heading font-black font-condensed text-lg uppercase leading-tight sm:text-3xl">
                   Reflexiones y tareas para entrenar mejor
                 </h2>
               )
@@ -63,8 +63,8 @@ const descripcion = limpiarDescripcion(destacado?.description);
     <aside data-reveal="left" class="rounded-xl border border-border bg-card p-6">
       <div class="flex items-center justify-between border-b border-border pb-5">
         <div>
-          <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Selección</p>
-          <h2 class="mt-1 font-heading text-lg font-semibold uppercase">Más leídos</h2>
+          <p class="font-heading font-expanded text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Selección</p>
+          <h2 class="mt-1 font-heading font-black font-condensed text-lg uppercase">Más leídos</h2>
         </div>
         <Icon name="flame" class="text-2xl text-tertiary" />
       </div>
@@ -73,7 +73,7 @@ const descripcion = limpiarDescripcion(destacado?.description);
           <ol class="mt-2">
             {masLeidos.map((pub, i) => (
               <li class:list={['flex gap-4 py-5', i < masLeidos.length - 1 && 'border-b border-border']}>
-                <span class="font-heading text-3xl font-bold text-tertiary">{String(i + 1).padStart(2, '0')}</span>
+                <span class="font-heading font-black font-condensed text-3xl text-tertiary">{String(i + 1).padStart(2, '0')}</span>
                 <div>
                   <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     {pub.categorias?.[0]?.name ?? pub.tipo}
