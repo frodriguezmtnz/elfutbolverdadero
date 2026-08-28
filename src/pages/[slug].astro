@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PortableText from '../components/PortableText.astro';
 import { getAllSlugs, getPublicacionBySlug } from '../lib/sanity';
 
 export async function getStaticPaths() {
@@ -51,31 +52,7 @@ const ogImage = post.mainImage?.asset?.url;
     </div>
 
     <div class="body">
-      {post.body?.map((block: any) => {
-        if (block._type === 'block') {
-          const style = block.style ?? 'normal';
-          if (style === 'h2') return <h2>{block.children?.map((ch: any) => ch.text).join('')}</h2>;
-          if (style === 'h3') return <h3>{block.children?.map((ch: any) => ch.text).join('')}</h3>;
-          return <p>{block.children?.map((ch: any) => ch.text).join('')}</p>;
-        }
-        if (block._type === 'image') {
-          const src = block.asset?.url;
-          return src ? <img src={src} alt="" loading="lazy" /> : null;
-        }
-        if (block._type === 'embed' && block.url) {
-          return (
-            <div class="embed">
-              <iframe
-                src={block.url}
-                title={block.title ?? 'Audio/vídeo'}
-                loading="lazy"
-                style="width:100%; aspect-ratio:16/9; border:0"
-              />
-            </div>
-          );
-        }
-        return null;
-      })}
+      {post.body && post.body.length > 0 && <PortableText blocks={post.body} />}
     </div>
 
     {post.etiquetas && post.etiquetas.length > 0 && (

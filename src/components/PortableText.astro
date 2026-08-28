@@ -1,0 +1,167 @@
+---
+import { urlFor } from '../lib/images';
+
+interface Child {
+  _type?: string;
+  _key?: string;
+  marks?: string[];
+  text?: string;
+}
+
+interface MarkDef {
+  _type?: string;
+  _key?: string;
+  href?: string;
+}
+
+interface Block {
+  _type?: string;
+  _key?: string;
+  style?: string;
+  listItem?: string;
+  level?: number;
+  children?: Child[];
+  markDefs?: MarkDef[];
+  asset?: { url?: string; _id?: string } | null;
+  alt?: string;
+  caption?: string;
+  url?: string;
+  title?: string;
+}
+
+interface Props {
+  blocks: unknown[] | null | undefined;
+}
+
+const { blocks = [] } = Astro.props;
+
+const lista: Block[] = (blocks ?? []) as Block[];
+
+function esc(texto: string): string {
+  return texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function esExterno(href: string): boolean {
+  return /^https?:\/\//i.test(href) && !/elfutbolverdadero\.com(\/|$)/i.test(href);
+}
+
+function renderInline(children: Child[], markDefs: MarkDef[]): string {
+  return (children ?? [])
+    .map((child) => {
+      if (typeof child.text !== 'string') return '';
+      let html = esc(child.text);
+      for (const marca of child.marks ?? []) {
+        if (marca === 'strong') {
+          html = `<strong>${html}</strong>`;
+        } else if (marca === 'em') {
+          html = `<em>${html}</em>`;
+        } else if (marca === 'underline') {
+          html = `<u>${html}</u>`;
+        } else if (marca === 'strike-through') {
+          html = `<s>${html}</s>`;
+        } else if (marca === 'code') {
+          html = `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]">${html}</code>`;
+        } else {
+          const def = (markDefs ?? []).find((d) => d._key === marca);
+          if (def?._type === 'link' && def.href) {
+            const href = esc(def.href);
+            const externo = esExterno(def.href);
+            html = `<a class="font-semibold text-primary underline decoration-tertiary/60 decoration-2 underline-offset-2 hover:text-tertiary" href="${href}"${
+              externo ? ' target="_blank" rel="noopener noreferrer"' : ''
+            }>${html}</a>`;
+          }
+        }
+      }
+      return html;
+    })
+    .join('');
+}
+
+type Grupo =
+  | { kind: 'texto'; style: string; html: string }
+  | { kind: 'lista'; ordenada: boolean; items: string[] }
+  | { kind: 'imagen'; src: string | null; alt: string; caption?: string }
+  | { kind: 'embed'; url: string; title: string };
+
+const grupos: Grupo[] = [];
+
+for (const block of lista) {
+  if (block._type === 'block') {
+    const html = renderInline(block.children ?? [], block.markDefs ?? []);
+    if (!html.trim()) continue;
+    if (block.listItem === 'number' || block.listItem === 'bullet') {
+      const anterior = grupos[grupos.length - 1];
+      if (anterior?.kind === 'lista' && anterior.ordenada === (block.listItem === 'number')) {
+        anterior.items.push(html);
+      } else {
+        grupos.push({ kind: 'lista', ordenada: block.listItem === 'number', items: [html] });
+      }
+    } else {
+      grupos.push({ kind: 'texto', style: block.style ?? 'normal', html });
+    }
+  } else if (block._type === 'image' && block.asset) {
+    grupos.push({
+      kind: 'imagen',
+      src: urlFor(block.asset, 1000),
+      alt: block.alt ?? block.caption ?? '',
+      caption: block.caption,
+    });
+  } else if (block._type === 'embed' && block.url) {
+    grupos.push({ kind: 'embed', url: block.url, title: block.title ?? 'Audio/vídeo' });
+  }
+}
+---
+
+<div class="space-y-6">
+  {
+    grupos.map((grupo) => {
+      if (grupo.kind === 'texto') {
+        if (grupo.style === 'h2') {
+          return (
+            <h2 class="font-heading text-2xl font-bold uppercase leading-tight text-foreground" set:html={grupo.html} />
+          );
+        }
+        if (grupo.style === 'h3') {
+          return (
+            <h3 class="font-heading text-xl font-bold uppercase leading-tight text-foreground" set:html={grupo.html} />
+          );
+        }
+        if (grupo.style === 'blockquote') {
+          return (
+            <blockquote
+              class="border-l-4 border-tertiary pl-5 text-lg leading-7 font-medium text-foreground/90"
+              set:html={grupo.html}
+            />
+          );
+        }
+        return <p class="leading-7" set:html={grupo.html} />;
+      }
+      if (grupo.kind === 'lista') {
+        return grupo.ordenada ? (
+          <ol class="list-decimal space-y-2 pl-6 leading-7 marker:font-bold marker:text-tertiary" set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')} />
+        ) : (
+          <ul class="list-disc space-y-2 pl-6 leading-7 marker:text-tertiary" set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')} />
+        );
+      }
+      if (grupo.kind === 'imagen') {
+        return (
+          <figure>
+            <img src={grupo.src ?? ''} alt={grupo.alt} class="rounded-xl shadow-md" width="1000" loading="lazy" />
+            {grupo.caption && (
+              <figcaption class="mt-2 text-center text-xs text-muted-foreground">{grupo.caption}</figcaption>
+            )}
+          </figure>
+        );
+      }
+      return (
+        <div class="overflow-hidden rounded-xl border border-border bg-muted">
+          <iframe src={grupo.url} title={grupo.title} loading="lazy" class="aspect-video w-full" allowfullscreen />
+        </div>
+      );
+    })
+  }
+</div>
