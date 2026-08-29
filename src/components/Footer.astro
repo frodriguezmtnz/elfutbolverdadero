@@ -4,6 +4,7 @@ import FacebookIcon from './icons/FacebookIcon.astro';
 import InstagramIcon from './icons/InstagramIcon.astro';
 import WhatsappIcon from './icons/WhatsappIcon.astro';
 import XIcon from './icons/XIcon.astro';
+import { social } from '../config/social';
 
 const year = new Date().getFullYear();
 ---
@@ -17,7 +18,7 @@ const year = new Date().getFullYear();
     <div class="flex flex-wrap items-center gap-5 text-sm font-semibold">
       <a
         class="transition hover:text-accent"
-        href="https://www.facebook.com/people/Xabier-Futbolverdadero/pfbid037HnTaT97viA5rfCpD38H24fSEbT4XRpM97oCD14zMZK6USyaNzY9pko7fp3pWG1gl/"
+        href={social.facebook}
         aria-label="Facebook de El Fútbol Verdadero"
         target="_blank"
         rel="noopener noreferrer"
@@ -26,7 +27,7 @@ const year = new Date().getFullYear();
       </a>
       <a
         class="transition hover:text-accent"
-        href="https://www.instagram.com/futbolverdadero_oficial/"
+        href={social.instagram}
         aria-label="Instagram de El Fútbol Verdadero"
         target="_blank"
         rel="noopener noreferrer"
@@ -35,7 +36,7 @@ const year = new Date().getFullYear();
       </a>
       <a
         class="transition hover:text-accent"
-        href="https://x.com/Futbolverdader2"
+        href={social.x}
         aria-label="X de El Fútbol Verdadero"
         target="_blank"
         rel="noopener noreferrer"
@@ -44,7 +45,7 @@ const year = new Date().getFullYear();
       </a>
       <a
         class="transition hover:text-accent"
-        href="https://chat.whatsapp.com/EQyrPr8KFHXCXsyerqKSR7?mode=gi_t"
+        href={social.whatsapp}
         aria-label="Grupo de WhatsApp de El Fútbol Verdadero"
         target="_blank"
         rel="noopener noreferrer"
@@ -53,7 +54,7 @@ const year = new Date().getFullYear();
       </a>
       <a
         class="transition hover:text-accent"
-        href="mailto:xabier.merino@elfutbolverdadero.com"
+        href={`mailto:${social.email}`}
         aria-label="Email de El Fútbol Verdadero"
       >
         <Icon name="mail" class="text-xl" />
