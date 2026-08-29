@@ -1,4 +1,10 @@
 ---
+import Icon from './Icon.astro';
+import FacebookIcon from './icons/FacebookIcon.astro';
+import InstagramIcon from './icons/InstagramIcon.astro';
+import WhatsappIcon from './icons/WhatsappIcon.astro';
+import XIcon from './icons/XIcon.astro';
+
 const year = new Date().getFullYear();
 ---
 
@@ -8,9 +14,50 @@ const year = new Date().getFullYear();
       <p class="font-heading font-semibold text-2xl uppercase">El Fútbol Verdadero</p>
       <p class="mt-1 text-sm text-primary-foreground">Entrenar, pensar, compartir.</p>
     </div>
-    <div class="flex gap-5 text-sm font-semibold">
-      <a class="hover:text-accent" href="#">Instagram</a>
-      <a class="hover:text-accent" href="#">X</a>
+    <div class="flex flex-wrap items-center gap-5 text-sm font-semibold">
+      <a
+        class="transition hover:text-accent"
+        href="https://www.facebook.com/people/Xabier-Futbolverdadero/pfbid037HnTaT97viA5rfCpD38H24fSEbT4XRpM97oCD14zMZK6USyaNzY9pko7fp3pWG1gl/"
+        aria-label="Facebook de El Fútbol Verdadero"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <FacebookIcon class="text-xl" />
+      </a>
+      <a
+        class="transition hover:text-accent"
+        href="https://www.instagram.com/futbolverdadero_oficial/"
+        aria-label="Instagram de El Fútbol Verdadero"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <InstagramIcon class="text-xl" />
+      </a>
+      <a
+        class="transition hover:text-accent"
+        href="https://x.com/Futbolverdader2"
+        aria-label="X de El Fútbol Verdadero"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <XIcon class="text-xl" />
+      </a>
+      <a
+        class="transition hover:text-accent"
+        href="https://chat.whatsapp.com/EQyrPr8KFHXCXsyerqKSR7?mode=gi_t"
+        aria-label="Grupo de WhatsApp de El Fútbol Verdadero"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <WhatsappIcon class="text-xl" />
+      </a>
+      <a
+        class="transition hover:text-accent"
+        href="mailto:xabier.merino@elfutbolverdadero.com"
+        aria-label="Email de El Fútbol Verdadero"
+      >
+        <Icon name="mail" class="text-xl" />
+      </a>
       <a class="hover:text-accent" href="#">Política de privacidad</a>
     </div>
     <p class="text-xs text-primary-foreground">© {year} El Fútbol Verdadero</p>
