@@ -13,8 +13,8 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
 >
   <div class="flex min-h-screen flex-col">
     <Header />
-    <main class="flex-1">
-      <section class="bg-muted">
+    <main class="flex-1 bg-muted">
+      <section>
         <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
           <div class="border-b border-border pb-6">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Buscador</p>
@@ -231,9 +231,8 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     contenedor.replaceChildren();
 
     if (!consulta) {
-      estado.hidden = false;
-      estado.textContent = 'Escribe qué quieres buscar y pulsa Buscar.';
-      if (vacio) vacio.hidden = false;
+      estado.hidden = true;
+      if (vacio) vacio.hidden = true;
       return;
     }
 
