@@ -42,7 +42,12 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
       <div class="mt-8 border-t border-primary-foreground pt-5">
         {pub.author?.name && <p class="text-sm font-bold">Por {pub.author.name}</p>}
         <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
-          {lectura && <p class="text-xs text-primary-foreground">{lectura}</p>}
+          {lectura && (
+            <p class="inline-flex items-center gap-1.5 text-xs text-primary-foreground">
+              <Icon name="clock" class="text-[13px]" />
+              {lectura}
+            </p>
+          )}
           <a
             class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-card px-4 text-sm font-bold text-foreground shadow-md"
             href={`/${pub.slug}/`}
