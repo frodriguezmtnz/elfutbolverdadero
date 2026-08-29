@@ -7,12 +7,14 @@ interface Props {
   description?: string;
   canonicalURL?: string;
   image?: string;
+  robots?: string;
 }
 const {
   title,
   description = 'El fútbol del patio de colegio. Entrevistas y noticias de fútbol base.',
   canonicalURL = new URL(Astro.url.pathname, Astro.site),
   image,
+  robots,
 } = Astro.props;
 
 const siteName = 'Futbolverdadero';
@@ -29,6 +31,7 @@ const canonical = new URL(canonicalURL, Astro.site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#1B4D3E" />
