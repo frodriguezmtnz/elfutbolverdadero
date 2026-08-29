@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import MobileNav from '../../components/MobileNav.astro';
+import PizarraTactica from '../../components/PizarraTactica.astro';
 ---
 
 <Base
@@ -45,6 +46,10 @@ import MobileNav from '../../components/MobileNav.astro';
               Activa JavaScript para ver los resultados aquí.
             </p>
           </noscript>
+
+          <div id="sin-resultados" class="mt-10 flex justify-center" hidden>
+            <PizarraTactica class="w-56 sm:w-72" />
+          </div>
 
           <p id="estado" class="mt-6 text-sm font-semibold text-muted-foreground" hidden></p>
 
@@ -215,6 +220,7 @@ import MobileNav from '../../components/MobileNav.astro';
     const input = document.getElementById('q') as HTMLInputElement | null;
     const estado = document.getElementById('estado');
     const contenedor = document.getElementById('resultados');
+    const vacio = document.getElementById('sin-resultados');
     if (!input || !estado || !contenedor) return;
 
     const params = new URLSearchParams(window.location.search);
@@ -227,11 +233,13 @@ import MobileNav from '../../components/MobileNav.astro';
     if (!consulta) {
       estado.hidden = false;
       estado.textContent = 'Escribe qué quieres buscar y pulsa Buscar.';
+      if (vacio) vacio.hidden = false;
       return;
     }
 
     estado.hidden = false;
     estado.textContent = 'Buscando…';
+    if (vacio) vacio.hidden = true;
 
     try {
       const indice = await cargarIndice();
@@ -246,11 +254,14 @@ import MobileNav from '../../components/MobileNav.astro';
         contenedor.append(crearTarjeta(item, terminos));
       }
 
+      if (vacio) vacio.hidden = coincidencias.length > 0;
+
       estado.textContent =
         coincidencias.length === 0
           ? `Sin resultados para «${consulta}». Prueba con otras palabras.`
           : `${coincidencias.length} ${coincidencias.length === 1 ? 'resultado' : 'resultados'} para «${consulta}»`;
     } catch {
+      if (vacio) vacio.hidden = true;
       estado.textContent = 'No se pudo cargar la búsqueda. Inténtalo de nuevo.';
     }
   }

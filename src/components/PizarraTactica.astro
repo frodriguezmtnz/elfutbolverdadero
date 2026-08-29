@@ -1,0 +1,178 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = 'w-52 sm:w-64' } = Astro.props;
+---
+
+<svg viewBox="0 0 240 150" fill="none" class={className} aria-hidden="true">
+  <!-- colgadores -->
+  <rect x="52" y="3" width="18" height="9" rx="2" fill="var(--color-tertiary)"></rect>
+  <rect x="170" y="3" width="18" height="9" rx="2" fill="var(--color-tertiary)"></rect>
+
+  <!-- pizarra -->
+  <rect x="16" y="10" width="208" height="122" rx="10" fill="var(--color-primary)"></rect>
+
+  <!-- campo de tiza -->
+  <g class="tiza" stroke="var(--color-card)" stroke-opacity="0.55" stroke-width="1.6" fill="none">
+    <rect x="34" y="26" width="172" height="90" rx="3"></rect>
+    <path d="M120 26v90"></path>
+    <circle cx="120" cy="71" r="17"></circle>
+  </g>
+
+  <!-- jugadores -->
+  <g stroke="var(--color-card)" stroke-opacity="0.9" stroke-width="2" stroke-linecap="round">
+    <circle class="player p1" cx="56" cy="96" r="5" fill="none"></circle>
+    <circle class="player p2" cx="72" cy="48" r="5" fill="none"></circle>
+    <path class="player p3" d="M100 58l10 10M110 58l-10 10"></path>
+    <path class="player p4" d="M90 100l10 10M100 100l-10 10"></path>
+    <circle class="player p5" cx="150" cy="98" r="5" fill="none"></circle>
+  </g>
+
+  <!-- jugada -->
+  <path
+    class="jugada"
+    pathLength="1"
+    d="M62 92Q80 56 98 66Q116 76 128 54Q136 40 150 46"
+    stroke="var(--color-tertiary)"
+    stroke-width="3"
+    stroke-linecap="round"></path>
+  <path
+    class="punta"
+    d="M143 38l8 8-10 6"
+    stroke="var(--color-tertiary)"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"></path>
+
+  <!-- interrogante -->
+  <text class="interrogante" x="176" y="46" text-anchor="middle" dominant-baseline="central" font-size="30" font-weight="800" fill="var(--color-card)" fill-opacity="0.95">?</text>
+</svg>
+
+<style>
+  .player {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulso 2.4s ease-in-out infinite;
+  }
+
+  .p2 {
+    animation-delay: 0.3s;
+  }
+
+  .p3 {
+    animation-delay: 0.6s;
+  }
+
+  .p4 {
+    animation-delay: 0.9s;
+  }
+
+  .p5 {
+    animation-delay: 1.2s;
+  }
+
+  .jugada {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: trazo 7s infinite;
+  }
+
+  .punta {
+    opacity: 0;
+    animation: punta 7s infinite;
+  }
+
+  .interrogante {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: aparece 7s infinite;
+  }
+
+  @keyframes pulso {
+    0%,
+    100% {
+      transform: scale(1);
+      stroke-opacity: 0.75;
+    }
+    50% {
+      transform: scale(1.18);
+      stroke-opacity: 1;
+    }
+  }
+
+  @keyframes trazo {
+    0%,
+    12% {
+      stroke-dashoffset: 1;
+    }
+    45%,
+    96% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes punta {
+    0%,
+    43% {
+      opacity: 0;
+    }
+    48%,
+    96% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes aparece {
+    0%,
+    45% {
+      opacity: 0;
+      transform: scale(0.3) rotate(2deg);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.2) rotate(-10deg);
+    }
+    60%,
+    88% {
+      opacity: 1;
+      transform: scale(1) rotate(-6deg);
+    }
+    72% {
+      transform: scale(1.06) rotate(-3deg);
+    }
+    96%,
+    100% {
+      opacity: 0;
+      transform: scale(1) rotate(-6deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player,
+    .jugada,
+    .punta,
+    .interrogante {
+      animation: none;
+    }
+    .jugada {
+      stroke-dashoffset: 0;
+    }
+    .punta,
+    .interrogante {
+      opacity: 1;
+    }
+    .interrogante {
+      transform: rotate(-6deg);
+    }
+  }
+</style>
