@@ -146,3 +146,28 @@ export async function getPublicacionesPorCategoria(slug: string): Promise<Public
     { slug }
   );
 }
+
+export interface WebAmiga {
+  _id: string;
+  name: string;
+  url: string;
+  description?: string;
+  logo?: {
+    asset?: {
+      _id?: string;
+      url?: string;
+    };
+  };
+}
+
+export async function getWebsAmigas(): Promise<WebAmiga[]> {
+  return sanityClient.fetch(
+    `*[_type == 'webAmiga'] | order(order asc, name asc) {
+      _id,
+      name,
+      url,
+      description,
+      'logo': { 'asset': logo.asset->{ _id, url } }
+    }`
+  );
+}
