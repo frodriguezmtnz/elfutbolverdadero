@@ -48,9 +48,61 @@ const altImagen = post.mainImage?.alt || post.title;
 const pieImagen = post.mainImage?.caption;
 const primeraCategoria = post.categorias?.[0];
 const masConversaciones = await getUltimasEntrevistas(3, post._id);
+
+const site = Astro.site!;
+const canonical = new URL(`/${post.slug}/`, site).href;
+const jsonLd: object[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: seoTitle,
+    description: seoDescription,
+    inLanguage: 'es',
+    ...(ogImage ? { image: ogImage } : {}),
+    ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
+    ...(post.updatedAt || post.publishedAt ? { dateModified: post.updatedAt ?? post.publishedAt } : {}),
+    ...(post.author?.name
+      ? { author: { '@type': 'Person', name: post.author.name } }
+      : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: 'Futbolverdadero',
+      url: site.href,
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: site.href },
+      { '@type': 'ListItem', position: 2, name: 'La Pizarra', item: new URL('/entrevistas/', site).href },
+      ...(primeraCategoria?.slug
+        ? [{
+            '@type': 'ListItem',
+            position: 3,
+            name: primeraCategoria.name,
+            item: new URL(`/categoria/${primeraCategoria.slug}/`, site).href,
+          }]
+        : []),
+      { '@type': 'ListItem', position: primeraCategoria?.slug ? 4 : 3, name: post.title, item: canonical },
+    ],
+  },
+];
 ---
 
-<Base title={seoTitle} description={seoDescription} canonicalURL={`/${post.slug}/`} image={ogImage}>
+<Base
+  title={seoTitle}
+  description={seoDescription}
+  canonicalURL={`/${post.slug}/`}
+  image={ogImage}
+  type="article"
+  publishedTime={post.publishedAt}
+  modifiedTime={post.updatedAt ?? post.publishedAt}
+  authorName={post.author?.name}
+  categories={post.categorias?.map((c) => c.name) ?? []}
+  jsonLd={jsonLd}
+>
   <div class="flex min-h-screen flex-col">
     <Header lecturaHref="/entrevistas/" />
     <main class="flex-1">

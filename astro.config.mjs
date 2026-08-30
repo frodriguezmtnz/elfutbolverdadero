@@ -18,7 +18,7 @@ export default defineConfig({
     reveal({ mode: 'observer' }),
     sanity({
       projectId: process.env.SANITY_PROJECT_ID ?? 's22b9256',
-      dataset: process.env.SANITY_DATASET ?? 'staging',
+      dataset: process.env.SANITY_DATASET ?? 'production',
       useCdn: false,
       logClientRequests: 'dev',
     }),
