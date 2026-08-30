@@ -49,6 +49,12 @@ function tokenize(html) {
   return tokens;
 }
 
+const PATRON_BLOQUE_TIEMPO = /^tiempo\s+de\s+lectura/i;
+
+function textoDeBloque(block) {
+  return (block.children ?? []).map((s) => s.text ?? '').join('').trim();
+}
+
 export async function htmlToPortableText(html, { resolveImageUrl }) {
   const blocks = [];
   const tokens = tokenize(html);
@@ -82,5 +88,5 @@ export async function htmlToPortableText(html, { resolveImageUrl }) {
     }
   }
 
-  return blocks;
+  return blocks.filter((b) => !(b._type === 'block' && PATRON_BLOQUE_TIEMPO.test(textoDeBloque(b))));
 }

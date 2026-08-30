@@ -146,7 +146,7 @@ async function main() {
       title: stripTags(post.title?.rendered) ?? slug,
       slug: { current: slug },
       tipo,
-      description: stripTags(post.excerpt?.rendered ?? '').replace(/\s+/g, ' ').trim(),
+      description: limpiarExtracto(post.excerpt?.rendered ?? ''),
       publishedAt: post.date ? new Date(post.date).toISOString() : undefined,
       body,
       ...(mainImage ? { mainImage } : {}),
@@ -189,6 +189,19 @@ function mapTipo(categoryIds, catIdToName) {
 
 function stripTags(html = '') {
   return html.replace(/<[^>]+>/g, '').trim();
+}
+
+function limpiarExtracto(html = '') {
+  let texto = stripTags(html)
+    .replace(/&#0?39;/g, "'")
+    .replace(/&#8230;/g, '…')
+    .replace(/&hellip;/gi, '…')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&');
+  texto = texto.replace(/^tiempo\s+de\s+lectura:\s*\d*\s*minutos?\.?\s*/i, '');
+  texto = texto.replace(/\s*\[\s*…\s*\]\s*$/u, '');
+  return texto.replace(/\s+/g, ' ').trim();
 }
 
 function slugify(s = '') {
