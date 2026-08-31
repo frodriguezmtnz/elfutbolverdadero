@@ -64,10 +64,12 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
 </Base>
 
 <script>
-  import type { ItemBusqueda } from '../../lib/busqueda';
+  import type { ItemBusqueda, ItemCuerpo } from '../../lib/busqueda';
   import { limpiarDescripcion } from '../../lib/limpieza';
 
-  let cache: ItemBusqueda[] | null = null;
+  let cacheMeta: ItemBusqueda[] | null = null;
+  let cacheCuerpo: Map<string, string> | null = null;
+  let cargandoCuerpo: Promise<Map<string, string>> | null = null;
 
   function normalizar(texto: string): string {
     return texto
@@ -77,18 +79,34 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
   }
 
   async function cargarIndice(): Promise<ItemBusqueda[]> {
-    if (!cache) {
+    if (!cacheMeta) {
       const res = await fetch('/busqueda.json');
       if (!res.ok) throw new Error('No se pudo cargar el índice de búsqueda');
-      cache = (await res.json()) as ItemBusqueda[];
+      cacheMeta = (await res.json()) as ItemBusqueda[];
     }
-    return cache;
+    return cacheMeta;
   }
 
-  function puntuar(item: ItemBusqueda, terminos: string[]): number {
+  function cargarCuerpo(): Promise<Map<string, string>> {
+    if (!cacheCuerpo) {
+      if (!cargandoCuerpo) {
+        cargandoCuerpo = (async () => {
+          const res = await fetch('/busqueda-cuerpo.json');
+          if (!res.ok) throw new Error('No se pudo cargar el texto completo');
+          const items = (await res.json()) as ItemCuerpo[];
+          cacheCuerpo = new Map(items.map((i) => [i.slug, i.bodyText ?? '']));
+          return cacheCuerpo;
+        })();
+      }
+      return cargandoCuerpo;
+    }
+    return Promise.resolve(cacheCuerpo);
+  }
+
+  function puntuar(item: ItemBusqueda, terminos: string[], cuerpoTexto: string): number {
     const titulo = normalizar(item.title ?? '');
     const descripcion = normalizar(item.description ?? '');
-    const cuerpo = normalizar(item.bodyText ?? '');
+    const cuerpo = normalizar(cuerpoTexto);
     const meta = normalizar(
       [item.club, item.tipo, ...(item.categorias ?? []), ...(item.etiquetas ?? [])]
         .filter((v) => typeof v === 'string')
@@ -108,10 +126,10 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     return total;
   }
 
-  function recorte(item: ItemBusqueda, terminos: string[]): string | undefined {
+  function recorte(item: ItemBusqueda, terminos: string[], cuerpoTexto: string): string | undefined {
     const fuente =
       limpiarDescripcion(item.description) ||
-      limpiarDescripcion((item.bodyText ?? '').replace(/\s+/g, ' ').trim()) ||
+      limpiarDescripcion((cuerpoTexto ?? '').replace(/\s+/g, ' ').trim()) ||
       '';
     if (!fuente) return undefined;
     const norm = normalizar(fuente);
@@ -142,7 +160,7 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     return url.includes('?') ? url : `${url}?w=800&auto=format`;
   }
 
-  function crearTarjeta(item: ItemBusqueda, terminos: string[]): HTMLElement {
+  function crearTarjeta(item: ItemBusqueda, terminos: string[], cuerpoTexto: string): HTMLElement {
     const tarjeta = document.createElement('article');
     tarjeta.className =
       'group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md';
@@ -193,7 +211,7 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     h3.append(enlaceTitulo);
     cuerpo.append(h3);
 
-    const fragmento = recorte(item, terminos);
+    const fragmento = recorte(item, terminos, cuerpoTexto);
     if (fragmento) {
       const p = document.createElement('p');
       p.className = 'mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground';
@@ -240,25 +258,50 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     estado.textContent = 'Buscando…';
     if (vacio) vacio.hidden = true;
 
+    const estadoEl: HTMLElement = estado;
+    const contenedorEl: HTMLElement = contenedor;
+
     try {
       const indice = await cargarIndice();
       const terminos = normalizar(consulta).split(/\s+/).filter(Boolean);
 
-      const coincidencias = indice
-        .map((item) => ({ item, puntos: puntuar(item, terminos) }))
-        .filter((r) => r.puntos > 0)
-        .sort((a, b) => b.puntos - a.puntos);
+      function renderizarResultados(cuerpoMap: Map<string, string> | null): number {
+        const coincidencias = indice
+          .map((item) => ({ item, puntos: puntuar(item, terminos, cuerpoMap?.get(item.slug) ?? '') }))
+          .filter((r) => r.puntos > 0)
+          .sort((a, b) => b.puntos - a.puntos);
 
-      for (const { item } of coincidencias) {
-        contenedor.append(crearTarjeta(item, terminos));
+        contenedorEl.replaceChildren();
+        for (const { item } of coincidencias) {
+          contenedorEl.append(crearTarjeta(item, terminos, cuerpoMap?.get(item.slug) ?? ''));
+        }
+
+        if (vacio) vacio.hidden = coincidencias.length > 0;
+
+        estadoEl.textContent =
+          coincidencias.length === 0
+            ? `Sin resultados para «${consulta}». Prueba con otras palabras.`
+            : `${coincidencias.length} ${coincidencias.length === 1 ? 'resultado' : 'resultados'} para «${consulta}»`;
+
+        return coincidencias.length;
       }
 
-      if (vacio) vacio.hidden = coincidencias.length > 0;
+      renderizarResultados(cacheCuerpo);
 
-      estado.textContent =
-        coincidencias.length === 0
-          ? `Sin resultados para «${consulta}». Prueba con otras palabras.`
-          : `${coincidencias.length} ${coincidencias.length === 1 ? 'resultado' : 'resultados'} para «${consulta}»`;
+      if (!cacheCuerpo) {
+        cargarCuerpo()
+          .then((map) => {
+            const consultaActual = (
+              new URLSearchParams(window.location.search).get('q') ?? input.value
+            ).trim();
+            if (consultaActual === consulta) {
+              renderizarResultados(map);
+            }
+          })
+          .catch(() => {
+            /* sin texto completo: se mantienen los resultados de metadatos */
+          });
+      }
     } catch {
       if (vacio) vacio.hidden = true;
       estado.textContent = 'No se pudo cargar la búsqueda. Inténtalo de nuevo.';

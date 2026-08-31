@@ -1,7 +1,6 @@
 import { sanityClient } from 'sanity:client';
 
 export interface ItemBusqueda {
-  _id: string;
   title: string;
   slug: string;
   tipo: string;
@@ -12,11 +11,14 @@ export interface ItemBusqueda {
   etiquetas?: string[];
   imagen?: string;
   alt?: string;
+}
+
+export interface ItemCuerpo {
+  slug: string;
   bodyText?: string;
 }
 
-const indexFields = `
-  _id,
+const metaFields = `
   title,
   'slug': slug.current,
   tipo,
@@ -26,16 +28,24 @@ const indexFields = `
   'categorias': categorias[]->name,
   'etiquetas': etiquetas[]->name,
   'imagen': mainImage.asset.url,
-  'alt': mainImage.alt,
-  'bodyText': pt::text(body)
+  'alt': mainImage.alt
 `;
 
 const MAX_BODY_TEXT = 4000;
 
 export async function getIndexBusqueda(): Promise<ItemBusqueda[]> {
-  const items: ItemBusqueda[] = await sanityClient.fetch(
+  return sanityClient.fetch(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
-      ${indexFields}
+      ${metaFields}
+    }`
+  );
+}
+
+export async function getIndexCuerpo(): Promise<ItemCuerpo[]> {
+  const items: ItemCuerpo[] = await sanityClient.fetch(
+    `*[_type == 'publicacion' && defined(slug.current)] {
+      'slug': slug.current,
+      'bodyText': pt::text(body)
     }`
   );
   return items.map((item) => ({
