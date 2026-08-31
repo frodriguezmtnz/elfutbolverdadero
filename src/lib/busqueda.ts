@@ -37,7 +37,7 @@ export async function getIndexBusqueda(): Promise<ItemBusqueda[]> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
       ${metaFields}
-    }`
+    }`,
   );
 }
 
@@ -46,7 +46,7 @@ export async function getIndexCuerpo(): Promise<ItemCuerpo[]> {
     `*[_type == 'publicacion' && defined(slug.current)] {
       'slug': slug.current,
       'bodyText': pt::text(body)
-    }`
+    }`,
   );
   return items.map((item) => ({
     ...item,

@@ -5,7 +5,14 @@ const blockContentType = {
   name: 'body',
   type: 'array',
   of: [
-    { type: 'block', styles: [{ title: 'Normal', value: 'normal' }, { title: 'H2', value: 'h2' }, { title: 'H3', value: 'h3' }] },
+    {
+      type: 'block',
+      styles: [
+        { title: 'Normal', value: 'normal' },
+        { title: 'H2', value: 'h2' },
+        { title: 'H3', value: 'h3' },
+      ],
+    },
     { type: 'image' },
     { type: 'embed' },
   ],
@@ -52,7 +59,10 @@ function tokenize(html) {
 const PATRON_BLOQUE_TIEMPO = /^tiempo\s+de\s+lectura/i;
 
 function textoDeBloque(block) {
-  return (block.children ?? []).map((s) => s.text ?? '').join('').trim();
+  return (block.children ?? [])
+    .map((s) => s.text ?? '')
+    .join('')
+    .trim();
 }
 
 export async function htmlToPortableText(html, { resolveImageUrl }) {
@@ -67,8 +77,15 @@ export async function htmlToPortableText(html, { resolveImageUrl }) {
         blocks.push(...converted.filter((b) => b._type === 'block'));
       } catch {
         // fallback: texto plano
-        const txt = htmlEntityDecode(tok.html).replace(/<[^>]+>/g, '').trim();
-        if (txt) blocks.push({ _type: 'block', style: 'normal', children: [{ _type: 'span', text: txt }] });
+        const txt = htmlEntityDecode(tok.html)
+          .replace(/<[^>]+>/g, '')
+          .trim();
+        if (txt)
+          blocks.push({
+            _type: 'block',
+            style: 'normal',
+            children: [{ _type: 'span', text: txt }],
+          });
       }
     } else if (tok.type === 'block') {
       const text = htmlEntityDecode(tok.inner.replace(/<[^>]+>/g, '')).trim();
@@ -88,5 +105,7 @@ export async function htmlToPortableText(html, { resolveImageUrl }) {
     }
   }
 
-  return blocks.filter((b) => !(b._type === 'block' && PATRON_BLOQUE_TIEMPO.test(textoDeBloque(b))));
+  return blocks.filter(
+    (b) => !(b._type === 'block' && PATRON_BLOQUE_TIEMPO.test(textoDeBloque(b))),
+  );
 }

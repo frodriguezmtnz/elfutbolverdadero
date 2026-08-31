@@ -62,9 +62,12 @@ export async function getMediaByIds(ids) {
 }
 
 export async function getYoastHead(url) {
-  const res = await fetch(`https://www.elfutbolverdadero.com/wp-json/yoast/v1/get_head?url=${encodeURIComponent(url)}`, {
-    headers: { 'User-Agent': 'elfutbolverdadero-migration (import)' },
-  });
+  const res = await fetch(
+    `https://www.elfutbolverdadero.com/wp-json/yoast/v1/get_head?url=${encodeURIComponent(url)}`,
+    {
+      headers: { 'User-Agent': 'elfutbolverdadero-migration (import)' },
+    },
+  );
   if (!res.ok) return null;
   const data = await res.json();
   const html = data?.html ?? '';

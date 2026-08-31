@@ -10,6 +10,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "studio": "sanity dev --port 3333",
     "sanity": "sanity",
     "import:wp": "node scripts/import-wp.mjs",
@@ -40,6 +43,13 @@
     "esbuild": true
   },
   "devDependencies": {
-    "patch-package": "^8.0.1"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-plugin-astro": "^3.1.0",
+    "globals": "^17.11.0",
+    "patch-package": "^8.0.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript-eslint": "^8.69.0"
   }
 }

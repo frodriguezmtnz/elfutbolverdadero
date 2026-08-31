@@ -48,7 +48,9 @@ const tieneSiguiente = currentPage < totalPages;
       <div class="flex flex-wrap items-center gap-1">
         {numeros.map((n) =>
           n === 'elipsis' ? (
-            <span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">…</span>
+            <span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">
+              …
+            </span>
           ) : n === currentPage ? (
             <span
               aria-current="page"
@@ -63,7 +65,7 @@ const tieneSiguiente = currentPage < totalPages;
             >
               {n}
             </a>
-          )
+          ),
         )}
       </div>
 

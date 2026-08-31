@@ -72,7 +72,7 @@ export async function getPublicaciones(): Promise<Publicacion[]> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
       ${publicacionFields}
-    }`
+    }`,
   );
 }
 
@@ -81,14 +81,12 @@ export async function getPublicacionBySlug(slug: string): Promise<Publicacion | 
     `*[_type == 'publicacion' && slug.current == $slug][0] {
       ${publicacionFields}
     }`,
-    { slug }
+    { slug },
   );
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  return sanityClient.fetch(
-    `*[_type == 'publicacion' && defined(slug.current)].slug.current`
-  );
+  return sanityClient.fetch(`*[_type == 'publicacion' && defined(slug.current)].slug.current`);
 }
 
 export interface CategoriaConteo {
@@ -101,7 +99,7 @@ export async function getEntrevistaDestacada(): Promise<Publicacion | null> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && defined(description) && defined(mainImage.asset)] | order(publishedAt desc) [0] {
       ${publicacionFields}
-    }`
+    }`,
   );
 }
 
@@ -110,7 +108,7 @@ export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
       ${publicacionFields}
     }`,
-    { excludeId, limit }
+    { excludeId, limit },
   );
 }
 
@@ -118,7 +116,7 @@ export async function getTodasEntrevistas(): Promise<Publicacion[]> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current)] | order(publishedAt desc) {
       ${baseFields}
-    }`
+    }`,
   );
 }
 
@@ -127,7 +125,7 @@ export async function getUltimasPublicaciones(limit = 50): Promise<Publicacion[]
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) [0...$limit] {
       ${baseFields}
     }`,
-    { limit }
+    { limit },
   );
 }
 
@@ -135,7 +133,7 @@ export async function getCuadernoDestacado(): Promise<Publicacion | null> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && defined(description)] | order(publishedAt desc) [0] {
       ${publicacionFields}
-    }`
+    }`,
   );
 }
 
@@ -144,7 +142,7 @@ export async function getUltimosArticulos(limit = 3, excludeId = ''): Promise<Pu
     `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
       ${publicacionFields}
     }`,
-    { excludeId, limit }
+    { excludeId, limit },
   );
 }
 
@@ -154,7 +152,7 @@ export async function getCategoriasConConteo(minimo = 1): Promise<CategoriaConte
       'name': name,
       'slug': slug.current,
       'n': count(*[_type == 'publicacion' && references(^._id)])
-    } | order(n desc, name asc)`
+    } | order(n desc, name asc)`,
   );
   return categorias.filter((c) => c.n >= minimo && !/^sin categor/i.test(c.name));
 }
@@ -164,7 +162,7 @@ export async function getPublicacionesPorCategoria(slug: string): Promise<Public
     `*[_type == 'publicacion' && defined(slug.current) && $slug in categorias[]->slug.current] | order(publishedAt desc) {
       ${baseFields}
     }`,
-    { slug }
+    { slug },
   );
 }
 
@@ -180,7 +178,7 @@ export async function getEtiquetasConConteo(minimo = 1): Promise<EtiquetaConteo[
       'name': name,
       'slug': slug.current,
       'n': count(*[_type == 'publicacion' && references(^._id)])
-    } | order(n desc, name asc)`
+    } | order(n desc, name asc)`,
   );
   return etiquetas.filter((e) => e.n >= minimo);
 }
@@ -190,7 +188,7 @@ export async function getPublicacionesPorEtiqueta(name: string): Promise<Publica
     `*[_type == 'publicacion' && defined(slug.current) && $name in etiquetas[]->name] | order(publishedAt desc) {
       ${baseFields}
     }`,
-    { name }
+    { name },
   );
 }
 
@@ -215,6 +213,6 @@ export async function getWebsAmigas(): Promise<WebAmiga[]> {
       url,
       description,
       'logo': { 'asset': logo.asset->{ _id, url } }
-    }`
+    }`,
   );
 }

@@ -57,17 +57,16 @@ async function main() {
     _id: `categoria-wp-${c.id}`,
     _type: 'categoria',
     name: c.name,
-    'slug': { current: c.slug ?? slugify(c.name) },
+    slug: { current: c.slug ?? slugify(c.name) },
     description: '',
   }));
   const tagDocs = tags.map((t) => ({
     _id: `etiqueta-wp-${t.id}`,
     _type: 'etiqueta',
     name: t.name,
-    'slug': { current: t.slug ?? slugify(t.name) },
+    slug: { current: t.slug ?? slugify(t.name) },
   }));
   // Autores: deduplicar por slug del user
-  const userSlugs = new Map();
   const authorDocs = [];
 
   // 2. Posts
@@ -105,8 +104,12 @@ async function main() {
     if (!opt.noSeo) await sleep(delayMs);
 
     // Categorías / etiquetas (refs)
-    const categorias = (post.categories ?? []).filter((id) => catDocs.some((c) => c._id === `categoria-wp-${id}`)).map((id) => ({ _type: 'reference', _ref: `categoria-wp-${id}` }));
-    const etiquetas = (post.tags ?? []).filter((id) => tagDocs.some((t) => t._id === `etiqueta-wp-${id}`)).map((id) => ({ _type: 'reference', _ref: `etiqueta-wp-${id}` }));
+    const categorias = (post.categories ?? [])
+      .filter((id) => catDocs.some((c) => c._id === `categoria-wp-${id}`))
+      .map((id) => ({ _type: 'reference', _ref: `categoria-wp-${id}` }));
+    const etiquetas = (post.tags ?? [])
+      .filter((id) => tagDocs.some((t) => t._id === `etiqueta-wp-${id}`))
+      .map((id) => ({ _type: 'reference', _ref: `etiqueta-wp-${id}` }));
 
     // Main image (featured)
     let mainImage;
@@ -117,7 +120,9 @@ async function main() {
         try {
           const assetId = await uploadImageFromUrl(client, src, registry);
           mainImage = { _type: 'image', asset: { _type: 'reference', _ref: assetId } };
-        } catch (e) { errors.push(`mainImage ${slug}: ${e.message}`); }
+        } catch (e) {
+          errors.push(`mainImage ${slug}: ${e.message}`);
+        }
       }
     }
 
@@ -138,7 +143,9 @@ async function main() {
           }
         },
       });
-    } catch (e) { errors.push(`body ${slug}: ${e.message}`); }
+    } catch (e) {
+      errors.push(`body ${slug}: ${e.message}`);
+    }
 
     docList.push({
       _id: `publicacion-wp-${post.id}`,
@@ -205,7 +212,14 @@ function limpiarExtracto(html = '') {
 }
 
 function slugify(s = '') {
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'untitled';
+  return (
+    s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'untitled'
+  );
 }
 
 function sleep(ms) {

@@ -9,7 +9,7 @@ export const embed = defineType({
       name: 'url',
       title: 'URL del iframe (YouTube, audio…)',
       type: 'url',
-      validation: (Rule) => Rule.required(), // eslint-disable-line @typescript-eslint/no-unused-vars
+      validation: (Rule) => Rule.required(),
     },
     {
       name: 'title',

@@ -8,11 +8,22 @@ const builder = createImageUrlBuilder({
 });
 
 export function urlFor(source: unknown, width = 800) {
-  return builder.image(source as SanityImageSource).width(width).auto('format').url();
+  return builder
+    .image(source as SanityImageSource)
+    .width(width)
+    .auto('format')
+    .url();
 }
 
 export function srcsetFor(source: unknown, widths: number[]): string {
   return widths
-    .map((w) => `${builder.image(source as SanityImageSource).width(w).auto('format').url()} ${w}w`)
+    .map(
+      (w) =>
+        `${builder
+          .image(source as SanityImageSource)
+          .width(w)
+          .auto('format')
+          .url()} ${w}w`,
+    )
     .join(', ');
 }

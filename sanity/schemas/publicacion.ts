@@ -5,7 +5,11 @@ export const publicacion = defineType({
   title: 'Publicación',
   type: 'document',
   fieldsets: [
-    { name: 'seo', title: 'SEO (legado Wordpress / generado por Astro)', options: { collapsible: true, collapsed: true } },
+    {
+      name: 'seo',
+      title: 'SEO (legado Wordpress / generado por Astro)',
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   fields: [
     {
@@ -83,7 +87,14 @@ export const publicacion = defineType({
       title: 'Contenido',
       type: 'array',
       of: [
-        { type: 'block', styles: [{ title: 'Párrafo', value: 'normal' }, { title: 'Título', value: 'h2' }, { title: 'Subtítulo', value: 'h3' }] },
+        {
+          type: 'block',
+          styles: [
+            { title: 'Párrafo', value: 'normal' },
+            { title: 'Título', value: 'h2' },
+            { title: 'Subtítulo', value: 'h3' },
+          ],
+        },
         { type: 'image', options: { hotspot: true } },
         { type: 'embed' },
       ],

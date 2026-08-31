@@ -7,7 +7,13 @@ export function createSanity() {
   if (!projectId || !token) {
     throw new Error('Faltan SANITY_PROJECT_ID y/o SANITY_TOKEN en .env');
   }
-  const client = createClient({ projectId, dataset, token, useCdn: false, apiVersion: '2025-08-15' });
+  const client = createClient({
+    projectId,
+    dataset,
+    token,
+    useCdn: false,
+    apiVersion: '2025-08-15',
+  });
   return { client, dataset };
 }
 
@@ -15,8 +21,10 @@ export function createSanity() {
 export async function uploadImageFromUrl(client, url, registry) {
   const cached = registry.images?.[url];
   if (cached) return cached;
-  const label = `upload-${encodeURIComponent(url)}`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'elfutbolverdadero-migration' }, signal: AbortSignal.timeout(60000) });
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'elfutbolverdadero-migration' },
+    signal: AbortSignal.timeout(60000),
+  });
   if (!res.ok) throw new Error(`fetch image ${url} -> HTTP ${res.status}`);
   const buffer = Buffer.from(await res.arrayBuffer());
   const contentType = res.headers.get('content-type') || 'image/jpeg';
