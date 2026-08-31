@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { urlFor } from '../lib/images';
+import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion } from '../lib/texto';
 import type { Publicacion } from '../lib/sanity';
 import type { HTMLAttributes } from 'astro/types';
@@ -15,16 +15,22 @@ const { pub, ctaLabel = 'Leer conversación', chipAcento = false, ...rest } = As
 
 const badge = pub.categorias?.[0]?.name;
 const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 800) : null;
+const imagenSrcset = pub.mainImage?.asset ? srcsetFor(pub.mainImage.asset, [480, 800, 1200]) : null;
 const altImagen = pub.mainImage?.alt || pub.title;
 const descripcion = limpiarDescripcion(pub.description);
 ---
 
-<article {...rest} class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md">
+<article
+  {...rest}
+  class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md"
+>
   <div class="aspect-[16/9] overflow-hidden bg-muted">
     {
       imagen && (
         <img
           src={imagen}
+          srcset={imagenSrcset}
+          sizes="(min-width: 768px) 405px, 100vw"
           alt={altImagen}
           class="h-full w-full object-cover grayscale transition duration-300 group-hover:scale-[1.03]"
           width="800"
@@ -41,7 +47,9 @@ const descripcion = limpiarDescripcion(pub.description);
           <span
             class:list={[
               'rounded-full px-3 py-1 text-xs font-bold',
-              chipAcento ? 'bg-accent text-accent-foreground' : 'bg-secondary text-secondary-foreground',
+              chipAcento
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-secondary text-secondary-foreground',
             ]}
           >
             {badge}
@@ -58,7 +66,10 @@ const descripcion = limpiarDescripcion(pub.description);
         <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{descripcion}</p>
       )
     }
-    <a class="mt-auto inline-flex min-h-11 items-center gap-2 pt-5 text-sm font-bold text-primary" href={`/${pub.slug}/`}>
+    <a
+      class="mt-auto inline-flex min-h-11 items-center gap-2 pt-5 text-sm font-bold text-primary"
+      href={`/${pub.slug}/`}
+    >
       {ctaLabel}
       <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
     </a>

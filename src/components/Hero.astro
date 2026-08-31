@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { urlFor } from '../lib/images';
+import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion, tiempoLectura } from '../lib/texto';
 import type { Publicacion } from '../lib/sanity';
 
@@ -12,6 +12,9 @@ const { pub } = Astro.props;
 
 const badge = pub.categorias?.[0]?.name;
 const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 1280) : null;
+const imagenSrcset = pub.mainImage?.asset
+  ? srcsetFor(pub.mainImage.asset, [640, 1280, 1920])
+  : null;
 const altImagen = pub.mainImage?.alt || pub.title;
 const pieImagen = pub.mainImage?.caption;
 const descripcion = limpiarDescripcion(pub.description);
@@ -20,11 +23,16 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
 
 <section class="bg-primary text-primary-foreground">
   <div class="mx-auto grid max-w-7xl gap-0 px-4 py-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-12">
-    <div data-reveal="up" class="flex flex-col justify-between border-b border-primary-foreground p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+    <div
+      data-reveal="up"
+      class="flex flex-col justify-between border-b border-primary-foreground p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10"
+    >
       <div>
         <div class="flex items-center gap-3">
           <span class="h-px w-10 bg-tertiary"></span>
-          <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground">Entrevista de la semana</p>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground">
+            Entrevista de la semana
+          </p>
         </div>
         {
           badge && (
@@ -36,18 +44,24 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
         <h1 class="mt-5 font-heading font-semibold text-2xl uppercase leading-none sm:text-5xl">
           <a href={`/${pub.slug}/`}>{pub.title}</a>
         </h1>
-        {descripcion && <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{descripcion}</p>}
+        {
+          descripcion && (
+            <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{descripcion}</p>
+          )
+        }
       </div>
 
       <div class="mt-8 border-t border-primary-foreground pt-5">
         {pub.author?.name && <p class="text-sm font-bold">Por {pub.author.name}</p>}
         <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
-          {lectura && (
-            <p class="inline-flex items-center gap-1.5 text-xs text-primary-foreground">
-              <Icon name="clock" class="text-[13px]" />
-              {lectura}
-            </p>
-          )}
+          {
+            lectura && (
+              <p class="inline-flex items-center gap-1.5 text-xs text-primary-foreground">
+                <Icon name="clock" class="text-[13px]" />
+                {lectura}
+              </p>
+            )
+          }
           <a
             class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-card px-4 text-sm font-bold text-foreground shadow-md"
             href={`/${pub.slug}/`}
@@ -60,13 +74,33 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
     </div>
 
     <div data-reveal="fade" data-speed="fast" class="relative min-h-80 overflow-hidden lg:min-h-0">
-      {imagen && <img src={imagen} alt={altImagen} class="h-full w-full object-cover grayscale" width="1280" height="1280" loading="eager" fetchpriority="high" />}
-      <div class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7">
+      {
+        imagen && (
+          <img
+            src={imagen}
+            srcset={imagenSrcset}
+            sizes="(min-width: 1024px) 660px, 100vw"
+            alt={altImagen}
+            class="h-full w-full object-cover grayscale"
+            width="1280"
+            height="1280"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )
+      }
+      <div
+        class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7"
+      >
         <div>
           <p class="text-xs font-bold uppercase tracking-[0.2em]">Conversaciones</p>
-          {pieImagen && <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>}
+          {
+            pieImagen && (
+              <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>
+            )
+          }
         </div>
-        <Icon name="quote" class="text-3xl text-tertiary" />
+        <Icon name="quote" class="text-3xl text-tertiary-ink" />
       </div>
     </div>
   </div>
