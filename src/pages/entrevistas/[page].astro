@@ -4,7 +4,12 @@ import Header from '../../components/Header.astro';
 import ListaPublicaciones from '../../components/ListaPublicaciones.astro';
 import Footer from '../../components/Footer.astro';
 import MobileNav from '../../components/MobileNav.astro';
-import { getTodasEntrevistas, getCategoriasConConteo, type CategoriaConteo, type Publicacion } from '../../lib/sanity';
+import {
+  getTodasEntrevistas,
+  getCategoriasConConteo,
+  type CategoriaConteo,
+  type Publicacion,
+} from '../../lib/sanity';
 import type { GetStaticPaths, Page } from 'astro';
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
@@ -45,10 +50,15 @@ const nextURL = currentPage < totalPages ? `/entrevistas/${currentPage + 1}/` : 
       <section class="bg-muted">
         <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
           <div data-reveal="up" class="border-b border-border pb-6">
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Voces de banquillo</p>
-            <h1 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">La Pizarra de los Mister</h1>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              Voces de banquillo
+            </p>
+            <h1 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">
+              La Pizarra de los Mister
+            </h1>
             <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Conversaciones con quienes forman el fútbol base: paciencia, contexto y muchísimo oficio.
+              Conversaciones con quienes forman el fútbol base: paciencia, contexto y muchísimo
+              oficio.
             </p>
           </div>
 

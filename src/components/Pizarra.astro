@@ -14,12 +14,22 @@ const { categorias, entrevistas } = Astro.props;
 
 <section id="pizarra" class="bg-muted">
   <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
-    <div data-reveal="up" class="flex flex-col gap-5 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
+    <div
+      data-reveal="up"
+      class="flex flex-col gap-5 border-b border-border pb-6 md:flex-row md:items-end md:justify-between"
+    >
       <div>
-        <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Voces de banquillo</p>
-        <h2 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">La Pizarra de los Mister</h2>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+          Voces de banquillo
+        </p>
+        <h2 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">
+          La Pizarra de los Mister
+        </h2>
       </div>
-      <a class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary" href="/entrevistas/">
+      <a
+        class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary"
+        href="/entrevistas/"
+      >
         Ver todas las entrevistas
         <Icon name="arrow-right" class="text-lg" />
       </a>
@@ -34,11 +44,18 @@ const { categorias, entrevistas } = Astro.props;
       entrevistas.length > 0 ? (
         <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
           {entrevistas.map((pub, i) => (
-            <EntrevistaCard pub={pub} chipAcento={i === 1} data-reveal="up" style={`--reveal-index: ${i}`} />
+            <EntrevistaCard
+              pub={pub}
+              chipAcento={i === 1}
+              data-reveal="up"
+              style={`--reveal-index: ${i}`}
+            />
           ))}
         </div>
       ) : (
-        <p class="mt-8 text-sm text-muted-foreground">Todavía no hay entrevistas publicadas. Muy pronto.</p>
+        <p class="mt-8 text-sm text-muted-foreground">
+          Todavía no hay entrevistas publicadas. Muy pronto.
+        </p>
       )
     }
   </div>

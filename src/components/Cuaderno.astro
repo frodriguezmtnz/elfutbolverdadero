@@ -18,14 +18,30 @@ const descripcion = limpiarDescripcion(destacado?.description);
 
 <section id="cuaderno" class="bg-background">
   <div class="mx-auto grid max-w-7xl gap-6 px-4 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-    <article data-reveal="right" class="overflow-hidden rounded-xl bg-primary text-primary-foreground shadow-lg">
+    <article
+      data-reveal="right"
+      class="overflow-hidden rounded-xl bg-primary text-primary-foreground shadow-lg"
+    >
       <div class="grid h-full md:grid-cols-2">
         <div class="aspect-square overflow-hidden md:aspect-auto">
-          {imagen && <img src={imagen} alt={altImagen} class="h-full w-full object-cover grayscale" width="900" height="900" loading="lazy" />}
+          {
+            imagen && (
+              <img
+                src={imagen}
+                alt={altImagen}
+                class="h-full w-full object-cover grayscale"
+                width="900"
+                height="900"
+                loading="lazy"
+              />
+            )
+          }
         </div>
         <div class="flex flex-col justify-between p-7">
           <div>
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary text-tertiary-foreground">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary text-tertiary-ink-foreground"
+            >
               <Icon name="pen-line" />
             </div>
             <p class="mt-5 text-xs font-bold uppercase tracking-[0.2em]">Cuaderno de Entrenador</p>
@@ -36,7 +52,9 @@ const descripcion = limpiarDescripcion(destacado?.description);
                     <a href={`/${destacado.slug}/`}>{destacado.title}</a>
                   </h2>
                   {descripcion && (
-                    <p class="mt-4 line-clamp-4 text-sm leading-6 text-primary-foreground">{descripcion}</p>
+                    <p class="mt-4 line-clamp-4 text-sm leading-6 text-primary-foreground">
+                      {descripcion}
+                    </p>
                   )}
                 </>
               ) : (
@@ -63,22 +81,32 @@ const descripcion = limpiarDescripcion(destacado?.description);
     <aside data-reveal="left" class="rounded-xl border border-border bg-card p-6">
       <div class="flex items-center justify-between border-b border-border pb-5">
         <div>
-          <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Selección</p>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">Selección</p>
           <h2 class="mt-1 font-heading font-semibold text-lg uppercase">Más leídos</h2>
         </div>
-        <Icon name="flame" class="text-2xl text-tertiary" />
+        <Icon name="flame" class="text-2xl text-tertiary-ink" />
       </div>
       {
         masLeidos.length > 0 ? (
           <ol class="mt-2">
             {masLeidos.map((pub, i) => (
-              <li class:list={['flex gap-4 py-5', i < masLeidos.length - 1 && 'border-b border-border']}>
-                <span class="font-display text-3xl text-tertiary">{String(i + 1).padStart(2, '0')}</span>
+              <li
+                class:list={[
+                  'flex gap-4 py-5',
+                  i < masLeidos.length - 1 && 'border-b border-border',
+                ]}
+              >
+                <span class="font-display text-3xl text-tertiary-ink">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 <div>
                   <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     {pub.categorias?.[0]?.name ?? pub.tipo}
                   </p>
-                  <a href={`/${pub.slug}/`} class="mt-1 block font-semibold leading-5 hover:text-primary">
+                  <a
+                    href={`/${pub.slug}/`}
+                    class="mt-1 block font-semibold leading-5 hover:text-primary"
+                  >
                     {pub.title}
                   </a>
                 </div>

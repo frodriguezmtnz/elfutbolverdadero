@@ -8,7 +8,12 @@ import PortableText from '../components/PortableText.astro';
 import Icon from '../components/Icon.astro';
 import { getAllSlugs, getPublicacionBySlug, getUltimasEntrevistas } from '../lib/sanity';
 import { urlFor, srcsetFor } from '../lib/images';
-import { limpiarDescripcion, tiempoLectura, sinBloquesTiempoLectura, slugDeEtiqueta } from '../lib/texto';
+import {
+  limpiarDescripcion,
+  tiempoLectura,
+  sinBloquesTiempoLectura,
+  slugDeEtiqueta,
+} from '../lib/texto';
 
 export async function getStaticPaths() {
   const slugs = await getAllSlugs();
@@ -44,7 +49,9 @@ const fecha = post.publishedAt
     })
   : null;
 const imagenDestacada = post.mainImage?.asset ? urlFor(post.mainImage.asset, 1400) : null;
-const imagenDestacadaSrcset = post.mainImage?.asset ? srcsetFor(post.mainImage.asset, [640, 960, 1400, 1920]) : null;
+const imagenDestacadaSrcset = post.mainImage?.asset
+  ? srcsetFor(post.mainImage.asset, [640, 960, 1400, 1920])
+  : null;
 const altImagen = post.mainImage?.alt || post.title;
 const pieImagen = post.mainImage?.caption;
 const primeraCategoria = post.categorias?.[0];
@@ -61,10 +68,10 @@ const jsonLd: object[] = [
     inLanguage: 'es',
     ...(ogImage ? { image: ogImage } : {}),
     ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
-    ...(post.updatedAt || post.publishedAt ? { dateModified: post.updatedAt ?? post.publishedAt } : {}),
-    ...(post.author?.name
-      ? { author: { '@type': 'Person', name: post.author.name } }
+    ...(post.updatedAt || post.publishedAt
+      ? { dateModified: post.updatedAt ?? post.publishedAt }
       : {}),
+    ...(post.author?.name ? { author: { '@type': 'Person', name: post.author.name } } : {}),
     publisher: {
       '@type': 'Organization',
       name: 'Futbolverdadero',
@@ -77,16 +84,28 @@ const jsonLd: object[] = [
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: site.href },
-      { '@type': 'ListItem', position: 2, name: 'La Pizarra', item: new URL('/entrevistas/', site).href },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'La Pizarra',
+        item: new URL('/entrevistas/', site).href,
+      },
       ...(primeraCategoria?.slug
-        ? [{
-            '@type': 'ListItem',
-            position: 3,
-            name: primeraCategoria.name,
-            item: new URL(`/categoria/${primeraCategoria.slug}/`, site).href,
-          }]
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: primeraCategoria.name,
+              item: new URL(`/categoria/${primeraCategoria.slug}/`, site).href,
+            },
+          ]
         : []),
-      { '@type': 'ListItem', position: primeraCategoria?.slug ? 4 : 3, name: post.title, item: canonical },
+      {
+        '@type': 'ListItem',
+        position: primeraCategoria?.slug ? 4 : 3,
+        name: post.title,
+        item: canonical,
+      },
     ],
   },
 ];
@@ -111,7 +130,10 @@ const jsonLd: object[] = [
         <header class="bg-background">
           <div data-reveal="up" class="mx-auto max-w-3xl px-4 pt-8 lg:px-8 lg:pt-12">
             <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-              <nav class="flex items-center gap-2 text-xs font-semibold text-muted-foreground" aria-label="Migas de pan">
+              <nav
+                class="flex items-center gap-2 text-xs font-semibold text-muted-foreground"
+                aria-label="Migas de pan"
+              >
                 <a class="hover:text-primary" href="/entrevistas/">La Pizarra</a>
                 {
                   primeraCategoria && (
@@ -129,7 +151,10 @@ const jsonLd: object[] = [
                 (fecha || lectura) && (
                   <div class="flex shrink-0 items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
                     {fecha && (
-                      <time datetime={post.publishedAt} class="border-b border-dashed border-border pb-0.5">
+                      <time
+                        datetime={post.publishedAt}
+                        class="border-b border-dashed border-border pb-0.5"
+                      >
                         {fecha}
                       </time>
                     )}
@@ -144,11 +169,25 @@ const jsonLd: object[] = [
               }
             </div>
 
-            <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-tertiary">{tipoLabel}</p>
-            <h1 class="mt-3 font-heading font-semibold text-3xl uppercase leading-[0.95] sm:text-5xl">{post.title}</h1>
-            {descripcion && <p class="mt-5 text-lg leading-7 text-muted-foreground">{descripcion}</p>}
+            <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              {tipoLabel}
+            </p>
+            <h1
+              class="mt-3 font-heading font-semibold text-3xl uppercase leading-[0.95] sm:text-5xl"
+            >
+              {post.title}
+            </h1>
+            {
+              descripcion && (
+                <p class="mt-5 text-lg leading-7 text-muted-foreground">{descripcion}</p>
+              )
+            }
 
-            {post.author?.name && <p class="mt-6 text-sm font-bold text-primary">Por {post.author.name}</p>}
+            {
+              post.author?.name && (
+                <p class="mt-6 text-sm font-bold text-primary">Por {post.author.name}</p>
+              )
+            }
           </div>
         </header>
 
@@ -166,7 +205,11 @@ const jsonLd: object[] = [
                 loading="eager"
                 fetchpriority="high"
               />
-              {pieImagen && <figcaption class="mt-2 text-center text-xs text-muted-foreground">{pieImagen}</figcaption>}
+              {pieImagen && (
+                <figcaption class="mt-2 text-center text-xs text-muted-foreground">
+                  {pieImagen}
+                </figcaption>
+              )}
             </figure>
           )
         }
@@ -178,7 +221,9 @@ const jsonLd: object[] = [
         {
           post.categorias && post.categorias.length > 0 && (
             <div class="mx-auto max-w-3xl px-4 pb-10 lg:px-8">
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Categorías</p>
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                Categorías
+              </p>
               <div class="mt-3 flex flex-wrap gap-2">
                 {post.categorias.map((c) => (
                   <a
@@ -196,7 +241,9 @@ const jsonLd: object[] = [
         {
           post.etiquetas && post.etiquetas.length > 0 && (
             <div class="mx-auto max-w-3xl px-4 pb-12 lg:px-8">
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Temas</p>
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                Temas
+              </p>
               <div class="mt-3 flex flex-wrap gap-2">
                 {post.etiquetas.map((t) => {
                   const slugEtiqueta = t.slug ?? slugDeEtiqueta(t.name);
@@ -219,11 +266,27 @@ const jsonLd: object[] = [
         masConversaciones.length > 0 && (
           <section class="bg-muted">
             <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
-              <p data-reveal="up" class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Sigue leyendo</p>
-              <h2 data-reveal="up" style="--reveal-index: 1" class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">Más conversaciones</h2>
+              <p
+                data-reveal="up"
+                class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink"
+              >
+                Sigue leyendo
+              </p>
+              <h2
+                data-reveal="up"
+                style="--reveal-index: 1"
+                class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl"
+              >
+                Más conversaciones
+              </h2>
               <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
                 {masConversaciones.map((pub, i) => (
-                  <EntrevistaCard pub={pub} chipAcento={i === 1} data-reveal="up" style={`--reveal-index: ${i % 3}`} />
+                  <EntrevistaCard
+                    pub={pub}
+                    chipAcento={i === 1}
+                    data-reveal="up"
+                    style={`--reveal-index: ${i % 3}`}
+                  />
                 ))}
               </div>
             </div>

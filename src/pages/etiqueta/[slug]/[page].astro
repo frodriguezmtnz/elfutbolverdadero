@@ -64,8 +64,10 @@ const nextURL = currentPage < totalPages ? `/etiqueta/${slug}/${currentPage + 1}
       <section class="bg-muted">
         <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8">
           <div data-reveal="up" class="border-b border-border pb-6">
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Tema</p>
-            <h1 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">#{etiqueta.name}</h1>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">Tema</p>
+            <h1 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">
+              #{etiqueta.name}
+            </h1>
             <p class="mt-3 text-sm text-muted-foreground">
               {page.total}
               {page.total === 1 ? 'publicación' : 'publicaciones'}
@@ -82,7 +84,10 @@ const nextURL = currentPage < totalPages ? `/etiqueta/${slug}/${currentPage + 1}
           />
 
           <div class="mt-10">
-            <a class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary" href="/entrevistas/">
+            <a
+              class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary"
+              href="/entrevistas/"
+            >
               Ver todas las entrevistas
             </a>
           </div>

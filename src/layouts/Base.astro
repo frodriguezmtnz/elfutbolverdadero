@@ -57,7 +57,12 @@ const websiteJsonLd = {
     {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title="El Fútbol Verdadero" href={new URL('/rss.xml', Astro.site).href} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="El Fútbol Verdadero"
+      href={new URL('/rss.xml', Astro.site).href}
+    />
     {prevURL && <link rel="prev" href={new URL(prevURL, Astro.site).href} />}
     {nextURL && <link rel="next" href={new URL(nextURL, Astro.site).href} />}
     <meta name="theme-color" content="#1B4D3E" />
@@ -73,8 +78,16 @@ const websiteJsonLd = {
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={title} />
-    {type === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
-    {type === 'article' && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    {
+      type === 'article' && publishedTime && (
+        <meta property="article:published_time" content={publishedTime} />
+      )
+    }
+    {
+      type === 'article' && modifiedTime && (
+        <meta property="article:modified_time" content={modifiedTime} />
+      )
+    }
     {type === 'article' && authorName && <meta property="article:author" content={authorName} />}
     {type === 'article' && categories.map((c) => <meta property="article:section" content={c} />)}
 
@@ -85,10 +98,22 @@ const websiteJsonLd = {
 
     <!-- Estructura de datos JSON-LD -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
-    {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />)}
+    {
+      jsonLd.map((data) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />
+      ))
+    }
   </head>
   <body>
-    <slot />
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-primary-foreground focus:shadow-lg"
+    >
+      Saltar al contenido
+    </a>
+    <div id="contenido">
+      <slot />
+    </div>
   </body>
 </html>
 

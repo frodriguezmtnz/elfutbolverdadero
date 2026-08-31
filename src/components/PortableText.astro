@@ -70,7 +70,7 @@ function renderInline(children: Child[], markDefs: MarkDef[]): string {
           if (def?._type === 'link' && def.href) {
             const href = esc(def.href);
             const externo = esExterno(def.href);
-            html = `<a class="font-semibold text-primary underline decoration-tertiary/60 decoration-2 underline-offset-2 hover:text-tertiary" href="${href}"${
+            html = `<a class="font-semibold text-primary underline decoration-tertiary/60 decoration-2 underline-offset-2 hover:text-tertiary-ink" href="${href}"${
               externo ? ' target="_blank" rel="noopener noreferrer"' : ''
             }>${html}</a>`;
           }
@@ -123,12 +123,18 @@ for (const block of lista) {
       if (grupo.kind === 'texto') {
         if (grupo.style === 'h2') {
           return (
-            <h2 class="font-heading font-semibold text-2xl uppercase leading-tight text-foreground" set:html={grupo.html} />
+            <h2
+              class="font-heading font-semibold text-2xl uppercase leading-tight text-foreground"
+              set:html={grupo.html}
+            />
           );
         }
         if (grupo.style === 'h3') {
           return (
-            <h3 class="font-heading font-semibold text-xl uppercase leading-tight text-foreground" set:html={grupo.html} />
+            <h3
+              class="font-heading font-semibold text-xl uppercase leading-tight text-foreground"
+              set:html={grupo.html}
+            />
           );
         }
         if (grupo.style === 'blockquote') {
@@ -143,9 +149,15 @@ for (const block of lista) {
       }
       if (grupo.kind === 'lista') {
         return grupo.ordenada ? (
-          <ol class="list-decimal space-y-2 pl-6 leading-7 marker:font-bold marker:text-tertiary" set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')} />
+          <ol
+            class="list-decimal space-y-2 pl-6 leading-7 marker:font-bold marker:text-tertiary-ink"
+            set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
+          />
         ) : (
-          <ul class="list-disc space-y-2 pl-6 leading-7 marker:text-tertiary" set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')} />
+          <ul
+            class="list-disc space-y-2 pl-6 leading-7 marker:text-tertiary-ink"
+            set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
+          />
         );
       }
       if (grupo.kind === 'imagen') {
@@ -161,14 +173,22 @@ for (const block of lista) {
               loading="lazy"
             />
             {grupo.caption && (
-              <figcaption class="mt-2 text-center text-xs text-muted-foreground">{grupo.caption}</figcaption>
+              <figcaption class="mt-2 text-center text-xs text-muted-foreground">
+                {grupo.caption}
+              </figcaption>
             )}
           </figure>
         );
       }
       return (
         <div class="overflow-hidden rounded-xl border border-border bg-muted">
-          <iframe src={grupo.url} title={grupo.title} loading="lazy" class="aspect-video w-full" allowfullscreen />
+          <iframe
+            src={grupo.url}
+            title={grupo.title}
+            loading="lazy"
+            class="aspect-video w-full"
+            allowfullscreen
+          />
         </div>
       );
     })

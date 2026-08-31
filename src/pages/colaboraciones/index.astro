@@ -20,10 +20,13 @@ const webs = await getWebsAmigas();
       <section class="flex-1 bg-muted">
         <div class="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-12 lg:px-8">
           <div data-reveal="up" class="pb-6">
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Comunidad</p>
-            <h1 class="mt-2 font-heading font-semibold text-2xl uppercase sm:text-3xl">Webs amigas</h1>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">Comunidad</p>
+            <h1 class="mt-2 font-heading font-semibold text-2xl uppercase sm:text-3xl">
+              Webs amigas
+            </h1>
             <p class="mt-3 max-2xl text-md leading-6 text-muted-foreground">
-              Proyectos y webs con los que compartimos afición por el fútbol base. Visítalas y descubre contenido que también puede interesarte.
+              Proyectos y webs con los que compartimos afición por el fútbol base. Visítalas y
+              descubre contenido que también puede interesarte.
             </p>
           </div>
 
@@ -52,13 +55,20 @@ const webs = await getWebsAmigas();
                       )}
                     </div>
                     <div class="flex flex-1 flex-col p-6">
-                      <h2 class="font-heading font-semibold text-xl uppercase leading-tight">{web.name}</h2>
+                      <h2 class="font-heading font-semibold text-xl uppercase leading-tight">
+                        {web.name}
+                      </h2>
                       {web.description && (
-                        <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{web.description}</p>
+                        <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                          {web.description}
+                        </p>
                       )}
                       <span class="mt-auto inline-flex min-h-11 items-center gap-2 pt-5 text-sm font-bold text-primary">
                         Visitar web
-                        <Icon name="arrow-up-right" class="text-lg transition group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        <Icon
+                          name="arrow-up-right"
+                          class="text-lg transition group-hover:translate-x-1 group-hover:-translate-y-1"
+                        />
                       </span>
                     </div>
                   </a>
