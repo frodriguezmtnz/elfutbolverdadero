@@ -8,7 +8,7 @@ import PortableText from '../components/PortableText.astro';
 import Icon from '../components/Icon.astro';
 import { getAllSlugs, getPublicacionBySlug, getUltimasEntrevistas } from '../lib/sanity';
 import { urlFor, srcsetFor } from '../lib/images';
-import { limpiarDescripcion, tiempoLectura, sinBloquesTiempoLectura } from '../lib/texto';
+import { limpiarDescripcion, tiempoLectura, sinBloquesTiempoLectura, slugDeEtiqueta } from '../lib/texto';
 
 export async function getStaticPaths() {
   const slugs = await getAllSlugs();
@@ -198,11 +198,17 @@ const jsonLd: object[] = [
             <div class="mx-auto max-w-3xl px-4 pb-12 lg:px-8">
               <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Temas</p>
               <div class="mt-3 flex flex-wrap gap-2">
-                {post.etiquetas.map((t) => (
-                  <span class="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    #{t.name}
-                  </span>
-                ))}
+                {post.etiquetas.map((t) => {
+                  const slugEtiqueta = t.slug ?? slugDeEtiqueta(t.name);
+                  return (
+                    <a
+                      href={`/etiqueta/${slugEtiqueta}/`}
+                      class="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      #{t.name}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )

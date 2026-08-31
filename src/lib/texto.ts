@@ -45,3 +45,13 @@ export function tiempoLectura(
   if (!legado) return null;
   return /^\d+$/.test(legado) ? `${legado} min de lectura` : legado;
 }
+
+export function slugDeEtiqueta(name: string, slug?: string | null): string {
+  if (slug) return slug;
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}

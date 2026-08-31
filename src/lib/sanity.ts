@@ -35,7 +35,7 @@ export interface Publicacion {
     caption?: string;
   };
   categorias?: Array<{ name: string; slug?: string }>;
-  etiquetas?: Array<{ name: string }>;
+  etiquetas?: Array<{ name: string; slug?: string }>;
   body?: Array<unknown>;
 }
 
@@ -60,7 +60,7 @@ const baseFields = `
     caption
   },
   'categorias': categorias[]->{ name, 'slug': slug.current },
-  'etiquetas': etiquetas[]->{ name }
+  'etiquetas': etiquetas[]->{ name, 'slug': slug.current }
 `;
 
 const publicacionFields = `
@@ -165,6 +165,32 @@ export async function getPublicacionesPorCategoria(slug: string): Promise<Public
       ${baseFields}
     }`,
     { slug }
+  );
+}
+
+export interface EtiquetaConteo {
+  name: string;
+  slug?: string;
+  n: number;
+}
+
+export async function getEtiquetasConConteo(minimo = 1): Promise<EtiquetaConteo[]> {
+  const etiquetas: EtiquetaConteo[] = await sanityClient.fetch(
+    `*[_type == 'etiqueta'] {
+      'name': name,
+      'slug': slug.current,
+      'n': count(*[_type == 'publicacion' && references(^._id)])
+    } | order(n desc, name asc)`
+  );
+  return etiquetas.filter((e) => e.n >= minimo);
+}
+
+export async function getPublicacionesPorEtiqueta(name: string): Promise<Publicacion[]> {
+  return sanityClient.fetch(
+    `*[_type == 'publicacion' && defined(slug.current) && $name in etiquetas[]->name] | order(publishedAt desc) {
+      ${baseFields}
+    }`,
+    { name }
   );
 }
 
