@@ -14,6 +14,8 @@ interface Props {
   authorName?: string;
   categories?: string[];
   jsonLd?: object[];
+  prevURL?: string;
+  nextURL?: string;
 }
 const {
   title,
@@ -27,6 +29,8 @@ const {
   authorName,
   categories = [],
   jsonLd = [],
+  prevURL,
+  nextURL,
 } = Astro.props;
 
 const siteName = 'Futbolverdadero';
@@ -53,6 +57,9 @@ const websiteJsonLd = {
     {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="El Fútbol Verdadero" href={new URL('/rss.xml', Astro.site).href} />
+    {prevURL && <link rel="prev" href={new URL(prevURL, Astro.site).href} />}
+    {nextURL && <link rel="next" href={new URL(nextURL, Astro.site).href} />}
     <meta name="theme-color" content="#1B4D3E" />
 
     <!-- Open Graph -->

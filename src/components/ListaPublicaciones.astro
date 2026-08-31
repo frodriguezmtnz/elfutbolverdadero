@@ -1,0 +1,54 @@
+---
+import Chip from './Chip.astro';
+import EntrevistaCard from './EntrevistaCard.astro';
+import Paginacion from './Paginacion.astro';
+import type { Publicacion, CategoriaConteo } from '../lib/sanity';
+
+interface Props {
+  publicaciones: Publicacion[];
+  categorias: CategoriaConteo[];
+  categoriaActiva?: string;
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+  mensajeVacio?: string;
+}
+
+const {
+  publicaciones,
+  categorias,
+  categoriaActiva,
+  currentPage,
+  totalPages,
+  baseUrl,
+  mensajeVacio = 'Todavía no hay entrevistas publicadas. Muy pronto.',
+} = Astro.props;
+---
+
+<div class="mt-6 flex gap-2 overflow-x-auto pb-2">
+  <Chip href="/entrevistas/" label="Todos" activo={!categoriaActiva} />
+  {
+    categorias.map((c) => (
+      <Chip href={`/categoria/${c.slug}/`} label={c.name} activo={c.slug === categoriaActiva} />
+    ))
+  }
+</div>
+
+{
+  publicaciones.length > 0 ? (
+    <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+      {publicaciones.map((pub, i) => (
+        <EntrevistaCard
+          pub={pub}
+          chipAcento={i % 3 === 1}
+          data-reveal="up"
+          style={`--reveal-index: ${i % 3}`}
+        />
+      ))}
+    </div>
+  ) : (
+    <p class="mt-8 text-sm text-muted-foreground">{mensajeVacio}</p>
+  )
+}
+
+<Paginacion currentPage={currentPage} totalPages={totalPages} baseUrl={baseUrl} />

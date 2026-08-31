@@ -39,13 +39,13 @@ export interface Publicacion {
   body?: Array<unknown>;
 }
 
-const publicacionFields = `
+const baseFields = `
   _id,
   title,
   'slug': slug.current,
-   tipo,
-   club,
-   description,
+  tipo,
+  club,
+  description,
   publishedAt,
   updatedAt,
   seoTitle,
@@ -60,7 +60,11 @@ const publicacionFields = `
     caption
   },
   'categorias': categorias[]->{ name, 'slug': slug.current },
-  'etiquetas': etiquetas[]->{ name },
+  'etiquetas': etiquetas[]->{ name }
+`;
+
+const publicacionFields = `
+  ${baseFields},
   'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url}, null) }
 `;
 
@@ -110,6 +114,23 @@ export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<
   );
 }
 
+export async function getTodasEntrevistas(): Promise<Publicacion[]> {
+  return sanityClient.fetch(
+    `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current)] | order(publishedAt desc) {
+      ${baseFields}
+    }`
+  );
+}
+
+export async function getUltimasPublicaciones(limit = 50): Promise<Publicacion[]> {
+  return sanityClient.fetch(
+    `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) [0...$limit] {
+      ${baseFields}
+    }`,
+    { limit }
+  );
+}
+
 export async function getCuadernoDestacado(): Promise<Publicacion | null> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && defined(description)] | order(publishedAt desc) [0] {
@@ -141,7 +162,7 @@ export async function getCategoriasConConteo(minimo = 1): Promise<CategoriaConte
 export async function getPublicacionesPorCategoria(slug: string): Promise<Publicacion[]> {
   return sanityClient.fetch(
     `*[_type == 'publicacion' && defined(slug.current) && $slug in categorias[]->slug.current] | order(publishedAt desc) {
-      ${publicacionFields}
+      ${baseFields}
     }`,
     { slug }
   );

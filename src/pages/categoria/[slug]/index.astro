@@ -1,15 +1,16 @@
 ---
-import Base from '../../layouts/Base.astro';
-import Header from '../../components/Header.astro';
-import Chip from '../../components/Chip.astro';
-import EntrevistaCard from '../../components/EntrevistaCard.astro';
-import Footer from '../../components/Footer.astro';
-import MobileNav from '../../components/MobileNav.astro';
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import ListaPublicaciones from '../../../components/ListaPublicaciones.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
 import {
   getCategoriasConConteo,
   getPublicacionesPorCategoria,
   type CategoriaConteo,
-} from '../../lib/sanity';
+} from '../../../lib/sanity';
+
+const PAGE_SIZE = 24;
 
 export async function getStaticPaths() {
   const categorias = await getCategoriasConConteo(1);
@@ -24,13 +25,18 @@ interface Props {
 }
 
 const { categoria } = Astro.props;
-const publicaciones = await getPublicacionesPorCategoria(categoria.slug);
+const todas = await getPublicacionesPorCategoria(categoria.slug);
+const total = todas.length;
+const publicaciones = todas.slice(0, PAGE_SIZE);
+const totalPages = Math.ceil(total / PAGE_SIZE);
+const nextURL = totalPages > 1 ? `/categoria/${categoria.slug}/2/` : undefined;
 const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
 ---
 
 <Base
   title={`${categoria.name} — El Fútbol Verdadero`}
   description={`Publicaciones de fútbol base en la categoría ${categoria.name}.`}
+  nextURL={nextURL}
 >
   <div class="flex min-h-screen flex-col">
     <Header lecturaHref="/entrevistas/" />
@@ -41,37 +47,20 @@ const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary">Categoría</p>
             <h1 class="mt-2 font-heading font-semibold text-lg uppercase sm:text-3xl">{categoria.name}</h1>
             <p class="mt-3 text-sm text-muted-foreground">
-              {publicaciones.length}
-              {publicaciones.length === 1 ? 'publicación' : 'publicaciones'}
+              {total}
+              {total === 1 ? 'publicación' : 'publicaciones'}
             </p>
           </div>
 
-          <div class="mt-6 flex gap-2 overflow-x-auto pb-2">
-            <Chip href="/entrevistas/" label="Todos" />
-            {
-              categorias.map((c) => (
-                <Chip href={`/categoria/${c.slug}/`} label={c.name} activo={c.slug === categoria.slug} />
-              ))
-            }
-          </div>
-
-          {
-            publicaciones.length > 0 ? (
-              <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-                {publicaciones.map((pub, i) => (
-                  <EntrevistaCard
-                    pub={pub}
-                    ctaLabel="Leer más"
-                    chipAcento={i % 3 === 1}
-                    data-reveal="up"
-                    style={`--reveal-index: ${i % 3}`}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p class="mt-8 text-sm text-muted-foreground">Todavía no hay publicaciones en esta categoría.</p>
-            )
-          }
+          <ListaPublicaciones
+            publicaciones={publicaciones}
+            categorias={categorias}
+            categoriaActiva={categoria.slug}
+            currentPage={1}
+            totalPages={totalPages}
+            baseUrl={`/categoria/${categoria.slug}/`}
+            mensajeVacio="Todavía no hay publicaciones en esta categoría."
+          />
 
           <div class="mt-10">
             <a class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary" href="/entrevistas/">

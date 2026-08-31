@@ -7,7 +7,7 @@ import EntrevistaCard from '../components/EntrevistaCard.astro';
 import PortableText from '../components/PortableText.astro';
 import Icon from '../components/Icon.astro';
 import { getAllSlugs, getPublicacionBySlug, getUltimasEntrevistas } from '../lib/sanity';
-import { urlFor } from '../lib/images';
+import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion, tiempoLectura, sinBloquesTiempoLectura } from '../lib/texto';
 
 export async function getStaticPaths() {
@@ -44,6 +44,7 @@ const fecha = post.publishedAt
     })
   : null;
 const imagenDestacada = post.mainImage?.asset ? urlFor(post.mainImage.asset, 1400) : null;
+const imagenDestacadaSrcset = post.mainImage?.asset ? srcsetFor(post.mainImage.asset, [640, 960, 1400, 1920]) : null;
 const altImagen = post.mainImage?.alt || post.title;
 const pieImagen = post.mainImage?.caption;
 const primeraCategoria = post.categorias?.[0];
@@ -156,6 +157,8 @@ const jsonLd: object[] = [
             <figure data-reveal="fade" class="mx-auto mt-8 max-w-4xl px-4 lg:px-8">
               <img
                 src={imagenDestacada}
+                srcset={imagenDestacadaSrcset}
+                sizes="(min-width: 896px) 896px, 100vw"
                 alt={altImagen}
                 class="aspect-[16/9] w-full rounded-xl object-cover grayscale shadow-lg"
                 width="1400"

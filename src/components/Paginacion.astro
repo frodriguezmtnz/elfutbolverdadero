@@ -1,0 +1,87 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+function href(n: number): string {
+  return n === 1 ? baseUrl : `${baseUrl}${n}/`;
+}
+
+const numeros: (number | 'elipsis')[] = [];
+for (let i = 1; i <= totalPages; i++) {
+  if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+    numeros.push(i);
+  } else if (numeros[numeros.length - 1] !== 'elipsis') {
+    numeros.push('elipsis');
+  }
+}
+
+const tienePrev = currentPage > 1;
+const tieneSiguiente = currentPage < totalPages;
+---
+
+{
+  totalPages > 1 && (
+    <nav class="mt-10 flex flex-wrap items-center gap-2" aria-label="Paginación">
+      {tienePrev ? (
+        <a
+          href={href(currentPage - 1)}
+          rel="prev"
+          class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+        >
+          <Icon name="arrow-left" class="text-base" />
+          Anterior
+        </a>
+      ) : (
+        <span class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50">
+          <Icon name="arrow-left" class="text-base" />
+          Anterior
+        </span>
+      )}
+
+      <div class="flex flex-wrap items-center gap-1">
+        {numeros.map((n) =>
+          n === 'elipsis' ? (
+            <span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">…</span>
+          ) : n === currentPage ? (
+            <span
+              aria-current="page"
+              class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
+            >
+              {n}
+            </span>
+          ) : (
+            <a
+              href={href(n)}
+              class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              {n}
+            </a>
+          )
+        )}
+      </div>
+
+      {tieneSiguiente ? (
+        <a
+          href={href(currentPage + 1)}
+          rel="next"
+          class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+        >
+          Siguiente
+          <Icon name="arrow-right" class="text-base" />
+        </a>
+      ) : (
+        <span class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50">
+          Siguiente
+          <Icon name="arrow-right" class="text-base" />
+        </span>
+      )}
+    </nav>
+  )
+}

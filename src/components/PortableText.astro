@@ -1,5 +1,5 @@
 ---
-import { urlFor } from '../lib/images';
+import { urlFor, srcsetFor } from '../lib/images';
 
 interface Child {
   _type?: string;
@@ -84,7 +84,7 @@ function renderInline(children: Child[], markDefs: MarkDef[]): string {
 type Grupo =
   | { kind: 'texto'; style: string; html: string }
   | { kind: 'lista'; ordenada: boolean; items: string[] }
-  | { kind: 'imagen'; src: string | null; alt: string; caption?: string }
+  | { kind: 'imagen'; src: string | null; srcset: string; alt: string; caption?: string }
   | { kind: 'embed'; url: string; title: string };
 
 const grupos: Grupo[] = [];
@@ -107,6 +107,7 @@ for (const block of lista) {
     grupos.push({
       kind: 'imagen',
       src: urlFor(block.asset, 1000),
+      srcset: srcsetFor(block.asset, [400, 800, 1200, 1600]),
       alt: block.alt ?? block.caption ?? '',
       caption: block.caption,
     });
@@ -150,7 +151,15 @@ for (const block of lista) {
       if (grupo.kind === 'imagen') {
         return (
           <figure>
-            <img src={grupo.src ?? ''} alt={grupo.alt} class="rounded-xl shadow-md" width="1000" loading="lazy" />
+            <img
+              src={grupo.src ?? ''}
+              srcset={grupo.srcset}
+              sizes="(min-width: 768px) 768px, 100vw"
+              alt={grupo.alt}
+              class="rounded-xl shadow-md"
+              width="1000"
+              loading="lazy"
+            />
             {grupo.caption && (
               <figcaption class="mt-2 text-center text-xs text-muted-foreground">{grupo.caption}</figcaption>
             )}
