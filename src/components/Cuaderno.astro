@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { urlFor } from '../lib/images';
+import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion } from '../lib/texto';
 import type { Publicacion } from '../lib/sanity';
 
@@ -12,6 +12,9 @@ interface Props {
 const { destacado, masLeidos } = Astro.props;
 
 const imagen = destacado?.mainImage?.asset ? urlFor(destacado.mainImage.asset, 900) : null;
+const imagenSrcset = destacado?.mainImage?.asset
+  ? srcsetFor(destacado.mainImage.asset, [450, 900, 1350])
+  : null;
 const altImagen = destacado?.mainImage?.alt || destacado?.title || 'Cuaderno de entrenador';
 const descripcion = limpiarDescripcion(destacado?.description);
 ---
@@ -28,6 +31,8 @@ const descripcion = limpiarDescripcion(destacado?.description);
             imagen && (
               <img
                 src={imagen}
+                srcset={imagenSrcset}
+                sizes="(min-width: 768px) 480px, 100vw"
                 alt={altImagen}
                 class="h-full w-full object-cover grayscale"
                 width="900"
