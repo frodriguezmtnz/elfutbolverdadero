@@ -264,11 +264,11 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     estado.textContent = 'Buscando…';
     if (vacio) vacio.hidden = true;
 
-    // Reservar espacio para los resultados y evitar saltos de layout (CLS)
-    contenedorEl.style.minHeight = `${Math.round(window.innerHeight * 0.5)}px`;
-
     const estadoEl: HTMLElement = estado;
     const contenedorEl: HTMLElement = contenedor;
+
+    // Reservar espacio para los resultados y evitar saltos de layout (CLS)
+    contenedorEl.style.minHeight = `${Math.round(window.innerHeight * 0.5)}px`;
 
     try {
       const indice = await cargarIndice();
