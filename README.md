@@ -1,43 +1,72 @@
-# Astro Starter Kit: Minimal
+# El Fútbol Verdadero
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, artículos y opinión sobre fútbol base. Entrenar, pensar, compartir.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Stack
 
-## 🚀 Project Structure
+- **[Astro 7](https://docs.astro.build)** (SSG, output estático) + **TypeScript strict**
+- **[Sanity.io](https://www.sanity.io)** como headless CMS (contenido e imágenes)
+- **[Tailwind CSS 4](https://tailwindcss.com)** vía plugin Vite
+- **[Vercel](https://vercel.com)** para hosting/deploys · **GitHub Actions** para CI
 
-Inside of your Astro project, you'll see the following folders and files:
+## Comandos
+
+| Comando                | Acción                                             |
+| :--------------------- | :------------------------------------------------- |
+| `npm run dev`          | Servidor de desarrollo en `localhost:4321`         |
+| `npm run build`        | Build de producción a `./dist/`                    |
+| `npm run preview`      | Sirve el build localmente para previsualizar       |
+| `npm run lint`         | ESLint (incluye reglas jsx-a11y para `.astro`)     |
+| `npm run format`       | Prettier sobre todo el repo                        |
+| `npm run format:check` | Comprueba el formato sin modificar                 |
+| `npx astro check`      | Chequeo de tipos de Astro                          |
+| `npm run studio`       | Sanity Studio en `localhost:3333`                  |
+| `npm run import:wp`    | Import de contenido desde la API REST de WordPress |
+
+## Estructura
 
 ```text
 /
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+├── public/            # Estáticos (favicon, fonts, og.png)
+├── sanity/            # Schemas del CMS (publicacion, autor, categoria, etiqueta, embed, webAmiga)
+├── scripts/           # Utilidades (import WP, generación de og.png)
+└── src/
+    ├── components/    # Componentes Astro (cards, navegación, Portable Text…)
+    ├── config/        # Config (enlaces sociales)
+    ├── layouts/       # Base.astro: SEO, OG, JSON-LD, skip link
+    ├── lib/           # Queries GROQ y helpers (sanity.ts, images.ts, texto.ts…)
+    ├── pages/         # Rutas estáticas
+    └── styles/        # Tokens de diseño (global.css)
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Rutas principales
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- `/` · `/entrevistas/` (paginada) · `/categoria/[slug]/` · `/etiqueta/[slug]/` (paginadas)
+- `/buscar/` (índice de búsqueda dividido: `busqueda.json` + `busqueda-cuerpo.json`)
+- `/rss.xml` · `/politica-de-privacidad/` · `/colaboraciones/`
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Variables de entorno
 
-## 🧞 Commands
+Copia `.env.example` a `.env` y rellena los valores. En Sanity:
 
-All commands are run from the root of the project, from a terminal:
+- `SANITY_PROJECT_ID` / `SANITY_DATASET` — cliente de lectura de Astro
+- `SANITY_TOKEN` — solo para escritura (import); nunca se publica
+- `SANITY_STUDIO_PROJECT_ID` / `SANITY_STUDIO_DATASET` — Studio (corre en navegador)
+- `DEV_ALLOWED_HOSTS` — hosts extra permitidos en `astro dev`
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+> El dataset de desarrollo local suele ser `staging`; producción usa `production`
+> (configurado en Vercel). El fallback del build es `production` por seguridad.
 
-## 👀 Want to learn more?
+## Contenido y despliegue
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+1. Se publica en el Sanity Studio (dataset de trabajo).
+2. El sitio es estático: cada publicación requiere un build (deploy en Vercel;
+   webhook pendiente de configurar para automatizarlo).
+3. CI (`.github/workflows/ci.yml`): en cada push/PR ejecuta `lint`, `format:check`,
+   `astro check` y `build`.
+
+## Migración desde WordPress
+
+`scripts/import-wp.mjs` importa los posts legacy (HTML → Portable Text, imágenes
+a Sanity, meta Yoast, slugs 1:1) con checkpoint en `.import/`. Ver
+`MIGRATION-TRACKING.md` para el estado detallado de la migración.
