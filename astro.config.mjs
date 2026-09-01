@@ -13,7 +13,10 @@ export default defineConfig({
   site: 'https://www.elfutbolverdadero.com',
   output: 'static',
   integrations: [
-    sitemap(),
+    sitemap({
+      // Excluir páginas marcadas con noindex (buscador, página legal)
+      filter: (page) => !page.includes('/buscar/') && !page.includes('/politica-de-privacidad/'),
+    }),
     mdx(),
     reveal({ mode: 'observer' }),
     sanity({
