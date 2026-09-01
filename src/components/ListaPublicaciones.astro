@@ -40,6 +40,7 @@ const {
       {publicaciones.map((pub, i) => (
         <EntrevistaCard
           pub={pub}
+          headingTag="h2"
           chipAcento={i % 3 === 1}
           data-reveal="up"
           style={`--reveal-index: ${i % 3}`}

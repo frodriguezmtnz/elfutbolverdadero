@@ -208,7 +208,7 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     }
     cuerpo.append(fila);
 
-    const h3 = document.createElement('h3');
+    const h3 = document.createElement('h2');
     h3.className = 'mt-5 font-heading font-semibold text-2xl uppercase leading-tight';
     const enlaceTitulo = document.createElement('a');
     enlaceTitulo.href = `/${item.slug}/`;
@@ -263,6 +263,9 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     estado.hidden = false;
     estado.textContent = 'Buscando…';
     if (vacio) vacio.hidden = true;
+
+    // Reservar espacio para los resultados y evitar saltos de layout (CLS)
+    contenedorEl.style.minHeight = `${Math.round(window.innerHeight * 0.5)}px`;
 
     const estadoEl: HTMLElement = estado;
     const contenedorEl: HTMLElement = contenedor;
