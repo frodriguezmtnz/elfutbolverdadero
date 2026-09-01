@@ -22,7 +22,11 @@ interface Block {
   level?: number;
   children?: Child[];
   markDefs?: MarkDef[];
-  asset?: { url?: string; _id?: string } | null;
+  asset?: {
+    url?: string;
+    _id?: string;
+    dimensions?: { width?: number; height?: number; aspectRatio?: number } | null;
+  } | null;
   alt?: string;
   caption?: string;
   url?: string;
@@ -84,7 +88,15 @@ function renderInline(children: Child[], markDefs: MarkDef[]): string {
 type Grupo =
   | { kind: 'texto'; style: string; html: string }
   | { kind: 'lista'; ordenada: boolean; items: string[] }
-  | { kind: 'imagen'; src: string | null; srcset: string; alt: string; caption?: string }
+  | {
+      kind: 'imagen';
+      src: string | null;
+      srcset: string;
+      width?: number;
+      height?: number;
+      alt: string;
+      caption?: string;
+    }
   | { kind: 'embed'; url: string; title: string };
 
 const grupos: Grupo[] = [];
@@ -108,6 +120,8 @@ for (const block of lista) {
       kind: 'imagen',
       src: urlFor(block.asset, 1000),
       srcset: srcsetFor(block.asset, [400, 800, 1200, 1600]),
+      width: block.asset.dimensions?.width,
+      height: block.asset.dimensions?.height,
       alt: block.alt ?? block.caption ?? '',
       caption: block.caption,
     });
@@ -168,8 +182,9 @@ for (const block of lista) {
               srcset={grupo.srcset}
               sizes="(min-width: 768px) 768px, 100vw"
               alt={grupo.alt}
-              class="rounded-xl shadow-md"
-              width="1000"
+              class="h-auto w-full rounded-xl shadow-md"
+              width={grupo.width ?? 1000}
+              height={grupo.height}
               loading="lazy"
             />
             {grupo.caption && (

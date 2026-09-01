@@ -55,7 +55,7 @@ const baseFields = `
   wpUrl,
   'author': author->{ name, role, 'image': image.asset->{ _id, url } },
   'mainImage': mainImage {
-    'asset': asset->{ _id, url },
+    'asset': asset->{ _id, url, 'dimensions': metadata.dimensions },
     alt,
     caption
   },
@@ -65,7 +65,7 @@ const baseFields = `
 
 const publicacionFields = `
   ${baseFields},
-  'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url}, null) }
+  'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url, 'dimensions': metadata.dimensions}, null) }
 `;
 
 export async function getPublicaciones(): Promise<Publicacion[]> {
