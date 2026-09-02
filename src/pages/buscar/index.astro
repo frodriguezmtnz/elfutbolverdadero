@@ -57,6 +57,8 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
 
           <div id="resultados" class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
           </div>
+
+          <nav id="paginacion" class="mt-10" aria-label="Paginación" hidden></nav>
         </div>
       </section>
     </main>
@@ -70,9 +72,21 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
   import type { ItemBusqueda, ItemCuerpo } from '../../lib/busqueda';
   import { limpiarDescripcion } from '../../lib/limpieza';
 
-  let cacheMeta: ItemBusqueda[] | null = null;
-  let cacheCuerpo: Map<string, string> | null = null;
+  interface CacheBusqueda {
+    meta: ItemBusqueda[] | null;
+    cuerpo: Map<string, string> | null;
+  }
+  // El ClientRouter re-ejecuta el script en cada navegación, pero `window` persiste:
+  // guardamos aquí los índices para no volver a descargarlos al paginar.
+  const g = window as unknown as { __efsBusqueda?: CacheBusqueda };
+  const cache: CacheBusqueda = (g.__efsBusqueda ??= { meta: null, cuerpo: null });
   let cargandoCuerpo: Promise<Map<string, string>> | null = null;
+
+  const PAGE_SIZE = 12;
+  let ultimaCoincidencias: { item: ItemBusqueda; puntos: number }[] = [];
+  let paginaActual = 1;
+  let consultaActual = '';
+  let terminosActuales: string[] = [];
 
   function normalizar(texto: string): string {
     return texto
@@ -82,28 +96,28 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
   }
 
   async function cargarIndice(): Promise<ItemBusqueda[]> {
-    if (!cacheMeta) {
+    if (!cache.meta) {
       const res = await fetch('/busqueda.json');
       if (!res.ok) throw new Error('No se pudo cargar el índice de búsqueda');
-      cacheMeta = (await res.json()) as ItemBusqueda[];
+      cache.meta = (await res.json()) as ItemBusqueda[];
     }
-    return cacheMeta;
+    return cache.meta;
   }
 
   function cargarCuerpo(): Promise<Map<string, string>> {
-    if (!cacheCuerpo) {
+    if (!cache.cuerpo) {
       if (!cargandoCuerpo) {
         cargandoCuerpo = (async () => {
           const res = await fetch('/busqueda-cuerpo.json');
           if (!res.ok) throw new Error('No se pudo cargar el texto completo');
           const items = (await res.json()) as ItemCuerpo[];
-          cacheCuerpo = new Map(items.map((i) => [i.slug, i.bodyText ?? '']));
-          return cacheCuerpo;
+          cache.cuerpo = new Map(items.map((i) => [i.slug, i.bodyText ?? '']));
+          return cache.cuerpo;
         })();
       }
       return cargandoCuerpo;
     }
-    return Promise.resolve(cacheCuerpo);
+    return Promise.resolve(cache.cuerpo);
   }
 
   function puntuar(item: ItemBusqueda, terminos: string[], cuerpoTexto: string): number {
@@ -240,6 +254,147 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     return tarjeta;
   }
 
+  function svgIcono(paths: string, clase: string): string {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${clase}" aria-hidden="true">${paths}</svg>`;
+  }
+  const ARROW_LEFT = `<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>`;
+  const ARROW_RIGHT = `<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>`;
+
+  function totalPaginas(): number {
+    return Math.max(1, Math.ceil(ultimaCoincidencias.length / PAGE_SIZE));
+  }
+
+  function clampPagina(): void {
+    paginaActual = Math.min(Math.max(1, paginaActual), totalPaginas());
+  }
+
+  function leerPaginaURL(): number {
+    const params = new URLSearchParams(window.location.search);
+    const n = parseInt(params.get('p') ?? '1', 10);
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }
+
+  function urlBusqueda(q: string, p: number): string {
+    const params = new URLSearchParams();
+    params.set('q', q);
+    if (p > 1) params.set('p', String(p));
+    return `/buscar/?${params.toString()}`;
+  }
+
+  function construirPaginacion(): void {
+    const nav = document.getElementById('paginacion');
+    if (!nav) return;
+
+    const totalPages = totalPaginas();
+    if (ultimaCoincidencias.length === 0 || totalPages <= 1) {
+      nav.hidden = true;
+      nav.replaceChildren();
+      return;
+    }
+    nav.hidden = false;
+
+    const numeros: (number | 'elipsis')[] = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - paginaActual) <= 1) {
+        numeros.push(i);
+      } else if (numeros[numeros.length - 1] !== 'elipsis') {
+        numeros.push('elipsis');
+      }
+    }
+
+    const claseEnlace =
+      'inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary';
+    const claseNumero =
+      'inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary';
+    const claseActual =
+      'inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground';
+    const claseDesactivado =
+      'inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50';
+
+    const frag = document.createDocumentFragment();
+    const envoltorio = document.createElement('div');
+    envoltorio.className = 'flex flex-wrap items-center gap-2';
+
+    if (paginaActual > 1) {
+      envoltorio.insertAdjacentHTML(
+        'beforeend',
+        `<a href="${urlBusqueda(consultaActual, paginaActual - 1)}" rel="prev" class="${claseEnlace}">${svgIcono(ARROW_LEFT, 'text-base')}Anterior</a>`,
+      );
+    } else {
+      envoltorio.insertAdjacentHTML(
+        'beforeend',
+        `<span class="${claseDesactivado}" aria-disabled="true">Anterior</span>`,
+      );
+    }
+
+    const numerosDiv = document.createElement('div');
+    numerosDiv.className = 'flex flex-wrap items-center gap-1';
+    for (const n of numeros) {
+      if (n === 'elipsis') {
+        numerosDiv.insertAdjacentHTML(
+          'beforeend',
+          '<span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">…</span>',
+        );
+      } else if (n === paginaActual) {
+        numerosDiv.insertAdjacentHTML(
+          'beforeend',
+          `<span aria-current="page" class="${claseActual}">${n}</span>`,
+        );
+      } else {
+        numerosDiv.insertAdjacentHTML(
+          'beforeend',
+          `<a href="${urlBusqueda(consultaActual, n)}" class="${claseNumero}">${n}</a>`,
+        );
+      }
+    }
+    envoltorio.append(numerosDiv);
+
+    if (paginaActual < totalPages) {
+      envoltorio.insertAdjacentHTML(
+        'beforeend',
+        `<a href="${urlBusqueda(consultaActual, paginaActual + 1)}" rel="next" class="${claseEnlace}">Siguiente${svgIcono(ARROW_RIGHT, 'text-base')}</a>`,
+      );
+    } else {
+      envoltorio.insertAdjacentHTML(
+        'beforeend',
+        `<span class="${claseDesactivado}" aria-disabled="true">Siguiente</span>`,
+      );
+    }
+
+    frag.append(envoltorio);
+    nav.replaceChildren(frag);
+  }
+
+  function pintarPagina(): void {
+    const estado = document.getElementById('estado');
+    const contenedor = document.getElementById('resultados');
+    const vacio = document.getElementById('sin-resultados');
+    if (!estado || !contenedor) return;
+
+    clampPagina();
+    const total = ultimaCoincidencias.length;
+    const inicio = (paginaActual - 1) * PAGE_SIZE;
+    const fin = Math.min(inicio + PAGE_SIZE, total);
+    const ventana = ultimaCoincidencias.slice(inicio, fin);
+
+    contenedor.replaceChildren();
+    for (const { item } of ventana) {
+      contenedor.append(crearTarjeta(item, terminosActuales, cache.cuerpo?.get(item.slug) ?? ''));
+    }
+
+    if (vacio) vacio.hidden = total > 0;
+
+    if (total === 0) {
+      estado.textContent = `Sin resultados para «${consultaActual}». Prueba con otras palabras.`;
+    } else if (totalPaginas() > 1) {
+      estado.textContent = `Mostrando ${inicio + 1}–${fin} de ${total} ${total === 1 ? 'resultado' : 'resultados'} para «${consultaActual}»`;
+    } else {
+      estado.textContent = `${total} ${total === 1 ? 'resultado' : 'resultados'} para «${consultaActual}»`;
+    }
+
+    construirPaginacion();
+  }
+
   async function buscar() {
     const input = document.getElementById('q') as HTMLInputElement | null;
     const estado = document.getElementById('estado');
@@ -257,6 +412,11 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     if (!consulta) {
       estado.hidden = true;
       if (vacio) vacio.hidden = true;
+      const nav = document.getElementById('paginacion');
+      if (nav) {
+        nav.hidden = true;
+        nav.replaceChildren();
+      }
       return;
     }
 
@@ -264,50 +424,42 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     estado.textContent = 'Buscando…';
     if (vacio) vacio.hidden = true;
 
+    const contenedorEl: HTMLElement = contenedor;
+
     // Reservar espacio para los resultados y evitar saltos de layout (CLS)
     contenedorEl.style.minHeight = `${Math.round(window.innerHeight * 0.5)}px`;
 
-    const estadoEl: HTMLElement = estado;
-    const contenedorEl: HTMLElement = contenedor;
+    consultaActual = consulta;
+    paginaActual = leerPaginaURL();
 
     try {
       const indice = await cargarIndice();
       const terminos = normalizar(consulta).split(/\s+/).filter(Boolean);
+      terminosActuales = terminos;
 
-      function renderizarResultados(cuerpoMap: Map<string, string> | null): number {
-        const coincidencias = indice
+      function calcularCoincidencias(cuerpoMap: Map<string, string> | null): void {
+        ultimaCoincidencias = indice
           .map((item) => ({
             item,
             puntos: puntuar(item, terminos, cuerpoMap?.get(item.slug) ?? ''),
           }))
           .filter((r) => r.puntos > 0)
           .sort((a, b) => b.puntos - a.puntos);
-
-        contenedorEl.replaceChildren();
-        for (const { item } of coincidencias) {
-          contenedorEl.append(crearTarjeta(item, terminos, cuerpoMap?.get(item.slug) ?? ''));
-        }
-
-        if (vacio) vacio.hidden = coincidencias.length > 0;
-
-        estadoEl.textContent =
-          coincidencias.length === 0
-            ? `Sin resultados para «${consulta}». Prueba con otras palabras.`
-            : `${coincidencias.length} ${coincidencias.length === 1 ? 'resultado' : 'resultados'} para «${consulta}»`;
-
-        return coincidencias.length;
       }
 
-      renderizarResultados(cacheCuerpo);
+      calcularCoincidencias(cache.cuerpo);
+      pintarPagina();
 
-      if (!cacheCuerpo) {
+      if (!cache.cuerpo) {
         cargarCuerpo()
           .then((map) => {
-            const consultaActual = (
+            const consultaVigente = (
               new URLSearchParams(window.location.search).get('q') ?? input.value
             ).trim();
-            if (consultaActual === consulta) {
-              renderizarResultados(map);
+            if (consultaVigente === consulta) {
+              // Re-rank con texto completo conservando la página actual.
+              calcularCoincidencias(map);
+              pintarPagina();
             }
           })
           .catch(() => {

@@ -27,6 +27,11 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
+  redirects: {
+    // Entrevista legacy con slug árabe (WP) → slug español tras la traducción
+    '/مقابلة-الحسين-بلكبوس-أحاول-نقل-معلو':
+      '/entrevista-hussein-belkbous-intento-transmitir-informacion-clara-y-pura-a-los-jugadores/',
+  },
   server: {
     allowedHosts: process.env.DEV_ALLOWED_HOSTS?.split(',').map((h) => h.trim()) ?? [],
   },
