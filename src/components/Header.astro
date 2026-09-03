@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import Logo from './Logo.astro';
 
 interface Props {
   lecturaHref?: string;
@@ -13,11 +14,7 @@ const enHome = Astro.url.pathname === '/';
 <header class="border-b border-border bg-card">
   <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
     <a class="flex items-center gap-3" href="/">
-      <span
-        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md"
-      >
-        <Icon name="goal" />
-      </span>
+      <Logo class="h-12 w-auto" />
       <span class="leading-none">
         <span
           class="block font-heading font-semibold text-lg uppercase tracking-tight text-foreground"
