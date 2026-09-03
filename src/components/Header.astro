@@ -4,14 +4,16 @@ import Logo from './Logo.astro';
 
 interface Props {
   lecturaHref?: string;
+  /** sticky: siempre visible · smart: se oculta al bajar y aparece al subir */
+  mode?: 'sticky' | 'smart';
 }
 
-const { lecturaHref = '/entrevistas/' } = Astro.props;
+const { lecturaHref = '/entrevistas/', mode = 'sticky' } = Astro.props;
 
 const enHome = Astro.url.pathname === '/';
 ---
 
-<header class="border-b border-border bg-card">
+<header data-header data-mode={mode} class="sticky top-0 z-50 border-b border-border bg-card">
   <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
     <a class="flex items-center gap-3" href="/">
       <Logo class="h-12 w-auto" />
@@ -54,3 +56,93 @@ const enHome = Astro.url.pathname === '/';
     </div>
   </div>
 </header>
+
+<style>
+  header {
+    transition:
+      transform 300ms ease,
+      background-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  /* Contenido pasando por debajo: fondo translúcido + blur sutil */
+  header.is-stuck {
+    background-color: rgb(255 255 255 / 0.8);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px -8px rgb(15 23 42 / 0.18);
+  }
+
+  /* Modo smart (artículos): se oculta al bajar, aparece al subir */
+  header[data-mode='smart'].is-hidden {
+    transform: translateY(-100%);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    header.is-stuck {
+      background-color: var(--color-card);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    header {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const STUCK_AFTER = 8; // px de scroll para activar blur
+  const HIDE_AFTER = 80; // por debajo de aquí el header nunca se oculta
+  const JITTER_DELTA = 8; // delta mínimo de dirección anti-temblor
+
+  let lastY = window.scrollY;
+  let ticking = false;
+
+  function evaluate() {
+    const header = document.querySelector<HTMLElement>('[data-header]');
+    if (!header) return;
+    const y = window.scrollY;
+
+    header.classList.toggle('is-stuck', y > STUCK_AFTER);
+
+    if (header.dataset.mode === 'smart') {
+      const hidden = header.classList.contains('is-hidden');
+      if (y <= HIDE_AFTER) {
+        header.classList.remove('is-hidden');
+      } else if (y - lastY > JITTER_DELTA && !hidden) {
+        header.classList.add('is-hidden');
+      } else if (lastY - y > JITTER_DELTA && hidden) {
+        header.classList.remove('is-hidden');
+      }
+    }
+    lastY = y;
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      evaluate();
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Con ClientRouter el script corre una sola vez: re-evaluar tras cada navegación
+  document.addEventListener('astro:page-load', () => {
+    lastY = window.scrollY;
+    evaluate();
+  });
+
+  // Accesibilidad: si un enlace del header recibe foco, asegurarse de que esté visible
+  document.addEventListener('focusin', (e) => {
+    const header = document.querySelector<HTMLElement>('[data-header]');
+    if (header && e.target instanceof Node && header.contains(e.target)) {
+      header.classList.remove('is-hidden');
+    }
+  });
+</script>

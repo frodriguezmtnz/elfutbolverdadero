@@ -71,6 +71,11 @@
 }
 
 @layer base {
+  html {
+    /* Que las anclas (/#pizarra, /#cuaderno...) no queden bajo el header sticky */
+    scroll-padding-top: 4.5rem;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
