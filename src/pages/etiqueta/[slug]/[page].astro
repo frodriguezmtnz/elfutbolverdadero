@@ -24,7 +24,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
     const publicaciones = await getPublicacionesPorEtiqueta(etiqueta.name);
     if (publicaciones.length <= PAGE_SIZE) continue;
     const slug = slugDeEtiqueta(etiqueta.name, etiqueta.slug);
-    const pages = await paginate(publicaciones, { pageSize: PAGE_SIZE, params: { slug } });
+    const pages = paginate(publicaciones, { pageSize: PAGE_SIZE, params: { slug } });
     for (const p of pages) {
       if (p.params.page !== undefined && Number(p.params.page) > 1) {
         rutas.push({

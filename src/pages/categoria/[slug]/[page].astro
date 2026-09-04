@@ -21,7 +21,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   for (const categoria of todasLasCategorias) {
     const publicaciones = await getPublicacionesPorCategoria(categoria.slug);
     if (publicaciones.length <= PAGE_SIZE) continue;
-    const pages = await paginate(publicaciones, {
+    const pages = paginate(publicaciones, {
       pageSize: PAGE_SIZE,
       params: { slug: categoria.slug },
     });

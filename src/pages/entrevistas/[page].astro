@@ -16,7 +16,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const PAGE_SIZE = 24;
   const entrevistas = await getTodasEntrevistas();
   const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
-  const pages = await paginate(entrevistas, { pageSize: PAGE_SIZE });
+  const pages = paginate(entrevistas, { pageSize: PAGE_SIZE });
   return pages
     .filter((p) => p.params.page !== undefined && Number(p.params.page) > 1)
     .map((p) => ({
