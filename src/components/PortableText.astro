@@ -119,7 +119,7 @@ for (const block of lista) {
     grupos.push({
       kind: 'imagen',
       src: urlFor(block.asset, 1000),
-      srcset: srcsetFor(block.asset, [400, 800, 1200, 1600]),
+      srcset: srcsetFor(block.asset, [400, 800, 1200, 1600, 2000]),
       width: block.asset.dimensions?.width,
       height: block.asset.dimensions?.height,
       alt: block.alt ?? block.caption ?? '',
@@ -182,7 +182,7 @@ for (const block of lista) {
               srcset={grupo.srcset}
               sizes="(min-width: 768px) 768px, 100vw"
               alt={grupo.alt}
-              class="h-auto w-full rounded-xl shadow-md"
+              class="zoomable h-auto w-full cursor-zoom-in rounded-xl shadow-md"
               width={grupo.width ?? 1000}
               height={grupo.height}
               loading="lazy"

@@ -199,7 +199,7 @@ const jsonLd: object[] = [
                 srcset={imagenDestacadaSrcset}
                 sizes="(min-width: 896px) 896px, 100vw"
                 alt={altImagen}
-                class="aspect-[16/9] w-full rounded-xl object-cover grayscale shadow-lg"
+                class="zoomable aspect-[16/9] w-full cursor-zoom-in rounded-xl object-cover grayscale shadow-lg"
                 width="1400"
                 height="788"
                 loading="eager"
@@ -299,3 +299,23 @@ const jsonLd: object[] = [
     <MobileNav />
   </div>
 </Base>
+
+<script>
+  import mediumZoom from 'medium-zoom';
+
+  function initZoom() {
+    // Selecciona solo las imágenes aún no procesadas para evitar doble-bind
+    mediumZoom('.zoomable:not([data-zoom])', {
+      background: 'rgba(0, 0, 0, 0.9)',
+      margin: 24,
+      scrollOffset: 40,
+    });
+    document
+      .querySelectorAll<HTMLImageElement>('.zoomable')
+      .forEach((el) => el.setAttribute('data-zoom', ''));
+  }
+
+  initZoom();
+  // Con ClientRouter el script corre una sola vez: re-vincular tras cada navegación
+  document.addEventListener('astro:page-load', initZoom);
+</script>
