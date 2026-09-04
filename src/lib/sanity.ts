@@ -1,4 +1,6 @@
 import { sanityClient } from 'sanity:client';
+import type { QueryParams } from '@sanity/client';
+import { decodificarEntidades } from './entidades';
 
 export interface Publicacion {
   _id: string;
@@ -68,8 +70,65 @@ const publicacionFields = `
   'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url, 'dimensions': metadata.dimensions}, null) }
 `;
 
+interface BloqueBody {
+  _type?: string;
+  children?: Array<Record<string, unknown>>;
+}
+
+// Limpia las entidades HTML residuales de WordPress en un doc de publicacion
+// (titulo, resumen, SEO, alt/caption, body) para que se muestren como caracteres reales.
+export function sanearPublicacion<T extends Partial<Publicacion>>(pub: T): T {
+  const p = pub as Record<string, unknown>;
+  for (const k of ['title', 'club', 'description', 'seoTitle', 'seoDescription', 'readingTime']) {
+    if (typeof p[k] === 'string') p[k] = decodificarEntidades(p[k] as string);
+  }
+  const author = p.author as { name?: string; role?: string } | undefined;
+  if (author) {
+    if (typeof author.name === 'string') author.name = decodificarEntidades(author.name);
+    if (typeof author.role === 'string') author.role = decodificarEntidades(author.role);
+  }
+  const img = p.mainImage as { alt?: string; caption?: string } | undefined;
+  if (img) {
+    if (typeof img.alt === 'string') img.alt = decodificarEntidades(img.alt);
+    if (typeof img.caption === 'string') img.caption = decodificarEntidades(img.caption);
+  }
+  for (const coleccion of ['categorias', 'etiquetas'] as const) {
+    const arr = p[coleccion] as Array<{ name?: string }> | undefined;
+    if (Array.isArray(arr)) {
+      for (const item of arr) {
+        if (typeof item?.name === 'string') item.name = decodificarEntidades(item.name);
+      }
+    }
+  }
+  const body = p.body;
+  if (Array.isArray(body)) {
+    for (const bloque of body as BloqueBody[]) {
+      if (Array.isArray(bloque?.children)) {
+        for (const hijo of bloque.children) {
+          if (typeof hijo.text === 'string') hijo.text = decodificarEntidades(hijo.text);
+        }
+      }
+    }
+  }
+  return pub;
+}
+
+async function fetchDocs(query: string, params?: QueryParams): Promise<Publicacion[]> {
+  const docs = params
+    ? await sanityClient.fetch<Publicacion[]>(query, params)
+    : await sanityClient.fetch<Publicacion[]>(query);
+  return (docs ?? []).map(sanearPublicacion);
+}
+
+async function fetchDoc(query: string, params?: QueryParams): Promise<Publicacion | null> {
+  const doc = params
+    ? await sanityClient.fetch<Publicacion | null>(query, params)
+    : await sanityClient.fetch<Publicacion | null>(query);
+  return doc ? sanearPublicacion(doc) : null;
+}
+
 export async function getPublicaciones(): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
       ${publicacionFields}
     }`,
@@ -77,7 +136,7 @@ export async function getPublicaciones(): Promise<Publicacion[]> {
 }
 
 export async function getPublicacionBySlug(slug: string): Promise<Publicacion | null> {
-  return sanityClient.fetch(
+  return fetchDoc(
     `*[_type == 'publicacion' && slug.current == $slug][0] {
       ${publicacionFields}
     }`,
@@ -86,7 +145,9 @@ export async function getPublicacionBySlug(slug: string): Promise<Publicacion | 
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  return sanityClient.fetch(`*[_type == 'publicacion' && defined(slug.current)].slug.current`);
+  return sanityClient.fetch<string[]>(
+    `*[_type == 'publicacion' && defined(slug.current)].slug.current`,
+  );
 }
 
 export interface CategoriaConteo {
@@ -96,7 +157,7 @@ export interface CategoriaConteo {
 }
 
 export async function getEntrevistaDestacada(): Promise<Publicacion | null> {
-  return sanityClient.fetch(
+  return fetchDoc(
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && defined(description) && defined(mainImage.asset)] | order(publishedAt desc) [0] {
       ${publicacionFields}
     }`,
@@ -104,7 +165,7 @@ export async function getEntrevistaDestacada(): Promise<Publicacion | null> {
 }
 
 export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
       ${publicacionFields}
     }`,
@@ -113,7 +174,7 @@ export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<
 }
 
 export async function getTodasEntrevistas(): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current)] | order(publishedAt desc) {
       ${baseFields}
     }`,
@@ -121,7 +182,7 @@ export async function getTodasEntrevistas(): Promise<Publicacion[]> {
 }
 
 export async function getUltimasPublicaciones(limit = 50): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) [0...$limit] {
       ${baseFields}
     }`,
@@ -130,7 +191,7 @@ export async function getUltimasPublicaciones(limit = 50): Promise<Publicacion[]
 }
 
 export async function getCuadernoDestacado(): Promise<Publicacion | null> {
-  return sanityClient.fetch(
+  return fetchDoc(
     `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && defined(description)] | order(publishedAt desc) [0] {
       ${publicacionFields}
     }`,
@@ -138,7 +199,7 @@ export async function getCuadernoDestacado(): Promise<Publicacion | null> {
 }
 
 export async function getUltimosArticulos(limit = 3, excludeId = ''): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
       ${publicacionFields}
     }`,
@@ -158,7 +219,7 @@ export async function getCategoriasConConteo(minimo = 1): Promise<CategoriaConte
 }
 
 export async function getPublicacionesPorCategoria(slug: string): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && defined(slug.current) && $slug in categorias[]->slug.current] | order(publishedAt desc) {
       ${baseFields}
     }`,
@@ -184,7 +245,7 @@ export async function getEtiquetasConConteo(minimo = 1): Promise<EtiquetaConteo[
 }
 
 export async function getPublicacionesPorEtiqueta(name: string): Promise<Publicacion[]> {
-  return sanityClient.fetch(
+  return fetchDocs(
     `*[_type == 'publicacion' && defined(slug.current) && $name in etiquetas[]->name] | order(publishedAt desc) {
       ${baseFields}
     }`,
@@ -206,7 +267,7 @@ export interface WebAmiga {
 }
 
 export async function getWebsAmigas(): Promise<WebAmiga[]> {
-  return sanityClient.fetch(
+  return sanityClient.fetch<WebAmiga[]>(
     `*[_type == 'webAmiga'] | order(order asc, name asc) {
       _id,
       name,

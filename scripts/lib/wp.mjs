@@ -1,3 +1,5 @@
+import { decodificarEntidades } from './entidades.mjs';
+
 const BASE = 'https://www.elfutbolverdadero.com/wp-json/wp/v2';
 
 async function wpFetch(path, { retries = 3, backoffMs = 1500 } = {}) {
@@ -78,13 +80,7 @@ export async function getYoastHead(url) {
 
 function dec(s) {
   if (!s) return s;
-  return s
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+  return decodificarEntidades(s);
 }
 
 export { wpFetch };

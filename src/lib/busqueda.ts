@@ -1,4 +1,5 @@
 import { sanityClient } from 'sanity:client';
+import { decodificarEntidades } from './entidades';
 
 export interface ItemBusqueda {
   title: string;
@@ -34,11 +35,17 @@ const metaFields = `
 const MAX_BODY_TEXT = 4000;
 
 export async function getIndexBusqueda(): Promise<ItemBusqueda[]> {
-  return sanityClient.fetch(
+  const items = await sanityClient.fetch<ItemBusqueda[]>(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
       ${metaFields}
     }`,
   );
+  return (items ?? []).map((item) => ({
+    ...item,
+    title: decodificarEntidades(item.title),
+    description: item.description ? decodificarEntidades(item.description) : item.description,
+    alt: item.alt ? decodificarEntidades(item.alt) : item.alt,
+  }));
 }
 
 export async function getIndexCuerpo(): Promise<ItemCuerpo[]> {
@@ -50,6 +57,8 @@ export async function getIndexCuerpo(): Promise<ItemCuerpo[]> {
   );
   return items.map((item) => ({
     ...item,
-    bodyText: item.bodyText ? item.bodyText.slice(0, MAX_BODY_TEXT) : item.bodyText,
+    bodyText: item.bodyText
+      ? decodificarEntidades(item.bodyText).slice(0, MAX_BODY_TEXT)
+      : item.bodyText,
   }));
 }

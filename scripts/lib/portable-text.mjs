@@ -1,4 +1,5 @@
 import { htmlToBlocks } from '@sanity/block-tools';
+import { decodificarEntidades } from './entidades.mjs';
 
 // Mini-schema de bloque para que block-tools sepa los estilos válidos
 const blockContentType = {
@@ -19,13 +20,7 @@ const blockContentType = {
 };
 
 function htmlEntityDecode(s = '') {
-  return s
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+  return decodificarEntidades(s);
 }
 
 // Recorta un HTML en "segmentos": textos/bloques y elementos especiales (iframe, img, blockquote)
@@ -101,6 +96,14 @@ export async function htmlToPortableText(html, { resolveImageUrl }) {
       const assetRef = await resolveImageUrl(tok.src);
       if (assetRef) {
         blocks.push({ _type: 'image', asset: { _type: 'reference', _ref: assetRef } });
+      }
+    }
+  }
+
+  for (const b of blocks) {
+    if (Array.isArray(b.children)) {
+      for (const c of b.children) {
+        if (typeof c.text === 'string') c.text = decodificarEntidades(c.text);
       }
     }
   }

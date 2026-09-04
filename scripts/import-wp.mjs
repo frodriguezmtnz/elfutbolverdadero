@@ -15,6 +15,7 @@ import {
 import { createSanity, uploadImageFromUrl, createOrReplace } from './lib/sanity.mjs';
 import { htmlToPortableText } from './lib/portable-text.mjs';
 import { loadRegistry, saveRegistry, withRetry, makeReport } from './lib/checkpoint.mjs';
+import { decodificarEntidades } from './lib/entidades.mjs';
 
 // ---- CLI ----
 const args = process.argv.slice(2);
@@ -195,17 +196,11 @@ function mapTipo(categoryIds, catIdToName) {
 }
 
 function stripTags(html = '') {
-  return html.replace(/<[^>]+>/g, '').trim();
+  return decodificarEntidades(html.replace(/<[^>]+>/g, '')).trim();
 }
 
 function limpiarExtracto(html = '') {
-  let texto = stripTags(html)
-    .replace(/&#0?39;/g, "'")
-    .replace(/&#8230;/g, '…')
-    .replace(/&hellip;/gi, '…')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, '&');
+  let texto = stripTags(html);
   texto = texto.replace(/^tiempo\s+de\s+lectura:\s*\d*\s*minutos?\.?\s*/i, '');
   texto = texto.replace(/\s*\[\s*…\s*\]\s*$/u, '');
   return texto.replace(/\s+/g, ' ').trim();

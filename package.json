@@ -16,6 +16,8 @@
     "studio": "sanity dev --port 3333",
     "sanity": "sanity",
     "import:wp": "node scripts/import-wp.mjs",
+    "sanity:fix-entities": "node scripts/fix-sanity-entities.mjs",
+    "sanity:fix-entities:apply": "node scripts/fix-sanity-entities.mjs --apply",
     "postinstall": "patch-package"
   },
   "dependencies": {
