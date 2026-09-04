@@ -268,7 +268,7 @@ export interface WebAmiga {
 
 export async function getWebsAmigas(): Promise<WebAmiga[]> {
   return sanityClient.fetch<WebAmiga[]>(
-    `*[_type == 'webAmiga'] | order(order asc, name asc) {
+    `*[_type == 'webAmiga' && !(_id in path('drafts.**'))] | order(order asc, name asc) {
       _id,
       name,
       url,
