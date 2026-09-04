@@ -2,6 +2,8 @@
 
 Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, artículos y opinión sobre fútbol base. Entrenar, pensar, compartir.
 
+<img src="images/fullpage-elfutbolverdadero-v2.png" alt="Vista completa de la web elfutbolverdadero en localhost" width="100%">
+
 ## Stack
 
 - **[Astro 7](https://docs.astro.build)** (SSG, output estático) + **TypeScript strict**
@@ -11,22 +13,25 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 
 ## Comandos
 
-| Comando                | Acción                                             |
-| :--------------------- | :------------------------------------------------- |
-| `npm run dev`          | Servidor de desarrollo en `localhost:4321`         |
-| `npm run build`        | Build de producción a `./dist/`                    |
-| `npm run preview`      | Sirve el build localmente para previsualizar       |
-| `npm run lint`         | ESLint (incluye reglas jsx-a11y para `.astro`)     |
-| `npm run format`       | Prettier sobre todo el repo                        |
-| `npm run format:check` | Comprueba el formato sin modificar                 |
-| `npx astro check`      | Chequeo de tipos de Astro                          |
-| `npm run studio`       | Sanity Studio en `localhost:3333`                  |
-| `npm run import:wp`    | Import de contenido desde la API REST de WordPress |
+| Comando                             | Acción                                                     |
+| :---------------------------------- | :--------------------------------------------------------- |
+| `npm run dev`                       | Servidor de desarrollo en `localhost:4321`                 |
+| `npm run build`                     | Build de producción a `./dist/`                            |
+| `npm run preview`                   | Sirve el build localmente para previsualizar               |
+| `npm run lint`                      | ESLint (incluye reglas jsx-a11y para `.astro`)             |
+| `npm run format`                    | Prettier sobre todo el repo                                |
+| `npm run format:check`              | Comprueba el formato sin modificar                         |
+| `npx astro check`                   | Chequeo de tipos de Astro                                  |
+| `npm run studio`                    | Sanity Studio en `localhost:3333`                          |
+| `npm run import:wp`                 | Import de contenido desde la API REST de WordPress         |
+| `npm run sanity:fix-entities`       | Limpia entidades HTML residuales de WP en Sanity (dry-run) |
+| `npm run sanity:fix-entities:apply` | Idem, escribiendo los cambios en Sanity                    |
 
 ## Estructura
 
 ```text
 /
+├── images/            # Capturas del README (no se incluyen en el build)
 ├── public/            # Estáticos (favicon, fonts, og.png)
 ├── sanity/            # Schemas del CMS (publicacion, autor, categoria, etiqueta, embed, webAmiga)
 ├── scripts/           # Utilidades (import WP, generación de og.png)
@@ -68,5 +73,4 @@ Copia `.env.example` a `.env` y rellena los valores. En Sanity:
 ## Migración desde WordPress
 
 `scripts/import-wp.mjs` importa los posts legacy (HTML → Portable Text, imágenes
-a Sanity, meta Yoast, slugs 1:1) con checkpoint en `.import/`. Ver
-`MIGRATION-TRACKING.md` para el estado detallado de la migración.
+a Sanity, meta Yoast, slugs 1:1) con checkpoint en `.import/`.
