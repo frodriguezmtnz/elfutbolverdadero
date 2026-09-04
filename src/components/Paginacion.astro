@@ -39,8 +39,10 @@ const tieneSiguiente = currentPage < totalPages;
           Anterior
         </a>
       ) : (
-        <span class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50">
-          <Icon name="arrow-left" class="text-base" />
+        <span
+          aria-disabled="true"
+          class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
+        >
           Anterior
         </span>
       )}
@@ -79,9 +81,11 @@ const tieneSiguiente = currentPage < totalPages;
           <Icon name="arrow-right" class="text-base" />
         </a>
       ) : (
-        <span class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50">
+        <span
+          aria-disabled="true"
+          class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
+        >
           Siguiente
-          <Icon name="arrow-right" class="text-base" />
         </span>
       )}
     </nav>
