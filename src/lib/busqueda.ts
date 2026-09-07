@@ -34,7 +34,16 @@ const metaFields = `
 
 const MAX_BODY_TEXT = 4000;
 
+let cacheBusqueda: Promise<ItemBusqueda[]> | null = null;
+let cacheCuerpo: Promise<ItemCuerpo[]> | null = null;
+
 export async function getIndexBusqueda(): Promise<ItemBusqueda[]> {
+  if (import.meta.env.DEV) return fetchIndexBusqueda();
+  if (!cacheBusqueda) cacheBusqueda = fetchIndexBusqueda();
+  return cacheBusqueda;
+}
+
+async function fetchIndexBusqueda(): Promise<ItemBusqueda[]> {
   const items = await sanityClient.fetch<ItemBusqueda[]>(
     `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
       ${metaFields}
@@ -49,6 +58,12 @@ export async function getIndexBusqueda(): Promise<ItemBusqueda[]> {
 }
 
 export async function getIndexCuerpo(): Promise<ItemCuerpo[]> {
+  if (import.meta.env.DEV) return fetchIndexCuerpo();
+  if (!cacheCuerpo) cacheCuerpo = fetchIndexCuerpo();
+  return cacheCuerpo;
+}
+
+async function fetchIndexCuerpo(): Promise<ItemCuerpo[]> {
   const items: ItemCuerpo[] = await sanityClient.fetch(
     `*[_type == 'publicacion' && defined(slug.current)] {
       'slug': slug.current,

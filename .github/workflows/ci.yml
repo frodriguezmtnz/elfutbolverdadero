@@ -5,8 +5,26 @@ on:
     branches: [main]
   pull_request:
 
+# Cancela runs obsoletos del mismo branch/PR para no acumular colas
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npx astro check
+
+  build:
     runs-on: ubuntu-latest
     env:
       SANITY_PROJECT_ID: s22b9256
@@ -18,7 +36,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npx astro check
       - run: npm run build
