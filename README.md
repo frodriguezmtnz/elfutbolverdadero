@@ -26,6 +26,8 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 | `npm run import:wp`                 | Import de contenido desde la API REST de WordPress         |
 | `npm run sanity:fix-entities`       | Limpia entidades HTML residuales de WP en Sanity (dry-run) |
 | `npm run sanity:fix-entities:apply` | Idem, escribiendo los cambios en Sanity                    |
+| `npm run sanity:fix-titles`         | Quita almohadillas `#` de títulos WP en Sanity (dry-run)   |
+| `npm run sanity:fix-titles:apply`   | Idem, escribiendo los cambios en Sanity                    |
 
 ## Estructura
 
