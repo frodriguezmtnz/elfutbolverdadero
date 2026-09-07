@@ -44,12 +44,7 @@ const { categorias, entrevistas } = Astro.props;
       entrevistas.length > 0 ? (
         <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
           {entrevistas.map((pub, i) => (
-            <EntrevistaCard
-              pub={pub}
-              chipAcento={i === 1}
-              data-reveal="up"
-              style={`--reveal-index: ${i}`}
-            />
+            <EntrevistaCard pub={pub} data-reveal="up" style={`--reveal-index: ${i}`} />
           ))}
         </div>
       ) : (
