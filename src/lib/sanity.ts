@@ -120,34 +120,36 @@ async function fetchDocs(query: string, params?: QueryParams): Promise<Publicaci
   return (docs ?? []).map(sanearPublicacion);
 }
 
-async function fetchDoc(query: string, params?: QueryParams): Promise<Publicacion | null> {
-  const doc = params
-    ? await sanityClient.fetch<Publicacion | null>(query, params)
-    : await sanityClient.fetch<Publicacion | null>(query);
-  return doc ? sanearPublicacion(doc) : null;
+// En build/SSG todas las rutas se renderizan en el mismo proceso de Node: se trae
+// UNA vez el dataset completo de publicaciones y el resto se deriva en memoria.
+// Sin esto, cada página de artículo lanzaba 2 consultas HTTP a Sanity (~400ms) y
+// el build de CI superaba los 8 minutos. En dev no se cachea para ver datos frescos.
+const QUERY_TODAS_PUBLICACIONES = `
+  *[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
+    ${publicacionFields}
+  }
+`;
+
+let cachePublicaciones: Promise<Publicacion[]> | null = null;
+
+async function loadPublicaciones(): Promise<Publicacion[]> {
+  if (import.meta.env.DEV) return fetchDocs(QUERY_TODAS_PUBLICACIONES);
+  if (!cachePublicaciones) cachePublicaciones = fetchDocs(QUERY_TODAS_PUBLICACIONES);
+  return cachePublicaciones;
 }
 
 export async function getPublicaciones(): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
-      ${publicacionFields}
-    }`,
-  );
+  return (await loadPublicaciones()).slice();
 }
 
 export async function getPublicacionBySlug(slug: string): Promise<Publicacion | null> {
-  return fetchDoc(
-    `*[_type == 'publicacion' && slug.current == $slug][0] {
-      ${publicacionFields}
-    }`,
-    { slug },
-  );
+  const todas = await loadPublicaciones();
+  return todas.find((p) => p.slug === slug) ?? null;
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  return sanityClient.fetch<string[]>(
-    `*[_type == 'publicacion' && defined(slug.current)].slug.current`,
-  );
+  const todas = await loadPublicaciones();
+  return todas.map((p) => p.slug);
 }
 
 export interface CategoriaConteo {
@@ -157,74 +159,65 @@ export interface CategoriaConteo {
 }
 
 export async function getEntrevistaDestacada(): Promise<Publicacion | null> {
-  return fetchDoc(
-    `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && defined(description) && defined(mainImage.asset)] | order(publishedAt desc) [0] {
-      ${publicacionFields}
-    }`,
+  const todas = await loadPublicaciones();
+  return (
+    todas.find(
+      (p) => p.tipo === 'entrevista' && p.description != null && p.mainImage?.asset != null,
+    ) ?? null
   );
 }
 
 export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
-      ${publicacionFields}
-    }`,
-    { excludeId, limit },
-  );
+  const todas = await loadPublicaciones();
+  return todas.filter((p) => p.tipo === 'entrevista' && p._id !== excludeId).slice(0, limit);
 }
 
 export async function getTodasEntrevistas(): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && tipo == 'entrevista' && defined(slug.current)] | order(publishedAt desc) {
-      ${baseFields}
-    }`,
-  );
+  const todas = await loadPublicaciones();
+  return todas.filter((p) => p.tipo === 'entrevista');
 }
 
 export async function getUltimasPublicaciones(limit = 50): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) [0...$limit] {
-      ${baseFields}
-    }`,
-    { limit },
-  );
+  const todas = await loadPublicaciones();
+  return todas.slice(0, limit);
 }
 
 export async function getCuadernoDestacado(): Promise<Publicacion | null> {
-  return fetchDoc(
-    `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && defined(description)] | order(publishedAt desc) [0] {
-      ${publicacionFields}
-    }`,
+  const todas = await loadPublicaciones();
+  return (
+    todas.find((p) => (p.tipo === 'articulo' || p.tipo === 'opinion') && p.description != null) ??
+    null
   );
 }
 
 export async function getUltimosArticulos(limit = 3, excludeId = ''): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && tipo in ['articulo', 'opinion'] && defined(slug.current) && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
-      ${publicacionFields}
-    }`,
-    { excludeId, limit },
-  );
+  const todas = await loadPublicaciones();
+  return todas
+    .filter((p) => (p.tipo === 'articulo' || p.tipo === 'opinion') && p._id !== excludeId)
+    .slice(0, limit);
+}
+
+let cacheCategorias: Promise<CategoriaConteo[]> | null = null;
+
+async function loadCategorias(): Promise<CategoriaConteo[]> {
+  const query = `*[_type == 'categoria' && defined(slug.current)] {
+    'name': name,
+    'slug': slug.current,
+    'n': count(*[_type == 'publicacion' && references(^._id)])
+  } | order(n desc, name asc)`;
+  if (import.meta.env.DEV) return sanityClient.fetch<CategoriaConteo[]>(query);
+  if (!cacheCategorias) cacheCategorias = sanityClient.fetch<CategoriaConteo[]>(query);
+  return cacheCategorias;
 }
 
 export async function getCategoriasConConteo(minimo = 1): Promise<CategoriaConteo[]> {
-  const categorias: CategoriaConteo[] = await sanityClient.fetch(
-    `*[_type == 'categoria' && defined(slug.current)] {
-      'name': name,
-      'slug': slug.current,
-      'n': count(*[_type == 'publicacion' && references(^._id)])
-    } | order(n desc, name asc)`,
-  );
+  const categorias = await loadCategorias();
   return categorias.filter((c) => c.n >= minimo && !/^sin categor/i.test(c.name));
 }
 
 export async function getPublicacionesPorCategoria(slug: string): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && defined(slug.current) && $slug in categorias[]->slug.current] | order(publishedAt desc) {
-      ${baseFields}
-    }`,
-    { slug },
-  );
+  const todas = await loadPublicaciones();
+  return todas.filter((p) => p.categorias?.some((c) => c.slug === slug));
 }
 
 export interface EtiquetaConteo {
@@ -233,24 +226,27 @@ export interface EtiquetaConteo {
   n: number;
 }
 
+let cacheEtiquetas: Promise<EtiquetaConteo[]> | null = null;
+
+async function loadEtiquetas(): Promise<EtiquetaConteo[]> {
+  const query = `*[_type == 'etiqueta'] {
+    'name': name,
+    'slug': slug.current,
+    'n': count(*[_type == 'publicacion' && references(^._id)])
+  } | order(n desc, name asc)`;
+  if (import.meta.env.DEV) return sanityClient.fetch<EtiquetaConteo[]>(query);
+  if (!cacheEtiquetas) cacheEtiquetas = sanityClient.fetch<EtiquetaConteo[]>(query);
+  return cacheEtiquetas;
+}
+
 export async function getEtiquetasConConteo(minimo = 1): Promise<EtiquetaConteo[]> {
-  const etiquetas: EtiquetaConteo[] = await sanityClient.fetch(
-    `*[_type == 'etiqueta'] {
-      'name': name,
-      'slug': slug.current,
-      'n': count(*[_type == 'publicacion' && references(^._id)])
-    } | order(n desc, name asc)`,
-  );
+  const etiquetas = await loadEtiquetas();
   return etiquetas.filter((e) => e.n >= minimo);
 }
 
 export async function getPublicacionesPorEtiqueta(name: string): Promise<Publicacion[]> {
-  return fetchDocs(
-    `*[_type == 'publicacion' && defined(slug.current) && $name in etiquetas[]->name] | order(publishedAt desc) {
-      ${baseFields}
-    }`,
-    { name },
-  );
+  const todas = await loadPublicaciones();
+  return todas.filter((p) => p.etiquetas?.some((e) => e.name === name));
 }
 
 export interface WebAmiga {

@@ -12,6 +12,11 @@ import reveal from 'astro-reveal';
 export default defineConfig({
   site: 'https://www.elfutbolverdadero.com',
   output: 'static',
+  // Renderiza las rutas estáticas en paralelo (por defecto Astro usa 1 y las ~900
+  // páginas se generaban en serie, inflando el build de CI varios minutos)
+  build: {
+    concurrency: 8,
+  },
   integrations: [
     sitemap({
       // Excluir páginas marcadas con noindex (buscador, página legal)
