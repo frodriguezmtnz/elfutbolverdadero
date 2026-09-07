@@ -2,23 +2,17 @@
 import Icon from './Icon.astro';
 import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion } from '../lib/texto';
+import { estiloChipCategoria } from '../lib/colores-categoria';
 import type { Publicacion } from '../lib/sanity';
 import type { HTMLAttributes } from 'astro/types';
 
 interface Props extends HTMLAttributes<'article'> {
   pub: Publicacion;
   ctaLabel?: string;
-  chipAcento?: boolean;
   headingTag?: 'h2' | 'h3';
 }
 
-const {
-  pub,
-  ctaLabel = 'Leer conversación',
-  chipAcento = false,
-  headingTag: Tag = 'h3',
-  ...rest
-} = Astro.props;
+const { pub, ctaLabel = 'Leer conversación', headingTag: Tag = 'h3', ...rest } = Astro.props;
 
 const badge = pub.categorias?.[0]?.name;
 const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 800) : null;
@@ -52,12 +46,8 @@ const descripcion = limpiarDescripcion(pub.description);
       {
         badge && (
           <span
-            class:list={[
-              'rounded-full px-3 py-1 text-xs font-bold',
-              chipAcento
-                ? 'bg-accent text-accent-foreground'
-                : 'bg-secondary text-secondary-foreground',
-            ]}
+            class="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground"
+            style={estiloChipCategoria(badge)}
           >
             {badge}
           </span>

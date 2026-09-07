@@ -2,6 +2,7 @@
 import Icon from './Icon.astro';
 import { urlFor, srcsetFor } from '../lib/images';
 import { limpiarDescripcion, tiempoLectura } from '../lib/texto';
+import { estiloChipCategoria } from '../lib/colores-categoria';
 import type { Publicacion } from '../lib/sanity';
 
 interface Props {
@@ -36,7 +37,10 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
         </div>
         {
           badge && (
-            <span class="mt-7 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground">
+            <span
+              class="mt-7 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground"
+              style={estiloChipCategoria(badge)}
+            >
               {badge}
             </span>
           )

@@ -281,12 +281,7 @@ const jsonLd: object[] = [
               </h2>
               <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
                 {masConversaciones.map((pub, i) => (
-                  <EntrevistaCard
-                    pub={pub}
-                    chipAcento={i === 1}
-                    data-reveal="up"
-                    style={`--reveal-index: ${i % 3}`}
-                  />
+                  <EntrevistaCard pub={pub} data-reveal="up" style={`--reveal-index: ${i % 3}`} />
                 ))}
               </div>
             </div>

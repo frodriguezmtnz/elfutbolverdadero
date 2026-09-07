@@ -71,6 +71,7 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
 <script>
   import type { ItemBusqueda, ItemCuerpo } from '../../lib/busqueda';
   import { limpiarDescripcion } from '../../lib/limpieza';
+  import { colorCategoria } from '../../lib/colores-categoria';
 
   interface CacheBusqueda {
     meta: ItemBusqueda[] | null;
@@ -210,6 +211,11 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
       const chip = document.createElement('span');
       chip.className =
         'rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground';
+      const color = colorCategoria(badge);
+      if (color) {
+        chip.style.backgroundColor = color.bg;
+        chip.style.color = color.fg;
+      }
       chip.textContent = badge;
       fila.append(chip);
     }
