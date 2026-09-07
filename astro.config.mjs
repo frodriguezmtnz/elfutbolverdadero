@@ -42,5 +42,11 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    // Pre-empaqueta medium-zoom en el arranque del dev server: al descubrirse
+    // tarde (import desde el <script> de [slug].astro) Vite re-optimiza deps a
+    // mitad de sesión y el navegador queda con un ?v= obsoleto -> 504
+    optimizeDeps: {
+      include: ['medium-zoom'],
+    },
   },
 });
