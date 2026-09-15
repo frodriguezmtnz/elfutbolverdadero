@@ -4,5 +4,5 @@ export const social = {
   instagram: 'https://www.instagram.com/futbolverdadero_oficial/',
   x: 'https://x.com/Futbolverdader2',
   whatsapp: 'https://chat.whatsapp.com/EQyrPr8KFHXCXsyerqKSR7?mode=gi_t',
-  email: 'xabier.merino@elfutbolverdadero.com',
+  email: 'revistafutbolverdadero@gmail.com',
 } as const;
