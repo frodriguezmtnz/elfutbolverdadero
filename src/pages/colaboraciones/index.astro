@@ -6,6 +6,7 @@ import MobileNav from '../../components/MobileNav.astro';
 import Icon from '../../components/Icon.astro';
 import { getWebsAmigas } from '../../lib/sanity';
 import { urlFor } from '../../lib/images';
+import { social } from '../../config/social';
 
 const webs = await getWebsAmigas();
 ---
@@ -88,7 +89,7 @@ const webs = await getWebsAmigas();
             <p class="text-sm text-muted-foreground">
               ¿Tienes un proyecto de fútbol base y quieres aparecer aquí?
               <a
-                href="mailto:xabier.merino@elfutbolverdadero.com?subject=Quiero%20aparecer%20en%20Colaboraciones"
+                href={`mailto:${social.email}?subject=Quiero%20aparecer%20en%20Colaboraciones`}
                 class="ml-1 inline-flex items-center gap-1 font-bold text-primary hover:underline"
               >
                 Escríbenos
