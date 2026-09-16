@@ -26,12 +26,9 @@ const FORM_DIRECTORIO =
   <div class="flex min-h-screen flex-col">
     <Header />
     <main class="flex-1">
-      <section class="border-b border-border bg-background">
+      <section class="bg-primary text-primary-foreground">
         <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8 lg:py-16">
-          <p
-            data-reveal="up"
-            class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink"
-          >
+          <p data-reveal="up" class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
             #Futbolverdadero
           </p>
           <h1
@@ -44,7 +41,7 @@ const FORM_DIRECTORIO =
           <p
             data-reveal="up"
             style="--reveal-index: 2"
-            class="mt-5 text-lg leading-7 text-muted-foreground"
+            class="mt-5 text-lg leading-7 text-primary-foreground/80"
           >
             Cinco años dando voz a los entrenadores de fútbol base. Esta es nuestra historia, en
             tres partes: por qué existe este blog, de dónde viene y cómo puede ayudarte.
@@ -80,14 +77,14 @@ const FORM_DIRECTORIO =
               Porque el fútbol más importante no es el de la Champions o la Liga: antes de llegar a
               ese nivel hay entrenadores de categoría, gente muy preparada que realiza un gran
               trabajo. El fútbol verdadero es el que se juega sin presión, el que disfrutas, el que
-              jugábamos en la calle hasta las tantas y sin reglas… <em>eso</em> para mí es Futbolverdadero.
+              jugábamos en la calle hasta las tantas y sin reglas... <em>eso</em> para mí es Futbolverdadero.
             </p>
           </div>
           <figure data-reveal="fade" class="mt-8">
             <Image
               src={patioColegio}
               alt="Balón de fútbol sobre el césped de un campo de barrio"
-              class="w-full rounded-xl grayscale"
+              class="w-full rounded-xl"
               width="1280"
               height="853"
               loading="lazy"
@@ -141,7 +138,7 @@ const FORM_DIRECTORIO =
             <Image
               src={origenJuvenil}
               alt="El primer equipo juvenil del autor, foto de equipo"
-              class="w-full rounded-xl grayscale"
+              class="w-full rounded-xl"
               width="1854"
               height="848"
               loading="lazy"
@@ -169,10 +166,11 @@ const FORM_DIRECTORIO =
                 class="mt-6 space-y-4 text-base leading-7"
               >
                 <p>
-                  En Futbolverdadero queremos ayudarte a dar el siguiente paso en tu carrera. Si
-                  estás disponible para la próxima temporada y deseas formar parte de un proyecto
-                  deportivo, rellena esta ficha y pasa a formar parte de nuestro
-                  <strong>directorio de entrenadores</strong>.
+                  En <strong>Futbolverdadero</strong> queremos ayudarte a dar el siguiente paso en tu
+                  carrera. Si estás disponible para la próxima temporada y deseas formar parte de un proyecto
+                  deportivo, rellena esta ficha y pasa a formar parte de nuestro <strong
+                    >directorio de entrenadores</strong
+                  >.
                 </p>
                 <p>
                   Colaboramos con clubes de todas las regiones que buscan perfiles comprometidos,
@@ -184,7 +182,7 @@ const FORM_DIRECTORIO =
                   <li>Lo compartimos con clubes interesados a través de nuestra red y canales.</li>
                 </ol>
                 <p class="font-semibold">
-                  No esperes a que llegue la oportunidad… haz que te encuentren.
+                  No esperes a que llegue la oportunidad... ¡haz que te encuentren!
                 </p>
               </div>
               <a
@@ -202,7 +200,7 @@ const FORM_DIRECTORIO =
             <Image
               src={directorioEntrenadores}
               alt="Pizarra de táctica junto a un balón"
-              class="hidden w-64 rounded-xl border border-border grayscale sm:block"
+              class="hidden w-64 rounded-xl border border-border sm:block"
               width="324"
               height="223"
               loading="lazy"
@@ -210,7 +208,10 @@ const FORM_DIRECTORIO =
           </div>
           <p class="mt-10 text-sm text-muted-foreground">
             ¿Quieres ponerte en contacto con nosotros? Escríbenos a
-            <a class="font-semibold text-primary hover:underline" href={`mailto:${social.email}`}>
+            <a
+              class="ml-1 font-semibold text-primary hover:underline"
+              href={`mailto:${social.email}`}
+            >
               {social.email}
             </a>
             .
