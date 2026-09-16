@@ -9,8 +9,6 @@ interface Props {
 }
 
 const { lecturaHref = '/entrevistas/', mode = 'sticky' } = Astro.props;
-
-const enHome = Astro.url.pathname === '/';
 ---
 
 <header data-header data-mode={mode} class="sticky top-0 z-50 border-b border-border bg-card">
@@ -30,12 +28,11 @@ const enHome = Astro.url.pathname === '/';
     </a>
 
     <nav class="hidden items-center gap-7 text-sm font-semibold lg:flex" aria-label="Principal">
-      <a class:list={['hover:text-primary', enHome && 'text-primary']} href="/">Inicio</a>
       <a class="hover:text-primary" href="/#pizarra">La Pizarra</a>
       <a class="hover:text-primary" href="/#cuaderno">Cuaderno</a>
       <a class="hover:text-primary" href="/#ejercicios">Ejercicios</a>
       <a class="hover:text-primary" href="/colaboraciones/">Colaboraciones</a>
-      <a class="hover:text-primary" href="/#contacto">Contacto</a>
+      <a class="hover:text-primary" href="/futbolverdadero-acerca-de/">Acerca de</a>
     </nav>
 
     <div class="flex items-center gap-2">

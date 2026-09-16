@@ -12,16 +12,27 @@ const year = new Date().getFullYear();
 
 <footer id="contacto" class="bg-primary text-primary-foreground">
   <div
-    class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-9 lg:flex-row lg:items-center lg:justify-between lg:px-8"
+    class="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-9 text-center lg:flex-row lg:justify-between lg:px-8 lg:text-left"
   >
     <div>
       <span class="mb-3 inline-flex rounded-xl bg-card p-1.5 shadow-md">
         <Logo class="h-11 w-auto" label="El Fútbol Verdadero" />
       </span>
       <p class="font-heading font-semibold text-2xl uppercase">El Fútbol Verdadero</p>
-      <p class="mt-1 text-sm text-primary-foreground">Entrenar, pensar, compartir.</p>
+      <p class="mt-1 text-sm text-primary-foreground">
+        Entrenar, pensar, compartir <span class="ml-2">© {year}</span>
+      </p>
     </div>
-    <div class="flex flex-wrap items-center gap-5 text-sm font-semibold">
+    <nav
+      class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold"
+      aria-label="Enlaces de pie de página"
+    >
+      <a class="hover:text-accent" href="/colaboraciones/">Colaboraciones</a>
+      <a class="hover:text-accent" href="/futbolverdadero-acerca-de/">Acerca de</a>
+      <a class="hover:text-accent" href="/rss.xml">RSS</a>
+      <a class="hover:text-accent" href="/politica-de-privacidad/">Política de privacidad</a>
+    </nav>
+    <div class="flex items-center justify-center gap-5">
       <a
         class="transition hover:text-accent"
         href={social.facebook}
@@ -65,10 +76,6 @@ const year = new Date().getFullYear();
       >
         <Icon name="mail" class="text-xl" />
       </a>
-      <a class="hover:text-accent" href="/colaboraciones/">Colaboraciones</a>
-      <a class="hover:text-accent" href="/rss.xml">RSS</a>
-      <a class="hover:text-accent" href="/politica-de-privacidad/">Política de privacidad</a>
     </div>
-    <p class="text-xs text-primary-foreground">© {year} El Fútbol Verdadero</p>
   </div>
 </footer>
