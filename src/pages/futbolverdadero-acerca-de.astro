@@ -1,0 +1,225 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileNav from '../components/MobileNav.astro';
+import Icon from '../components/Icon.astro';
+import { social } from '../config/social';
+import patioColegio from '../assets/acerca-de/patio-colegio.jpg';
+import origenJuvenil from '../assets/acerca-de/origen-juvenil.jpg';
+import directorioEntrenadores from '../assets/acerca-de/directorio-entrenadores.jpeg';
+
+// Página unificada a partir de las 3 páginas sueltas del WordPress legacy:
+// /futbolverdadero-para-los-amantes-de-este-deporte/ (misión),
+// /futbolverdadero-acerca-de/ (origen) y /eres-entrenador-y-estas-buscando-equipo/ (directorio).
+// La ruta conserva el slug legacy para no perder enlaces entrantes.
+const FORM_DIRECTORIO =
+  'https://docs.google.com/forms/d/15Gd2czXVE9CrNC91oFxu4jzAykOTncpaEt0xNoOFZ1o/viewform';
+---
+
+<Base
+  title="Acerca de — El Fútbol Verdadero"
+  description="Quiénes somos y de dónde viene Futbolverdadero: el blog que da voz a los entrenadores de fútbol base, con entrevistas a los héroes anónimos del patio de colegio. Directorio de entrenadores disponible."
+  canonicalURL="/futbolverdadero-acerca-de/"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="border-b border-border bg-background">
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8 lg:py-16">
+          <p
+            data-reveal="up"
+            class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink"
+          >
+            #Futbolverdadero
+          </p>
+          <h1
+            data-reveal="up"
+            style="--reveal-index: 1"
+            class="mt-3 font-heading font-semibold text-4xl uppercase leading-[0.95] sm:text-5xl"
+          >
+            Acerca de
+          </h1>
+          <p
+            data-reveal="up"
+            style="--reveal-index: 2"
+            class="mt-5 text-lg leading-7 text-muted-foreground"
+          >
+            Cinco años dando voz a los entrenadores de fútbol base. Esta es nuestra historia, en
+            tres partes: por qué existe este blog, de dónde viene y cómo puede ayudarte.
+          </p>
+        </div>
+      </section>
+
+      <section class="border-b border-border bg-card">
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8">
+          <h2
+            data-reveal="up"
+            class="font-heading font-semibold text-2xl uppercase leading-tight sm:text-3xl"
+          >
+            Para los amantes de este deporte
+          </h2>
+          <div
+            data-reveal="up"
+            style="--reveal-index: 1"
+            class="mt-6 space-y-5 text-base leading-7"
+          >
+            <p>
+              Este blog lo hace una persona a la que le apasiona este deporte, y que cree que lo más
+              importante es el trabajo que realizan los entrenadores de las categorías inferiores.
+              Con cada entrevista quiero dar a conocer a todos esos héroes que hacen felices a los
+              niños y les hacen disfrutar.
+            </p>
+            <p>
+              Gracias a todos los que colaboráis aquí: espero que el blog siga creciendo, que os
+              siga ayudando y que os siga gustando. Día a día trabajo para que más técnicos puedan
+              contar su trabajo y dar a conocer todo lo que hacen.
+            </p>
+            <p>
+              Porque el fútbol más importante no es el de la Champions o la Liga: antes de llegar a
+              ese nivel hay entrenadores de categoría, gente muy preparada que realiza un gran
+              trabajo. El fútbol verdadero es el que se juega sin presión, el que disfrutas, el que
+              jugábamos en la calle hasta las tantas y sin reglas… <em>eso</em> para mí es Futbolverdadero.
+            </p>
+          </div>
+          <figure data-reveal="fade" class="mt-8">
+            <Image
+              src={patioColegio}
+              alt="Balón de fútbol sobre el césped de un campo de barrio"
+              class="w-full rounded-xl grayscale"
+              width="1280"
+              height="853"
+              loading="lazy"
+            />
+            <figcaption class="mt-2 text-center text-xs text-muted-foreground">
+              El fútbol del patio de colegio.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="border-b border-border bg-muted">
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8">
+          <h2
+            data-reveal="up"
+            class="font-heading font-semibold text-2xl uppercase leading-tight sm:text-3xl"
+          >
+            El origen: mi primer equipo juvenil
+          </h2>
+          <div
+            data-reveal="up"
+            style="--reveal-index: 1"
+            class="mt-6 space-y-5 text-base leading-7"
+          >
+            <p>
+              Algunas temporadas se recuerdan por los resultados. Otras, por lo que dejan dentro.
+            </p>
+            <p>
+              Este fue mi primer equipo juvenil y también mi primer año como entrenador. Un inicio
+              exigente, marcado por la responsabilidad de sostener un grupo reducido de 15 jugadores
+              que, lejos de rendirse, asumieron el reto con compromiso y carácter.
+            </p>
+            <p>
+              Fue una temporada dura. El contexto no era sencillo: un campo de tierra, partidos
+              intensos y la necesidad constante de adaptarse y competir con recursos limitados. Sin
+              embargo, fue precisamente en esa dificultad donde el equipo creció. Pasaron de
+              resistir a atreverse a jugar, a entender el juego, a confiar en sí mismos y en el
+              colectivo.
+            </p>
+            <p>
+              Más allá de lo deportivo, aquella experiencia definió una forma de entender el fútbol
+              y el entrenamiento: el valor del esfuerzo diario, la importancia del grupo por encima
+              de lo individual y la capacidad de aprender incluso en los momentos más complejos.
+            </p>
+            <p>
+              No fue una temporada perfecta, pero sí profundamente formativa. De las que marcan el
+              camino. De las que no se olvidan.
+            </p>
+          </div>
+          <figure data-reveal="fade" class="mt-8">
+            <Image
+              src={origenJuvenil}
+              alt="El primer equipo juvenil del autor, foto de equipo"
+              class="w-full rounded-xl grayscale"
+              width="1854"
+              height="848"
+              loading="lazy"
+            />
+            <figcaption class="mt-2 text-center text-xs text-muted-foreground">
+              El primer grupo: 15 jugadores, un campo de tierra y muchas ganas.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="bg-card">
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8">
+          <div class="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <h2
+                data-reveal="up"
+                class="font-heading font-semibold text-2xl uppercase leading-tight sm:text-3xl"
+              >
+                ¿Eres entrenador y estás buscando equipo?
+              </h2>
+              <div
+                data-reveal="up"
+                style="--reveal-index: 1"
+                class="mt-6 space-y-4 text-base leading-7"
+              >
+                <p>
+                  En Futbolverdadero queremos ayudarte a dar el siguiente paso en tu carrera. Si
+                  estás disponible para la próxima temporada y deseas formar parte de un proyecto
+                  deportivo, rellena esta ficha y pasa a formar parte de nuestro
+                  <strong>directorio de entrenadores</strong>.
+                </p>
+                <p>
+                  Colaboramos con clubes de todas las regiones que buscan perfiles comprometidos,
+                  con formación y pasión por el fútbol. ¿Cómo funciona?
+                </p>
+                <ol class="list-decimal space-y-1 pl-6">
+                  <li>Rellena el formulario con tus datos y preferencias.</li>
+                  <li>Validamos tu perfil.</li>
+                  <li>Lo compartimos con clubes interesados a través de nuestra red y canales.</li>
+                </ol>
+                <p class="font-semibold">
+                  No esperes a que llegue la oportunidad… haz que te encuentren.
+                </p>
+              </div>
+              <a
+                data-reveal="up"
+                style="--reveal-index: 2"
+                href={FORM_DIRECTORIO}
+                target="_blank"
+                rel="noopener"
+                class="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition hover:bg-primary/90"
+              >
+                Rellenar ficha de entrenador
+                <Icon name="arrow-up-right" class="text-base" />
+              </a>
+            </div>
+            <Image
+              src={directorioEntrenadores}
+              alt="Pizarra de táctica junto a un balón"
+              class="hidden w-64 rounded-xl border border-border grayscale sm:block"
+              width="324"
+              height="223"
+              loading="lazy"
+            />
+          </div>
+          <p class="mt-10 text-sm text-muted-foreground">
+            ¿Quieres ponerte en contacto con nosotros? Escríbenos a
+            <a class="font-semibold text-primary hover:underline" href={`mailto:${social.email}`}>
+              {social.email}
+            </a>
+            .
+          </p>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
