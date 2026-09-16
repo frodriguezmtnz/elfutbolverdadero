@@ -10,6 +10,7 @@ export default defineConfig({
   title: 'Futbolverdadero',
   projectId,
   dataset,
+  users: { access: 'private' },
   plugins: [structureTool()],
   schema: {
     types: schemaTypes,
