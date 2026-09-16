@@ -61,12 +61,23 @@ function construirReglas() {
   for (const slug of subdirs('categoria')) {
     reglas.push(redirect(`^/category/(?:[^/]+/)*${esc(slug)}/?$`, `/categoria/${slug}/`));
   }
-  reglas.push(redirect('^/category/(?:[^/]+/)*[^/]+/?$', ENTREVISTAS));
 
   // Etiquetas WP → /etiqueta/<slug>/, solo si existe
   for (const slug of subdirs('etiqueta')) {
     reglas.push(redirect(`^/tag/${esc(slug)}/?$`, `/etiqueta/${slug}/`));
   }
+
+  // Paginación legacy (sin categoría/tag prefix) → general de entrevistas
+  reglas.push(redirect('^/page/\\d+/?$', ENTREVISTAS));
+  reglas.push(redirect('^/\\d{4}(?:/\\d{2}){0,2}/?$', ENTREVISTAS));
+
+  // Duplicados /slug/index.html → /slug/ (y /index.html → /)
+  reglas.push(redirect('^/(.*)index\\.html$', '/$1'));
+
+  // Catch-all categoría (sin paginación) → general
+  reglas.push(redirect('^/category/(?:[^/]+/)*[^/]+/?$', ENTREVISTAS));
+
+  // Catch-all etiqueta (sin paginación) → general
   reglas.push(redirect('^/tag/.+/?$', ENTREVISTAS));
 
   // Feeds: el general al RSS de Astro; los de comentarios ya no existen
@@ -74,15 +85,8 @@ function construirReglas() {
   reglas.push(redirect('^/feed(?:/.*)?/?$', '/rss.xml'));
 
   // Páginas WP fundidas en /futbolverdadero-acerca-de/ (que SÍ existe en Astro)
-  reglas.push(
-    redirect(
-      '^/futbolverdadero-para-los-amantes-de-este-deporte/?$',
-      '/futbolverdadero-acerca-de/',
-    ),
-  );
-  reglas.push(
-    redirect('^/eres-entrenador-y-estas-buscando-equipo/?$', '/futbolverdadero-acerca-de/'),
-  );
+  reglas.push(redirect('^/futbolverdadero-para-los-amantes-de-este-deporte/?$', '/futbolverdadero-acerca-de/'));
+  reglas.push(redirect('^/eres-entrenador-y-estas-buscando-equipo/?$', '/futbolverdadero-acerca-de/'));
 
   // Basura de WordPress (páginas del theme/membership/plugins confirmadas en vivo)
   for (const basura of ['home', 'home-2', 'be-pin-posts', 'be-pin-posts-2', 'login']) {
@@ -91,13 +95,6 @@ function construirReglas() {
   for (const prefijo of ['membership-account', 'membership-checkout', 'membership-levels']) {
     reglas.push(redirect(`^/${prefijo}(?:/.*)?/?$`, '/'));
   }
-
-  // Paginación y archivos de fechas del WP → listado general de entrevistas
-  reglas.push(redirect('^/page/\\d+/?$', ENTREVISTAS));
-  reglas.push(redirect('^/\\d{4}(?:/\\d{2}){0,2}/?$', ENTREVISTAS));
-
-  // Duplicados /slug/index.html → /slug/ (y /index.html → /)
-  reglas.push(redirect('^/(.*)index\\.html$', '/$1'));
 
   return reglas;
 }
