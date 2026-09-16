@@ -11,6 +11,21 @@
 
 ---
 
+## Paso −1 — Pre-corte: baseline y accesos (mientras el WP sigue vivo)
+
+Estas cuatro cosas **se hacen ANTES de tocar DNS**, porque pierden su razón de ser al apagar WordPress:
+
+1. **Search Console** (propiedad con TU cuenta Google; a Xabi se le invita como usuario después):
+   - search.google.com/search-console → Añadir **propiedad de dominio** `elfutbolverdadero.com` → verificar con el registro **TXT** que da Google (se pone en el panel DNS; no toca Vercel ni WP).
+   - Settings → Users → invitar al email de Xabi (rol _restringido_ = solo ver).
+   - Subir `https://www.elfutbolverdadero.com/sitemap-index.xml` (funciona ya sobre el WP).
+   - El informe **Rendimiento** da la línea base de consultas/clicks y **Enlaces → Páginas con más enlaces** prioriza qué URLs legacy necesitan 301.
+2. **Captura de WordPress.com → Stats** (la línea base de visitas; Umami nace en cero, no admite importar histórico):
+   - `npm run export:wp-stats` → `docs/baseline-wp-stats/` (JSON + CSV: serie mensual 2019→hoy, top-posts por año, referrers, países). Requiere `WP_STATS_TOKEN` (app OAuth en developer.wordpress.com, scope `admin.scope.stats`) o `WP_COOKIE` (cookie de sesión del navegador logueado en wordpress.com).
+   - Complemento de 10 s: imprimir la página de Stats a PDF (totales 209.338 vistas / 159.961 visitantes).
+3. **Umami Cloud**: la env `PUBLIC_UMAMI_WEBSITE_ID` en Vercel como **Config** (es un valor público: va en el HTML; con Secret solo sale un aviso), activada en Production y Preview. Tras el primer deploy: Umami → Settings de la web → **Share → Enable** y pasar el link público a Xabi.
+4. **Suscriptores Jetpack** (~19): exportar la lista (wordpress.com → Ajustes del sitio → **Follow me**/email subscribers, o tabla `wp_jetpack_mail_subscribers` vía Export Tools) antes de apagar WP. Guardarla cifrada; es la semilla del futuro newsletter.
+
 ## Paso 0 — Doble de seguridad (5 min)
 
 ```bash
@@ -110,6 +125,20 @@ Sobre la URL `*.vercel.app` de production (o el dominio si ya estaba):
 - [ ] `/buscar/?q=portero` (resultados y luego re-orden al llegar el cuerpo)
 - [ ] `/etiqueta/futbol-base/`, `/categoria/entrenadores/`
 - [ ] `curl -I` de la URL legacy árabe → **301** al slug español
+- [ ] **Matriz de redirecciones legacy** (en el preview deploy de la rama, antes de tocar DNS — las reglas solo viven en Vercel, no en `astro preview`):
+
+```bash
+P=https://<preview-vercel-app>   # deploy de la rama; el dominio real sigue en WP
+for u in category/entrevistas/entrenadores-as/ category/no-existe/ tag/futbol-base/ \
+         feed/ comments/feed/ page/2/ 2024/03/ home/ membership-account/your-profile/ \
+         futbolverdadero-para-los-amantes-de-este-deporte/ eres-entrenador-y-estas-buscando-equipo/ \
+         entrevista-fran-garcia-al-futbol-le-debo-la-vida/index.html politica-de-privacidad/; do
+  curl -s -o /dev/null -w "%{http_code} $u -> %{redirect_url}\n" "$P/$u"
+done
+# Esperado: 301 a /categoria|/etiqueta|/rss.xml|/entrevistas|/|/futbolverdadero-acerca-de,
+# 410 en comments/feed, 200 en politica-de-privacidad (nativa Astro, sin regla)
+```
+
 - [ ] `/rss.xml`, `/sitemap-index.xml`, `/robots.txt`, `/politica-de-privacidad/`
 - [ ] Facebook Sharing Debugger + X Card Validator (OG e imagen)
 - [ ] Lighthouse móvil (objetivo: ≥95 en todo)
@@ -125,7 +154,7 @@ Sobre la URL `*.vercel.app` de production (o el dominio si ya estaba):
 
 ## Paso 9 — Post-corte
 
-- [ ] Search Console: añadir propiedad de dominio, verificar (TXT o vía Vercel), subir `sitemap-index.xml`, solicitar indexación de portada
+- [ ] Search Console: **ya verificado en el Paso −1** (propiedad de dominio) → tras el corte, subir el `sitemap-index.xml` nuevo y solicitar indexación de portada; vigilar el informe de Rendimiento comparando con la baseline del Paso −1
 - [ ] Comprobar que el email sigue igual (envío de prueba interno/externo)
 - [ ] manage.sanity.io → Usage: vigilar docs (~4.100) y storage de assets (Free: 10k docs / 100GB)
 - [ ] Cuando todo esté estable: apagar WordPress del hosting viejo **conservando el servicio de email** (ojo si es un pack hosting+email: consultar con el proveedor antes de cancelar nada)
@@ -141,6 +170,9 @@ Sobre la URL `*.vercel.app` de production (o el dominio si ya estaba):
 
 ## Decisiones pendientes antes del corte (opcionales pero recomendadas)
 
-1. **Newsletter**: conectar el form (Buttondown/MailerLite) o quitar la sección hasta tener proveedor
+1. **Newsletter**: conectar el form (Buttondown/MailerLite) o quitar la sección hasta tener proveedor — **en curso**: export de los ~19 suscriptores Jetpack (Paso −1.4)
 2. **Política de privacidad**: confirmar responsable legal real (nombre fiscal / NIF si procede)
 3. ~~**Títulos `#Entrevistas:` heredados de WP**~~ **DECIDIDO**: limpieza en lote con `scripts/fix-sanity-titles.mjs` (ver Paso 0.5)
+4. ~~**Analítica**~~ **DECIDIDO**: Umami Cloud free tier (cookieless, link público para Xabi) — ver Paso −1.3
+5. ~~**Redirecciones legacy**~~ **DECIDIDO**: `scripts/legacy-redirects.mjs` inyectado en el build (`npm run build`); páginas WP huérfanas fundidas en `/futbolverdadero-acerca-de/`
+6. **Opcionales `/?s=termino` y `/?p=123`**: sin decidir — se evalúan con datos de Search Console tras el corte (v3 `has: query` si salen muchos)
