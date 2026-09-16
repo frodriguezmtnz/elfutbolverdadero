@@ -35,7 +35,9 @@ const TIPOS: Record<string, string> = {
 
 const seoTitle = post.seoTitle ?? post.title;
 const seoDescription = post.seoDescription ?? limpiarDescripcion(post.description) ?? '';
-const ogImage = post.mainImage?.asset?.url;
+// OG/Twitter/JSON-LD: imagen redimensionada a 1200px (evita que Facebook/X
+// descarguen el original completo del CDN de Sanity)
+const ogImage = post.mainImage?.asset ? urlFor(post.mainImage.asset, 1200) : undefined;
 
 const tipoLabel = TIPOS[post.tipo] ?? post.tipo;
 const descripcion = limpiarDescripcion(post.description);
