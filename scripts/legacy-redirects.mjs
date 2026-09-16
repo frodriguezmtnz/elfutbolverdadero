@@ -85,8 +85,15 @@ function construirReglas() {
   reglas.push(redirect('^/feed(?:/.*)?/?$', '/rss.xml'));
 
   // Páginas WP fundidas en /futbolverdadero-acerca-de/ (que SÍ existe en Astro)
-  reglas.push(redirect('^/futbolverdadero-para-los-amantes-de-este-deporte/?$', '/futbolverdadero-acerca-de/'));
-  reglas.push(redirect('^/eres-entrenador-y-estas-buscando-equipo/?$', '/futbolverdadero-acerca-de/'));
+  reglas.push(
+    redirect(
+      '^/futbolverdadero-para-los-amantes-de-este-deporte/?$',
+      '/futbolverdadero-acerca-de/',
+    ),
+  );
+  reglas.push(
+    redirect('^/eres-entrenador-y-estas-buscando-equipo/?$', '/futbolverdadero-acerca-de/'),
+  );
 
   // Basura de WordPress (páginas del theme/membership/plugins confirmadas en vivo)
   for (const basura of ['home', 'home-2', 'be-pin-posts', 'be-pin-posts-2', 'login']) {
