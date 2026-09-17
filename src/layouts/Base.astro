@@ -96,6 +96,23 @@ const websiteJsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
+    <!--
+      Umami Cloud (cookieless: no requiere banner de consentimiento).
+      El script engancha history.pushState, así que Astro ClientRouter
+      (View Transitions) genera un pageview por navegación sin código extra.
+      Solo se renderiza si PUBLIC_UMAMI_WEBSITE_ID está definida (nada en dev).
+    -->
+    {
+      import.meta.env.PUBLIC_UMAMI_WEBSITE_ID && (
+        <script
+          is:inline
+          defer
+          src="https://cloud.umami.dev/script.js"
+          data-website-id={import.meta.env.PUBLIC_UMAMI_WEBSITE_ID}
+        />
+      )
+    }
+
     <!-- Estructura de datos JSON-LD -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
     {
