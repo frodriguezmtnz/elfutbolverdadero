@@ -32,7 +32,6 @@ export interface Publicacion {
       _ref?: string;
       _id?: string;
       url?: string;
-      dimensions?: { width?: number; height?: number } | null;
     };
     alt?: string;
     caption?: string;
