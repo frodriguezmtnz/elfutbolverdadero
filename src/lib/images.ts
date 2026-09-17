@@ -1,6 +1,5 @@
 import { sanityClient } from 'sanity:client';
 import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
-import { getImageDimensions } from '@sanity/asset-utils';
 
 const { projectId, dataset } = sanityClient.config();
 const builder = createImageUrlBuilder({
@@ -9,11 +8,8 @@ const builder = createImageUrlBuilder({
 });
 
 function anchoOriginal(source: unknown): number {
-  try {
-    return getImageDimensions(source as SanityImageSource).width;
-  } catch {
-    return Number.POSITIVE_INFINITY;
-  }
+  const m = (source as { _id?: string } | undefined)?._id?.match(/-(\d+)x(\d+)-/);
+  return m ? Number(m[1]) : Number.POSITIVE_INFINITY;
 }
 
 export function urlFor(source: unknown, width = 800, ratio?: number) {
