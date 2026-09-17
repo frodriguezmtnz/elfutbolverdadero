@@ -55,6 +55,23 @@ const imagenDestacadaSrcset = post.mainImage?.asset
   ? srcsetFor(post.mainImage.asset, [640, 960, 1400, 1920])
   : null;
 const altImagen = post.mainImage?.alt || post.title;
+
+// La foto destacada se recorta a 16:9 con object-cover, lo que decapita los
+// retratos verticales. Solo mantenemos ese encuadre si la imagen es
+// suficientemente horizontal (>= 6:5); si no, se muestra completa a su
+// proporción natural, acotada en alto para no desbordar la ventana.
+const IMAGEN_RATIO_HORIZONTAL = 1.2;
+const dimensionesImagen = post.mainImage?.asset?.dimensions;
+const ratioImagen =
+  dimensionesImagen?.width && dimensionesImagen?.height
+    ? dimensionesImagen.width / dimensionesImagen.height
+    : null;
+const imagenHorizontal = ratioImagen === null || ratioImagen >= IMAGEN_RATIO_HORIZONTAL;
+const imagenAncho = dimensionesImagen?.width ?? 1400;
+const imagenAlto = dimensionesImagen?.height ?? 788;
+const claseImagenDestacada = imagenHorizontal
+  ? 'zoomable aspect-[16/9] w-full cursor-zoom-in rounded-xl object-cover grayscale shadow-lg'
+  : 'zoomable mx-auto block h-auto max-h-[85vh] w-auto max-w-full cursor-zoom-in rounded-xl grayscale shadow-lg';
 const pieImagen = post.mainImage?.caption;
 const primeraCategoria = post.categorias?.[0];
 const masConversaciones = await getUltimasEntrevistas(3, post._id);
@@ -201,9 +218,9 @@ const jsonLd: object[] = [
                 srcset={imagenDestacadaSrcset}
                 sizes="(min-width: 896px) 896px, 100vw"
                 alt={altImagen}
-                class="zoomable aspect-[16/9] w-full cursor-zoom-in rounded-xl object-cover grayscale shadow-lg"
-                width="1400"
-                height="788"
+                class={claseImagenDestacada}
+                width={imagenAncho}
+                height={imagenAlto}
                 loading="eager"
                 fetchpriority="high"
               />
