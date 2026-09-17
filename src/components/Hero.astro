@@ -11,10 +11,12 @@ interface Props {
 
 const { pub } = Astro.props;
 
+const RATIO_RETRATO = 3 / 4;
+
 const badge = pub.categorias?.[0]?.name;
-const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 1280) : null;
+const imagen = pub.mainImage?.asset ? urlFor(pub.mainImage.asset, 660, RATIO_RETRATO) : null;
 const imagenSrcset = pub.mainImage?.asset
-  ? srcsetFor(pub.mainImage.asset, [640, 1280, 1920])
+  ? srcsetFor(pub.mainImage.asset, [510, 765, 1020, 1320], RATIO_RETRATO)
   : null;
 const altImagen = pub.mainImage?.alt || pub.title;
 const pieImagen = pub.mainImage?.caption;
@@ -77,34 +79,38 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
       </div>
     </div>
 
-    <div data-reveal="fade" data-speed="fast" class="relative min-h-80 overflow-hidden lg:min-h-0">
-      {
-        imagen && (
-          <img
-            src={imagen}
-            srcset={imagenSrcset}
-            sizes="(min-width: 1024px) 660px, 100vw"
-            alt={altImagen}
-            class="h-full w-full object-cover grayscale"
-            width="1280"
-            height="1280"
-            loading="eager"
-            fetchpriority="high"
-          />
-        )
-      }
+    <div data-reveal="fade" data-speed="fast" class="flex w-full items-center overflow-hidden">
       <div
-        class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7"
+        class="relative aspect-[3/4] max-h-[440px] w-full overflow-hidden sm:max-h-[560px] lg:max-h-[680px]"
       >
-        <div>
-          <p class="text-xs font-bold uppercase tracking-[0.2em]">Conversaciones</p>
-          {
-            pieImagen && (
-              <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>
-            )
-          }
+        {
+          imagen && (
+            <img
+              src={imagen}
+              srcset={imagenSrcset}
+              sizes="(min-width: 1024px) 660px, 100vw"
+              alt={altImagen}
+              class="h-full w-full object-cover object-top grayscale"
+              width="660"
+              height="880"
+              loading="eager"
+              fetchpriority="high"
+            />
+          )
+        }
+        <div
+          class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7"
+        >
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em]">Conversaciones</p>
+            {
+              pieImagen && (
+                <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>
+              )
+            }
+          </div>
+          <Icon name="quote" class="text-3xl text-tertiary-ink" />
         </div>
-        <Icon name="quote" class="text-3xl text-tertiary-ink" />
       </div>
     </div>
   </div>
