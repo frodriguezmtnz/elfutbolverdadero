@@ -39,7 +39,7 @@ const { categorias, entrevistas } = Astro.props;
             type="button"
             data-carrusel-prev
             aria-label="Entrevistas anteriores"
-            class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
           >
             <Icon name="arrow-left" class="text-lg" />
           </button>
@@ -47,7 +47,7 @@ const { categorias, entrevistas } = Astro.props;
             type="button"
             data-carrusel-next
             aria-label="Entrevistas siguientes"
-            class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
           >
             <Icon name="arrow-right" class="text-lg" />
           </button>
@@ -95,7 +95,7 @@ const { categorias, entrevistas } = Astro.props;
 </section>
 
 <script>
-  const AUTOPLAY_MS = 5000;
+  const AUTOPLAY_MS = 7000;
 
   function initCarruseles() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -120,10 +120,8 @@ const { categorias, entrevistas } = Astro.props;
       const alFinal = () => track.scrollLeft >= track.scrollWidth - track.clientWidth - 1;
 
       const irA = (i: number) => track.scrollTo({ left: i * paso(), behavior: behavior() });
-      const actualizarFlechas = () => {
-        if (prev) prev.disabled = track.scrollLeft <= 1;
-        if (next) next.disabled = alFinal();
-      };
+      const irAlFinal = () =>
+        track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: behavior() });
 
       const dots: HTMLButtonElement[] = [];
       const marcarDot = (activo: number) => {
@@ -141,7 +139,7 @@ const { categorias, entrevistas } = Astro.props;
         slides.forEach((_, i) => {
           const dot = document.createElement('button');
           dot.type = 'button';
-          dot.className = 'h-2.5 w-2.5 rounded-full bg-primary/30 transition-all';
+          dot.className = 'h-2.5 w-2.5 cursor-pointer rounded-full bg-primary/30 transition-all';
           dot.setAttribute('aria-label', `Ir a la entrevista ${i + 1}`);
           dot.addEventListener('click', () => irA(i));
           dotsWrap.appendChild(dot);
@@ -162,7 +160,7 @@ const { categorias, entrevistas } = Astro.props;
               mejor = i;
             }
           });
-          marcarDot(mejor);
+          marcarDot(alFinal() ? dots.length - 1 : mejor);
         },
         { root: track, threshold: [0.25, 0.5, 0.75, 1] },
       );
@@ -194,17 +192,17 @@ const { categorias, entrevistas } = Astro.props;
       root.addEventListener('focusout', arrancar);
       document.addEventListener('visibilitychange', () => (document.hidden ? parar() : arrancar()));
 
-      track.addEventListener('scroll', actualizarFlechas, { passive: true });
       prev?.addEventListener('click', () => {
-        track.scrollBy({ left: -paso(), behavior: behavior() });
+        if (track.scrollLeft <= 1) irAlFinal();
+        else track.scrollBy({ left: -paso(), behavior: behavior() });
         reiniciar();
       });
       next?.addEventListener('click', () => {
-        track.scrollBy({ left: paso(), behavior: behavior() });
+        if (alFinal()) irA(0);
+        else track.scrollBy({ left: paso(), behavior: behavior() });
         reiniciar();
       });
 
-      actualizarFlechas();
       marcarDot(0);
       arrancar();
     });
