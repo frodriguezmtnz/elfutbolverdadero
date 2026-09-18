@@ -16,12 +16,16 @@ import {
 } from '../lib/sanity';
 
 const destacada = await getEntrevistaDestacada();
-const entrevistas = await getUltimasEntrevistas(3, destacada?._id ?? '');
+const entrevistas = await getUltimasEntrevistas(6, destacada?._id ?? '');
+const idsEnPizarra = new Set(entrevistas.map((e) => e._id));
 
 const cuaderno = await getCuadernoDestacado();
 let masLeidos = cuaderno ? await getUltimosArticulos(3, cuaderno._id) : [];
 if (masLeidos.length < 3) {
-  const extra = await getUltimasEntrevistas(3 - masLeidos.length, destacada?._id ?? '');
+  const faltan = 3 - masLeidos.length;
+  const extra = (await getUltimasEntrevistas(entrevistas.length + faltan, destacada?._id ?? ''))
+    .filter((p) => !idsEnPizarra.has(p._id))
+    .slice(0, faltan);
   masLeidos = [...masLeidos, ...extra].slice(0, 3);
 }
 
