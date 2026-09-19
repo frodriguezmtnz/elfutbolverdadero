@@ -26,13 +26,35 @@ const { categorias, entrevistas } = Astro.props;
           La Pizarra de los Mister
         </h2>
       </div>
-      <a
-        class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary"
-        href="/entrevistas/"
-      >
-        Ver todas las entrevistas
-        <Icon name="arrow-right" class="text-lg" />
-      </a>
+      <div class="flex items-center justify-between gap-5 md:justify-end">
+        <a
+          class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary"
+          href="/entrevistas/"
+        >
+          Ver todas las entrevistas
+          <Icon name="layout-arrow-right" class="text-lg" />
+        </a>
+        <div class="hidden items-center gap-2 md:flex">
+          <button
+            type="button"
+            data-carrusel-prev
+            aria-label="Noticia anterior"
+            title="Noticia anterior"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
+          >
+            <Icon name="arrow-left" class="text-lg" />
+          </button>
+          <button
+            type="button"
+            data-carrusel-next
+            aria-label="Siguiente noticia"
+            title="Siguiente noticia"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
+          >
+            <Icon name="arrow-right" class="text-lg" />
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="mt-6 flex gap-2 overflow-x-auto pb-2">
@@ -42,10 +64,28 @@ const { categorias, entrevistas } = Astro.props;
 
     {
       entrevistas.length > 0 ? (
-        <div class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {entrevistas.map((pub, i) => (
-            <EntrevistaCard pub={pub} data-reveal="up" style={`--reveal-index: ${i}`} />
-          ))}
+        <div
+          data-carrusel
+          data-reveal="up"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="La Pizarra de los Mister"
+          class="mt-8"
+        >
+          <ul
+            data-carrusel-track
+            class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {entrevistas.map((pub) => (
+              <li
+                data-carrusel-slide
+                class="w-[86%] shrink-0 snap-start sm:w-[56%] lg:w-[30%] [&>article]:h-full"
+              >
+                <EntrevistaCard pub={pub} />
+              </li>
+            ))}
+          </ul>
+          <div data-carrusel-dots class="mt-5 flex items-center justify-center gap-2" />
         </div>
       ) : (
         <p class="mt-8 text-sm text-muted-foreground">
@@ -55,3 +95,155 @@ const { categorias, entrevistas } = Astro.props;
     }
   </div>
 </section>
+
+<script>
+  const AUTOPLAY_MS = 7000;
+  const PAUSA_MANUAL_MS = 15000;
+
+  function initCarruseles() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((root) => {
+      if (root.dataset.carruselInit === 'true') return;
+      root.dataset.carruselInit = 'true';
+
+      const track = root.querySelector<HTMLElement>('[data-carrusel-track]');
+      const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-carrusel-slide]'));
+      const dotsWrap = root.querySelector<HTMLElement>('[data-carrusel-dots]');
+      const prev =
+        root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-prev]') ?? null;
+      const next =
+        root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-next]') ?? null;
+
+      if (!track || slides.length === 0) return;
+
+      const behavior = (): ScrollBehavior => (reduce.matches ? 'auto' : 'smooth');
+      const paso = () => {
+        const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+        return slides[0].getBoundingClientRect().width + gap;
+      };
+      const alFinal = () => track.scrollLeft >= track.scrollWidth - track.clientWidth - 1;
+
+      const irA = (i: number) => track.scrollTo({ left: i * paso(), behavior: behavior() });
+      const irAlFinal = () =>
+        track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: behavior() });
+
+      const dots: HTMLButtonElement[] = [];
+      const marcarDot = (activo: number) => {
+        dots.forEach((dot, i) => {
+          const on = i === activo;
+          dot.classList.toggle('bg-primary', on);
+          dot.classList.toggle('bg-primary/30', !on);
+          dot.style.width = on ? '1.5rem' : '0.625rem';
+          if (on) dot.setAttribute('aria-current', 'true');
+          else dot.removeAttribute('aria-current');
+        });
+      };
+
+      let timer: number | null = null;
+      let reanudarTimer: number | null = null;
+      const parar = () => {
+        if (timer !== null) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+      };
+      const cancelarReanudacion = () => {
+        if (reanudarTimer !== null) {
+          window.clearTimeout(reanudarTimer);
+          reanudarTimer = null;
+        }
+      };
+      const avanzar = () => {
+        if (alFinal()) irA(0);
+        else track.scrollBy({ left: paso(), behavior: behavior() });
+      };
+      const arrancar = () => {
+        if (reduce.matches || timer !== null || slides.length < 2) return;
+        timer = window.setInterval(avanzar, AUTOPLAY_MS);
+      };
+      const reanudar = () => {
+        parar();
+        cancelarReanudacion();
+        reanudarTimer = window.setTimeout(() => {
+          reanudarTimer = null;
+          arrancar();
+        }, PAUSA_MANUAL_MS);
+      };
+
+      if (dotsWrap) {
+        slides.forEach((_, i) => {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'h-2.5 w-2.5 cursor-pointer rounded-full bg-primary/30 transition-all';
+          dot.setAttribute('aria-label', `Ir a la entrevista ${i + 1}`);
+          dot.addEventListener('click', () => {
+            irA(i);
+            reanudar();
+          });
+          dotsWrap.appendChild(dot);
+          dots.push(dot);
+        });
+      }
+
+      const visibles = new Map<Element, number>();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => visibles.set(e.target, e.intersectionRatio));
+          let mejor = 0;
+          let mayor = -1;
+          slides.forEach((slide, i) => {
+            const ratio = visibles.get(slide) ?? 0;
+            if (ratio > mayor) {
+              mayor = ratio;
+              mejor = i;
+            }
+          });
+          marcarDot(alFinal() ? dots.length - 1 : mejor);
+        },
+        { root: track, threshold: [0.25, 0.5, 0.75, 1] },
+      );
+      slides.forEach((slide) => observer.observe(slide));
+
+      root.addEventListener('mouseenter', () => {
+        parar();
+        cancelarReanudacion();
+      });
+      root.addEventListener('mouseleave', () => {
+        if (reanudarTimer === null) arrancar();
+      });
+      root.addEventListener('focusin', () => {
+        parar();
+        cancelarReanudacion();
+      });
+      root.addEventListener('focusout', () => {
+        if (reanudarTimer === null) arrancar();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          parar();
+          cancelarReanudacion();
+        } else if (reanudarTimer === null) {
+          arrancar();
+        }
+      });
+
+      prev?.addEventListener('click', () => {
+        if (track.scrollLeft <= 1) irAlFinal();
+        else track.scrollBy({ left: -paso(), behavior: behavior() });
+        reanudar();
+      });
+      next?.addEventListener('click', () => {
+        if (alFinal()) irA(0);
+        else track.scrollBy({ left: paso(), behavior: behavior() });
+        reanudar();
+      });
+
+      marcarDot(0);
+      arrancar();
+    });
+  }
+
+  initCarruseles();
+  document.addEventListener('astro:page-load', initCarruseles);
+</script>
