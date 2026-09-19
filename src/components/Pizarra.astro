@@ -85,7 +85,7 @@ const { categorias, entrevistas } = Astro.props;
               </li>
             ))}
           </ul>
-          <div data-carrusel-dots class="mt-5 flex items-center justify-center gap-2"></div>
+          <div data-carrusel-dots class="mt-5 flex items-center justify-center gap-2" />
         </div>
       ) : (
         <p class="mt-8 text-sm text-muted-foreground">
@@ -110,8 +110,10 @@ const { categorias, entrevistas } = Astro.props;
       const track = root.querySelector<HTMLElement>('[data-carrusel-track]');
       const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-carrusel-slide]'));
       const dotsWrap = root.querySelector<HTMLElement>('[data-carrusel-dots]');
-      const prev = root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-prev]') ?? null;
-      const next = root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-next]') ?? null;
+      const prev =
+        root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-prev]') ?? null;
+      const next =
+        root.parentElement?.querySelector<HTMLButtonElement>('[data-carrusel-next]') ?? null;
 
       if (!track || slides.length === 0) return;
 
