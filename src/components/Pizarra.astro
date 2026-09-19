@@ -32,13 +32,14 @@ const { categorias, entrevistas } = Astro.props;
           href="/entrevistas/"
         >
           Ver todas las entrevistas
-          <Icon name="arrow-right" class="text-lg" />
+          <Icon name="layout-arrow-right" class="text-lg" />
         </a>
         <div class="hidden items-center gap-2 md:flex">
           <button
             type="button"
             data-carrusel-prev
-            aria-label="Entrevistas anteriores"
+            aria-label="Noticia anterior"
+            title="Noticia anterior"
             class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
           >
             <Icon name="arrow-left" class="text-lg" />
@@ -46,7 +47,8 @@ const { categorias, entrevistas } = Astro.props;
           <button
             type="button"
             data-carrusel-next
-            aria-label="Entrevistas siguientes"
+            aria-label="Siguiente noticia"
+            title="Siguiente noticia"
             class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border border-border text-primary transition hover:bg-card"
           >
             <Icon name="arrow-right" class="text-lg" />
@@ -96,6 +98,7 @@ const { categorias, entrevistas } = Astro.props;
 
 <script>
   const AUTOPLAY_MS = 7000;
+  const PAUSA_MANUAL_MS = 15000;
 
   function initCarruseles() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -135,13 +138,47 @@ const { categorias, entrevistas } = Astro.props;
         });
       };
 
+      let timer: number | null = null;
+      let reanudarTimer: number | null = null;
+      const parar = () => {
+        if (timer !== null) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+      };
+      const cancelarReanudacion = () => {
+        if (reanudarTimer !== null) {
+          window.clearTimeout(reanudarTimer);
+          reanudarTimer = null;
+        }
+      };
+      const avanzar = () => {
+        if (alFinal()) irA(0);
+        else track.scrollBy({ left: paso(), behavior: behavior() });
+      };
+      const arrancar = () => {
+        if (reduce.matches || timer !== null || slides.length < 2) return;
+        timer = window.setInterval(avanzar, AUTOPLAY_MS);
+      };
+      const reanudar = () => {
+        parar();
+        cancelarReanudacion();
+        reanudarTimer = window.setTimeout(() => {
+          reanudarTimer = null;
+          arrancar();
+        }, PAUSA_MANUAL_MS);
+      };
+
       if (dotsWrap) {
         slides.forEach((_, i) => {
           const dot = document.createElement('button');
           dot.type = 'button';
           dot.className = 'h-2.5 w-2.5 cursor-pointer rounded-full bg-primary/30 transition-all';
           dot.setAttribute('aria-label', `Ir a la entrevista ${i + 1}`);
-          dot.addEventListener('click', () => irA(i));
+          dot.addEventListener('click', () => {
+            irA(i);
+            reanudar();
+          });
           dotsWrap.appendChild(dot);
           dots.push(dot);
         });
@@ -166,41 +203,38 @@ const { categorias, entrevistas } = Astro.props;
       );
       slides.forEach((slide) => observer.observe(slide));
 
-      let timer: number | null = null;
-      const parar = () => {
-        if (timer !== null) {
-          window.clearInterval(timer);
-          timer = null;
-        }
-      };
-      const avanzar = () => {
-        if (alFinal()) irA(0);
-        else track.scrollBy({ left: paso(), behavior: behavior() });
-      };
-      const arrancar = () => {
-        if (reduce.matches || timer !== null || slides.length < 2) return;
-        timer = window.setInterval(avanzar, AUTOPLAY_MS);
-      };
-      const reiniciar = () => {
+      root.addEventListener('mouseenter', () => {
         parar();
-        arrancar();
-      };
-
-      root.addEventListener('mouseenter', parar);
-      root.addEventListener('mouseleave', arrancar);
-      root.addEventListener('focusin', parar);
-      root.addEventListener('focusout', arrancar);
-      document.addEventListener('visibilitychange', () => (document.hidden ? parar() : arrancar()));
+        cancelarReanudacion();
+      });
+      root.addEventListener('mouseleave', () => {
+        if (reanudarTimer === null) arrancar();
+      });
+      root.addEventListener('focusin', () => {
+        parar();
+        cancelarReanudacion();
+      });
+      root.addEventListener('focusout', () => {
+        if (reanudarTimer === null) arrancar();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          parar();
+          cancelarReanudacion();
+        } else if (reanudarTimer === null) {
+          arrancar();
+        }
+      });
 
       prev?.addEventListener('click', () => {
         if (track.scrollLeft <= 1) irAlFinal();
         else track.scrollBy({ left: -paso(), behavior: behavior() });
-        reiniciar();
+        reanudar();
       });
       next?.addEventListener('click', () => {
         if (alFinal()) irA(0);
         else track.scrollBy({ left: paso(), behavior: behavior() });
-        reiniciar();
+        reanudar();
       });
 
       marcarDot(0);
