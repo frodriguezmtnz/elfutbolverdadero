@@ -61,16 +61,16 @@ Copia `.env.example` a `.env` y rellena los valores. En Sanity:
 - `SANITY_STUDIO_PROJECT_ID` / `SANITY_STUDIO_DATASET` — Studio (corre en navegador)
 - `DEV_ALLOWED_HOSTS` — hosts extra permitidos en `astro dev`
 
-> El dataset de desarrollo local suele ser `staging`; producción usa `production`
-> (configurado en Vercel). El fallback del build es `production` por seguridad.
+> El dataset de desarrollo local es `production` (el mismo que producción).
+> Un webhook de Sanity → Vercel dispara el build al publicar en el Studio.
 
 ## Contenido y despliegue
 
-1. Se publica en el Sanity Studio (dataset de trabajo).
-2. El sitio es estático: cada publicación requiere un build (deploy en Vercel;
-   webhook pendiente de configurar para automatizarlo).
+1. Se publica en el Sanity Studio (dataset `production`).
+2. El sitio es estático: cada publicación requiere un build. El webhook de Sanity
+   llama al Deploy Hook de Vercel, que lo lanza automáticamente.
 3. CI (`.github/workflows/ci.yml`): en cada push/PR ejecuta `lint`, `format:check`,
-   `astro check` y `build`.
+   `astro check`, `build` y Lighthouse.
 
 ## Migración desde WordPress
 

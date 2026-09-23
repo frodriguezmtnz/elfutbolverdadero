@@ -2,7 +2,7 @@ import { createClient } from '@sanity/client';
 
 export function createSanity() {
   const projectId = process.env.SANITY_PROJECT_ID;
-  const dataset = process.env.SANITY_DATASET ?? 'staging';
+  const dataset = process.env.SANITY_DATASET ?? 'production';
   const token = process.env.SANITY_TOKEN;
   if (!projectId || !token) {
     throw new Error('Faltan SANITY_PROJECT_ID y/o SANITY_TOKEN en .env');
