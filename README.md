@@ -70,7 +70,7 @@ Copia `.env.example` a `.env` y rellena los valores. En Sanity:
 2. El sitio es estático: cada publicación requiere un build. El webhook de Sanity
    llama al Deploy Hook de Vercel, que lo lanza automáticamente.
 3. CI (`.github/workflows/ci.yml`): en cada push/PR ejecuta `lint`, `format:check`,
-   `astro check`, `build` y Lighthouse.
+   `astro check` y `build` (Lighthouse solo en PRs).
 
 ## Migración desde WordPress
 

@@ -38,6 +38,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Lighthouse CI
+        if: github.event_name == 'pull_request'
         uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: ./lighthouserc.json
