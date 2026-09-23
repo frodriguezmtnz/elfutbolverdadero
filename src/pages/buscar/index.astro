@@ -409,7 +409,7 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
     if (!input || !estado || !contenedor) return;
 
     const params = new URLSearchParams(window.location.search);
-    const consulta = (params.get('q') ?? input.value).trim();
+    const consulta = (params.get('q') ?? params.get('s') ?? input.value).trim();
     if (consulta && input.value !== consulta) {
       input.value = consulta;
     }
@@ -460,7 +460,9 @@ import PizarraTactica from '../../components/PizarraTactica.astro';
         cargarCuerpo()
           .then((map) => {
             const consultaVigente = (
-              new URLSearchParams(window.location.search).get('q') ?? input.value
+              new URLSearchParams(window.location.search).get('q') ??
+              new URLSearchParams(window.location.search).get('s') ??
+              input.value
             ).trim();
             if (consultaVigente === consulta) {
               // Re-rank con texto completo conservando la página actual.

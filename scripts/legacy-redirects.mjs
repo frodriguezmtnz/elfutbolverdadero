@@ -11,12 +11,16 @@
 //    a /entrevistas/ en vez de 404.
 //  - Guard: aborta si algún src casaría con una ruta ya generada (no se puede
 //    enmascarar contenido real).
+//  - Query legacy (/?p=<ID> de WP y /?s=<term>) vía `has`; el guard las omite
+//    porque su src es "/" (no compiten con rutas, solo con el query string).
 //
 // Uso:
 //   npm run build                    → astro build && node scripts/legacy-redirects.mjs
 //   node scripts/legacy-redirects.mjs --dry-run   → imprime reglas + guard sin escribir
 import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
+import 'dotenv/config';
+import { createClient } from '@sanity/client';
 
 const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, '.vercel', 'output', 'config.json');
@@ -53,9 +57,47 @@ function rutasGeneradas(dir = DIST, acc = new Set()) {
   return acc;
 }
 
+// ---- mapa de enlaces cortos heredados (?p=<ID> de WP → slug) ----
+// Best-effort: si Sanity no responde, se omiten esas reglas sin romper el build.
+async function mapaWpShortlinks() {
+  if (!process.env.SANITY_PROJECT_ID) return new Map();
+  try {
+    const client = createClient({
+      projectId: process.env.SANITY_PROJECT_ID,
+      dataset: process.env.SANITY_DATASET ?? 'production',
+      useCdn: false,
+      apiVersion: '2024-01-01',
+    });
+    const docs = await client.fetch(
+      "*[_type=='publicacion' && defined(slug.current)]{_id, 'slug': slug.current}",
+    );
+    const mapa = new Map();
+    for (const d of docs) {
+      const m = /^publicacion-wp-(\d+)$/.exec(d._id);
+      if (m) mapa.set(m[1], d.slug);
+    }
+    return mapa;
+  } catch (err) {
+    console.warn(`⚠ Mapa ?p= no disponible (${err.message}); se omiten esas reglas.`);
+    return new Map();
+  }
+}
+
 // ---- reglas ----
-function construirReglas() {
+function construirReglas(mapaWp = new Map()) {
   const reglas = [];
+
+  // Enlaces cortos y búsquedas del WP legacy: /?p=<ID> → slug actual y
+  // /?s=<term> → /buscar/ (el término viaja en el query; la página lee q|s).
+  for (const [id, slug] of mapaWp) {
+    reglas.push({
+      src: '/',
+      has: [{ type: 'query', key: 'p', value: `^${esc(id)}$` }],
+      dest: `/${slug}/`,
+      status: 301,
+    });
+  }
+  reglas.push({ src: '/', has: [{ type: 'query', key: 's' }], dest: '/buscar/', status: 301 });
 
   // Categorías WP (anidadas o no) → /categoria/<último segmento>/, solo si existe
   for (const slug of subdirs('categoria')) {
@@ -109,8 +151,8 @@ function construirReglas() {
 // ---- guard anti-colisión + destinos válidos ----
 function verificar(reglas, rutas) {
   const problemas = [];
-  for (const { src, dest } of reglas) {
-    if (!dest) continue;
+  for (const { src, dest, has } of reglas) {
+    if (!dest || has) continue;
     const re = new RegExp(src);
     for (const ruta of rutas) {
       if (re.test(ruta)) {
@@ -144,7 +186,8 @@ if (idx === -1) {
   process.exit(1);
 }
 
-const reglas = construirReglas();
+const mapaWp = await mapaWpShortlinks();
+const reglas = construirReglas(mapaWp);
 const rutas = rutasGeneradas();
 const problemas = verificar(reglas, rutas);
 
@@ -165,7 +208,8 @@ console.log(
 );
 if (DRY_RUN) {
   for (const r of reglas) {
-    console.log(`  ${r.status}  ${r.src}  →  ${r.dest ?? '(410)'}`);
+    const cond = r.has ? `  [${r.has.map((h) => `${h.key}=${h.value ?? '*'}`).join(', ')}]` : '';
+    console.log(`  ${r.status}  ${r.src}${cond}  →  ${r.dest ?? '(410)'}`);
   }
   console.log('\n--dry-run: config.json NO modificado.');
   process.exit(0);
