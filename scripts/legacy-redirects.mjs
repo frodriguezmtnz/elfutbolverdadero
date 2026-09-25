@@ -113,6 +113,11 @@ function construirReglas(mapaWp = new Map()) {
   reglas.push(redirect('^/page/\\d+/?$', ENTREVISTAS));
   reglas.push(redirect('^/\\d{4}(?:/\\d{2}){0,2}/?$', ENTREVISTAS));
 
+  // Archivos de autor WP (site monoautor — no hay páginas de autor en Astro)
+  // → /author/xabiathletic/, /author/<slug>/page/N/ y feeds de autor legacy.
+  reglas.push(redirect('^/author/[^/]+/feed/?$', '/rss.xml'));
+  reglas.push(redirect('^/author/.+/?$', ENTREVISTAS));
+
   // Duplicados /slug/index.html → /slug/ (y /index.html → /)
   reglas.push(redirect('^/(.*)index\\.html$', '/$1'));
 
