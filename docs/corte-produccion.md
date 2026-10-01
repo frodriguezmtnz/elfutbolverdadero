@@ -175,4 +175,4 @@ done
 3. ~~**Títulos `#Entrevistas:` heredados de WP**~~ **DECIDIDO**: limpieza en lote con `scripts/fix-sanity-titles.mjs` (ver Paso 0.5)
 4. ~~**Analítica**~~ **DECIDIDO**: Umami Cloud free tier (cookieless, link público para Xabi) — ver Paso −1.3
 5. ~~**Redirecciones legacy**~~ **DECIDIDO**: `scripts/legacy-redirects.mjs` inyectado en el build (`npm run build`); páginas WP huérfanas fundidas en `/futbolverdadero-acerca-de/`
-6. **Opcionales `/?s=termino` y `/?p=123`**: sin decidir — se evalúan con datos de Search Console tras el corte (v3 `has: query` si salen muchos)
+6. ~~**Opcionales `/?s=termino` y `/?p=123`**~~ **DECIDIDO**: implementadas en `scripts/legacy-redirects.mjs` (PR #20) — `/?p=<ID>` → slug actual (mapa ID→slug desde Sanity, con fallback si el mapa no está disponible) y `/?s=<term>` → `/buscar/` (la página lee `q` o `s`). Se acotan con `has: query` y el guard las omite porque su `src` es `/` (no compiten con rutas, solo con el query string). Tras el corte, validar cobertura real con Search Console.
