@@ -26,68 +26,66 @@ const tienePrev = currentPage > 1;
 const tieneSiguiente = currentPage < totalPages;
 ---
 
-{
-  totalPages > 1 && (
-    <nav class="mt-10 flex flex-wrap items-center gap-2" aria-label="Paginación">
-      {tienePrev ? (
-        <a
-          href={href(currentPage - 1)}
-          rel="prev"
-          class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-        >
-          <Icon name="arrow-left" class="text-base" />
-          Anterior
-        </a>
-      ) : (
-        <span
-          aria-disabled="true"
-          class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
-        >
-          Anterior
-        </span>
-      )}
+{totalPages > 1 && (
+  <nav class="mt-10 flex flex-wrap items-center gap-2" aria-label="Paginación">
+    {tienePrev ? (
+      <a
+        href={href(currentPage - 1)}
+        rel="prev"
+        class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+      >
+        <Icon name="arrow-left" class="text-base" />
+        Anterior
+      </a>
+    ) : (
+      <span
+        aria-disabled="true"
+        class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
+      >
+        Anterior
+      </span>
+    )}
 
-      <div class="flex flex-wrap items-center gap-1">
-        {numeros.map((n) =>
-          n === 'elipsis' ? (
-            <span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">
-              …
-            </span>
-          ) : n === currentPage ? (
-            <span
-              aria-current="page"
-              class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
-            >
-              {n}
-            </span>
-          ) : (
-            <a
-              href={href(n)}
-              class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              {n}
-            </a>
-          ),
-        )}
-      </div>
-
-      {tieneSiguiente ? (
-        <a
-          href={href(currentPage + 1)}
-          rel="next"
-          class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-        >
-          Siguiente
-          <Icon name="arrow-right" class="text-base" />
-        </a>
-      ) : (
-        <span
-          aria-disabled="true"
-          class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
-        >
-          Siguiente
-        </span>
+    <div class="flex flex-wrap items-center gap-1">
+      {numeros.map((n) =>
+        n === 'elipsis' ? (
+          <span class="px-1.5 text-sm text-muted-foreground" aria-hidden="true">
+            …
+          </span>
+        ) : n === currentPage ? (
+          <span
+            aria-current="page"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
+          >
+            {n}
+          </span>
+        ) : (
+          <a
+            href={href(n)}
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          >
+            {n}
+          </a>
+        ),
       )}
-    </nav>
-  )
-}
+    </div>
+
+    {tieneSiguiente ? (
+      <a
+        href={href(currentPage + 1)}
+        rel="next"
+        class="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+      >
+        Siguiente
+        <Icon name="arrow-right" class="text-base" />
+      </a>
+    ) : (
+      <span
+        aria-disabled="true"
+        class="inline-flex min-h-11 cursor-not-allowed items-center rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground/50"
+      >
+        Siguiente
+      </span>
+    )}
+  </nav>
+)}
