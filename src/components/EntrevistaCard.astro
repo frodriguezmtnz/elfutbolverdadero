@@ -26,43 +26,39 @@ const descripcion = limpiarDescripcion(pub.description);
   class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-md"
 >
   <div class="aspect-[16/9] overflow-hidden bg-muted">
-    {
-      imagen && (
-        <img
-          src={imagen}
-          srcset={imagenSrcset}
-          sizes="(min-width: 768px) 405px, 100vw"
-          alt={altImagen}
-          class="h-full w-full object-cover grayscale transition duration-300 group-hover:scale-[1.03] group-hover:grayscale-0"
-          width="800"
-          height="450"
-          loading="lazy"
-        />
-      )
-    }
+    {imagen && (
+      <img
+        src={imagen}
+        srcset={imagenSrcset}
+        sizes="(min-width: 768px) 405px, 100vw"
+        alt={altImagen}
+        class="h-full w-full object-cover grayscale transition duration-300 group-hover:scale-[1.03] group-hover:grayscale-0"
+        width="800"
+        height="450"
+        loading="lazy"
+      />
+    )}
   </div>
   <div class="flex flex-1 flex-col p-6">
     <div class="flex items-center justify-between gap-3">
-      {
-        badge && (
-          <span
-            class="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground"
-            style={estiloChipCategoria(badge)}
-          >
-            {badge}
-          </span>
-        )
-      }
+      {badge && (
+        <span
+          class="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground"
+          style={estiloChipCategoria(badge)}
+        >
+          {badge}
+        </span>
+      )}
       {pub.club && <span class="text-xs font-semibold text-muted-foreground">{pub.club}</span>}
     </div>
     <Tag class="mt-5 font-heading font-semibold text-2xl uppercase leading-tight">
-      <a href={`/${pub.slug}/`} class="hover:text-primary">{pub.title}</a>
+      <a href={`/${pub.slug}/`} class="hover:text-primary">
+        {pub.title}
+      </a>
     </Tag>
-    {
-      descripcion && (
-        <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{descripcion}</p>
-      )
-    }
+    {descripcion && (
+      <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{descripcion}</p>
+    )}
     <a
       class="mt-auto inline-flex min-h-11 items-center gap-2 pt-5 text-sm font-bold text-primary"
       href={`/${pub.slug}/`}

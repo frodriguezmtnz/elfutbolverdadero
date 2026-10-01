@@ -35,10 +35,13 @@ const actualizado = 'Agosto de 2026';
                 <strong>El Fútbol Verdadero</strong> (proyecto divulgativo de fútbol base).
               </p>
               <p class="mt-2">
-                Contacto: <a
+                Contacto:{' '}
+                <a
                   class="font-semibold text-primary underline underline-offset-2"
-                  href={`mailto:${social.email}`}>{social.email}</a
+                  href={`mailto:${social.email}`}
                 >
+                  {social.email}
+                </a>
               </p>
             </div>
 
@@ -48,13 +51,14 @@ const actualizado = 'Agosto de 2026';
               </h2>
               <ul class="mt-3 list-disc space-y-2 pl-6 marker:text-tertiary-ink">
                 <li>
-                  <strong>Datos de contacto</strong> (nombre y correo electrónico) cuando nos escribes
-                  por email o te suscribes a la newsletter, con la única finalidad de responder a tu mensaje
-                  o enviarte las comunicaciones a las que te has suscrito.
+                  <strong>Datos de contacto</strong> (nombre y correo electrónico) cuando nos
+                  escribes por email o te suscribes a la newsletter, con la única finalidad de
+                  responder a tu mensaje o enviarte las comunicaciones a las que te has suscrito.
                 </li>
                 <li>
-                  <strong>Datos de navegación</strong> de forma agregada y anónima (páginas visitadas,
-                  país, dispositivo) para entender qué contenido resulta útil y mejorar la web.
+                  <strong>Datos de navegación</strong> de forma agregada y anónima (páginas
+                  visitadas, país, dispositivo) para entender qué contenido resulta útil y mejorar
+                  la web.
                 </li>
                 <li>
                   No recogemos datos especiales ni perfilar la navegación con fines publicitarios.
@@ -98,8 +102,12 @@ const actualizado = 'Agosto de 2026';
                 nuestra cuenta:
               </p>
               <ul class="mt-3 list-disc space-y-2 pl-6 marker:text-tertiary-ink">
-                <li><strong>Vercel Inc.</strong> — alojamiento y publicación de la web.</li>
-                <li><strong>Sanity.io</strong> — gestión de contenidos e imágenes.</li>
+                <li>
+                  <strong>Vercel Inc.</strong> — alojamiento y publicación de la web.
+                </li>
+                <li>
+                  <strong>Sanity.io</strong> — gestión de contenidos e imágenes.
+                </li>
               </ul>
               <p class="mt-3">
                 Además, al interactuar con nuestros perfiles en redes sociales (Facebook, Instagram,
@@ -127,8 +135,11 @@ const actualizado = 'Agosto de 2026';
                 supresión, oposición, limitación y portabilidad escribiendo a
                 <a
                   class="font-semibold text-primary underline underline-offset-2"
-                  href={`mailto:${social.email}`}>{social.email}</a
-                >. También puedes retirar tu consentimiento de la newsletter con el enlace de baja
+                  href={`mailto:${social.email}`}
+                >
+                  {social.email}
+                </a>
+                . También puedes retirar tu consentimiento de la newsletter con el enlace de baja
                 incluido en cada correo.
               </p>
               <p class="mt-3">
