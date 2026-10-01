@@ -37,37 +37,31 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
             Entrevista de la semana
           </p>
         </div>
-        {
-          badge && (
-            <span
-              class="mt-7 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground"
-              style={estiloChipCategoria(badge)}
-            >
-              {badge}
-            </span>
-          )
-        }
+        {badge && (
+          <span
+            class="mt-7 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground"
+            style={estiloChipCategoria(badge)}
+          >
+            {badge}
+          </span>
+        )}
         <h1 class="mt-5 font-heading font-semibold text-2xl uppercase leading-none sm:text-5xl">
           <a href={`/${pub.slug}/`}>{pub.title}</a>
         </h1>
-        {
-          descripcion && (
-            <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{descripcion}</p>
-          )
-        }
+        {descripcion && (
+          <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">{descripcion}</p>
+        )}
       </div>
 
       <div class="mt-8 border-t border-primary-foreground pt-5">
         {pub.author?.name && <p class="text-sm font-bold">Por {pub.author.name}</p>}
         <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
-          {
-            lectura && (
-              <p class="inline-flex items-center gap-1.5 text-xs text-primary-foreground">
-                <Icon name="clock" class="text-[13px]" />
-                {lectura}
-              </p>
-            )
-          }
+          {lectura && (
+            <p class="inline-flex items-center gap-1.5 text-xs text-primary-foreground">
+              <Icon name="clock" class="text-[13px]" />
+              {lectura}
+            </p>
+          )}
           <a
             class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-card px-4 text-sm font-bold text-foreground shadow-md"
             href={`/${pub.slug}/`}
@@ -80,34 +74,26 @@ const lectura = tiempoLectura(pub.body, pub.readingTime);
     </div>
 
     <div data-reveal="fade" data-speed="fast" class="flex w-full items-center overflow-hidden">
-      <div
-        class="relative aspect-[3/4] max-h-[440px] w-full overflow-hidden sm:max-h-[560px] lg:max-h-[680px]"
-      >
-        {
-          imagen && (
-            <img
-              src={imagen}
-              srcset={imagenSrcset}
-              sizes="(min-width: 1024px) 660px, 100vw"
-              alt={altImagen}
-              class="h-full w-full object-cover object-top grayscale"
-              width="660"
-              height="880"
-              loading="eager"
-              fetchpriority="high"
-            />
-          )
-        }
-        <div
-          class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7"
-        >
+      <div class="relative aspect-[3/4] max-h-[440px] w-full overflow-hidden sm:max-h-[560px] lg:max-h-[680px]">
+        {imagen && (
+          <img
+            src={imagen}
+            srcset={imagenSrcset}
+            sizes="(min-width: 1024px) 660px, 100vw"
+            alt={altImagen}
+            class="h-full w-full object-cover object-top grayscale"
+            width="660"
+            height="880"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )}
+        <div class="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-primary p-5 text-primary-foreground sm:p-7">
           <div>
             <p class="text-xs font-bold uppercase tracking-[0.2em]">Conversaciones</p>
-            {
-              pieImagen && (
-                <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>
-              )
-            }
+            {pieImagen && (
+              <p class="mt-1 font-heading font-semibold text-xl uppercase">{pieImagen}</p>
+            )}
           </div>
           <Icon name="quote" class="text-3xl text-tertiary-ink" />
         </div>

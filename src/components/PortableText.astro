@@ -132,80 +132,78 @@ for (const block of lista) {
 ---
 
 <div class="space-y-6">
-  {
-    grupos.map((grupo) => {
-      if (grupo.kind === 'texto') {
-        if (grupo.style === 'h2') {
-          return (
-            <h2
-              class="font-heading font-semibold text-2xl uppercase leading-tight text-foreground"
-              set:html={grupo.html}
-            />
-          );
-        }
-        if (grupo.style === 'h3') {
-          return (
-            <h3
-              class="font-heading font-semibold text-xl uppercase leading-tight text-foreground"
-              set:html={grupo.html}
-            />
-          );
-        }
-        if (grupo.style === 'blockquote') {
-          return (
-            <blockquote
-              class="font-quote italic border-l-4 border-tertiary pl-5 text-xl leading-snug sm:text-2xl text-foreground/90"
-              set:html={grupo.html}
-            />
-          );
-        }
-        return <p class="leading-7" set:html={grupo.html} />;
-      }
-      if (grupo.kind === 'lista') {
-        return grupo.ordenada ? (
-          <ol
-            class="list-decimal space-y-2 pl-6 leading-7 marker:font-bold marker:text-tertiary-ink"
-            set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
-          />
-        ) : (
-          <ul
-            class="list-disc space-y-2 pl-6 leading-7 marker:text-tertiary-ink"
-            set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
-          />
-        );
-      }
-      if (grupo.kind === 'imagen') {
+  {grupos.map((grupo) => {
+    if (grupo.kind === 'texto') {
+      if (grupo.style === 'h2') {
         return (
-          <figure>
-            <img
-              src={grupo.src ?? ''}
-              srcset={grupo.srcset}
-              sizes="(min-width: 768px) 768px, 100vw"
-              alt={grupo.alt}
-              class="zoomable h-auto w-full cursor-zoom-in rounded-xl shadow-md"
-              width={grupo.width ?? 1000}
-              height={grupo.height}
-              loading="lazy"
-            />
-            {grupo.caption && (
-              <figcaption class="mt-2 text-center text-xs text-muted-foreground">
-                {grupo.caption}
-              </figcaption>
-            )}
-          </figure>
+          <h2
+            class="font-heading font-semibold text-2xl uppercase leading-tight text-foreground"
+            set:html={grupo.html}
+          />
         );
       }
-      return (
-        <div class="overflow-hidden rounded-xl border border-border bg-muted">
-          <iframe
-            src={grupo.url}
-            title={grupo.title}
-            loading="lazy"
-            class="aspect-video w-full"
-            allowfullscreen
+      if (grupo.style === 'h3') {
+        return (
+          <h3
+            class="font-heading font-semibold text-xl uppercase leading-tight text-foreground"
+            set:html={grupo.html}
           />
-        </div>
+        );
+      }
+      if (grupo.style === 'blockquote') {
+        return (
+          <blockquote
+            class="font-quote italic border-l-4 border-tertiary pl-5 text-xl leading-snug sm:text-2xl text-foreground/90"
+            set:html={grupo.html}
+          />
+        );
+      }
+      return <p class="leading-7" set:html={grupo.html} />;
+    }
+    if (grupo.kind === 'lista') {
+      return grupo.ordenada ? (
+        <ol
+          class="list-decimal space-y-2 pl-6 leading-7 marker:font-bold marker:text-tertiary-ink"
+          set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
+        />
+      ) : (
+        <ul
+          class="list-disc space-y-2 pl-6 leading-7 marker:text-tertiary-ink"
+          set:html={grupo.items.map((i) => `<li>${i}</li>`).join('')}
+        />
       );
-    })
-  }
+    }
+    if (grupo.kind === 'imagen') {
+      return (
+        <figure>
+          <img
+            src={grupo.src ?? ''}
+            srcset={grupo.srcset}
+            sizes="(min-width: 768px) 768px, 100vw"
+            alt={grupo.alt}
+            class="zoomable h-auto w-full cursor-zoom-in rounded-xl shadow-md"
+            width={grupo.width ?? 1000}
+            height={grupo.height}
+            loading="lazy"
+          />
+          {grupo.caption && (
+            <figcaption class="mt-2 text-center text-xs text-muted-foreground">
+              {grupo.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    }
+    return (
+      <div class="overflow-hidden rounded-xl border border-border bg-muted">
+        <iframe
+          src={grupo.url}
+          title={grupo.title}
+          loading="lazy"
+          class="aspect-video w-full"
+          allowfullscreen
+        />
+      </div>
+    );
+  })}
 </div>

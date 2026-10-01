@@ -13,29 +13,34 @@ const { class: className = 'w-48 sm:w-60' } = Astro.props;
     stroke="var(--color-primary)"
     stroke-opacity="0.3"
     stroke-width="3"
-    stroke-linecap="round"></path>
+    stroke-linecap="round"
+  ></path>
   <path
     d="M20 138h18M204 138h18"
     stroke="var(--color-border)"
     stroke-width="2.5"
-    stroke-linecap="round"></path>
+    stroke-linecap="round"
+  ></path>
 
   <g class="goal">
     <!-- red -->
     <path
       d="M72 44V126M88 44V126M104 44V126M120 44V126M136 44V126M152 44V126M168 44V126"
       stroke="var(--color-border)"
-      stroke-width="1"></path>
+      stroke-width="1"
+    ></path>
     <path
       d="M64 56h112M64 70h112M64 84h112M64 98h112M64 112h112"
       stroke="var(--color-border)"
-      stroke-width="1"></path>
+      stroke-width="1"
+    ></path>
     <!-- estructura -->
     <path
       d="M60 130V40M180 130V40M57 40h126"
       stroke="var(--color-primary)"
       stroke-width="6"
-      stroke-linecap="round"></path>
+      stroke-linecap="round"
+    ></path>
   </g>
 
   <!-- chispas del impacto -->
@@ -47,7 +52,12 @@ const { class: className = 'w-48 sm:w-60' } = Astro.props;
 
   <!-- sombra -->
   <g transform="translate(48 134)">
-    <ellipse class="shadow" rx="11" ry="2.5" fill="var(--color-foreground)" opacity="0.16"
+    <ellipse
+      class="shadow"
+      rx="11"
+      ry="2.5"
+      fill="var(--color-foreground)"
+      opacity="0.16"
     ></ellipse>
   </g>
 
@@ -59,7 +69,8 @@ const { class: className = 'w-48 sm:w-60' } = Astro.props;
         d="M0 -3.6 3.4 -1.1 2.1 2.9H-2.1L-3.4 -1.1Z M0 -3.6V-9 M3.4 -1.1 9 -2.9 M2.1 2.9 5.6 7.6 M-2.1 2.9 -5.6 7.6 M-3.4 -1.1 -9 -2.9"
         stroke="var(--color-foreground)"
         stroke-width="1.5"
-        stroke-linejoin="round"></path>
+        stroke-linejoin="round"
+      ></path>
     </g>
   </g>
 </svg>

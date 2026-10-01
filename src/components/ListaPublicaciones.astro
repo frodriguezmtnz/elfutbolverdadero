@@ -27,28 +27,24 @@ const {
 
 <div class="mt-6 flex gap-2 overflow-x-auto pb-2">
   <Chip href="/entrevistas/" label="Todos" activo={!categoriaActiva} />
-  {
-    categorias.map((c) => (
-      <Chip href={`/categoria/${c.slug}/`} label={c.name} activo={c.slug === categoriaActiva} />
-    ))
-  }
+  {categorias.map((c) => (
+    <Chip href={`/categoria/${c.slug}/`} label={c.name} activo={c.slug === categoriaActiva} />
+  ))}
 </div>
 
-{
-  publicaciones.length > 0 ? (
-    <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-      {publicaciones.map((pub, i) => (
-        <EntrevistaCard
-          pub={pub}
-          headingTag="h2"
-          data-reveal="up"
-          style={`--reveal-index: ${i % 3}`}
-        />
-      ))}
-    </div>
-  ) : (
-    <p class="mt-8 text-sm text-muted-foreground">{mensajeVacio}</p>
-  )
-}
+{publicaciones.length > 0 ? (
+  <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+    {publicaciones.map((pub, i) => (
+      <EntrevistaCard
+        pub={pub}
+        headingTag="h2"
+        data-reveal="up"
+        style={`--reveal-index: ${i % 3}`}
+      />
+    ))}
+  </div>
+) : (
+  <p class="mt-8 text-sm text-muted-foreground">{mensajeVacio}</p>
+)}
 
 <Paginacion currentPage={currentPage} totalPages={totalPages} baseUrl={baseUrl} />

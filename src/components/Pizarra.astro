@@ -59,40 +59,40 @@ const { categorias, entrevistas } = Astro.props;
 
     <div class="mt-6 flex gap-2 overflow-x-auto pb-2">
       <Chip href="/entrevistas/" label="Todos" activo />
-      {categorias.map((c) => <Chip href={`/categoria/${c.slug}/`} label={c.name} />)}
+      {categorias.map((c) => (
+        <Chip href={`/categoria/${c.slug}/`} label={c.name} />
+      ))}
     </div>
 
-    {
-      entrevistas.length > 0 ? (
-        <div
-          data-carrusel
-          data-reveal="up"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="La Pizarra de los Mister"
-          class="mt-8"
+    {entrevistas.length > 0 ? (
+      <div
+        data-carrusel
+        data-reveal="up"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="La Pizarra de los Mister"
+        class="mt-8"
+      >
+        <ul
+          data-carrusel-track
+          class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <ul
-            data-carrusel-track
-            class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {entrevistas.map((pub) => (
-              <li
-                data-carrusel-slide
-                class="w-[86%] shrink-0 snap-start sm:w-[56%] lg:w-[30%] [&>article]:h-full"
-              >
-                <EntrevistaCard pub={pub} />
-              </li>
-            ))}
-          </ul>
-          <div data-carrusel-dots class="mt-5 flex items-center justify-center gap-2" />
-        </div>
-      ) : (
-        <p class="mt-8 text-sm text-muted-foreground">
-          Todavía no hay entrevistas publicadas. Muy pronto.
-        </p>
-      )
-    }
+          {entrevistas.map((pub) => (
+            <li
+              data-carrusel-slide
+              class="w-[86%] shrink-0 snap-start sm:w-[56%] lg:w-[30%] [&>article]:h-full"
+            >
+              <EntrevistaCard pub={pub} />
+            </li>
+          ))}
+        </ul>
+        <div data-carrusel-dots class="mt-5 flex items-center justify-center gap-2" />
+      </div>
+    ) : (
+      <p class="mt-8 text-sm text-muted-foreground">
+        Todavía no hay entrevistas publicadas. Muy pronto.
+      </p>
+    )}
   </div>
 </section>
 
