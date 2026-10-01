@@ -3,6 +3,8 @@
 // Se ejecuta tras el build (ver package.json → "build"): Astro ya escribió sus
 // propias reglas (p. ej. el slug árabe) y nosotros insertamos las nuestras justo
 // antes de {handle:"filesystem"} — en Vercel gana la PRIMERA coincidencia.
+// Además se inyecta al principio un 308 del host de producción *.vercel.app al
+// dominio canónico (evita contenido duplicado): ver bloque "hostRule" más abajo.
 //
 // Diseño:
 //  - Las reglas específicas se generan SOLO para slugs que existen en dist/
@@ -28,6 +30,10 @@ const DIST = path.join(ROOT, 'dist');
 const DRY_RUN = process.argv.includes('--dry-run');
 
 const ENTREVISTAS = '/entrevistas/';
+
+// Dominio canónico y host de producción de Vercel (SEO: evitar contenido duplicado).
+const SITE_ORIGIN = 'https://www.elfutbolverdadero.com';
+const PROD_VERCEL_HOST_RE = '^elfutbolverdadero\\.vercel\\.app$';
 
 // ---- utilidades ----
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -113,6 +119,11 @@ function construirReglas(mapaWp = new Map()) {
   reglas.push(redirect('^/page/\\d+/?$', ENTREVISTAS));
   reglas.push(redirect('^/\\d{4}(?:/\\d{2}){0,2}/?$', ENTREVISTAS));
 
+  // Archivos de autor WP (site monoautor — no hay páginas de autor en Astro)
+  // → /author/xabiathletic/, /author/<slug>/page/N/ y feeds de autor legacy.
+  reglas.push(redirect('^/author/[^/]+/feed/?$', '/rss.xml'));
+  reglas.push(redirect('^/author/.+/?$', ENTREVISTAS));
+
   // Duplicados /slug/index.html → /slug/ (y /index.html → /)
   reglas.push(redirect('^/(.*)index\\.html$', '/$1'));
 
@@ -136,6 +147,7 @@ function construirReglas(mapaWp = new Map()) {
   reglas.push(
     redirect('^/eres-entrenador-y-estas-buscando-equipo/?$', '/futbolverdadero-acerca-de/'),
   );
+  reglas.push(redirect('^/sobre-nosotros/?$', '/futbolverdadero-acerca-de/'));
 
   // Basura de WordPress (páginas del theme/membership/plugins confirmadas en vivo)
   for (const basura of ['home', 'home-2', 'be-pin-posts', 'be-pin-posts-2', 'login']) {
@@ -197,16 +209,31 @@ if (problemas.length) {
   process.exit(1);
 }
 
-const yaInyectadas = config.routes.some((r) => r.src === '^/category/(?:[^/]+/)*[^/]+/?$');
-if (yaInyectadas) {
-  console.log('Redirecciones legacy ya presentes en config.json — nada que hacer.');
-  process.exit(0);
-}
+// Redirect 308 del host de producción *.vercel.app al dominio canónico.
+// Va al PRINCIPIO del array: Vercel evalúa las rutas en orden y gana la primera
+// coincidencia, así TODA ruta bajo ese host se redirige a www antes que cualquier
+// regla legacy. El `has` de host acota el match al dominio exacto, de modo que ni
+// los previews (*-git-*.vercel.app) ni www se ven afectados. Se excluye
+// /.well-known (ruta reservada por Vercel, no redirigible).
+const hostRule = {
+  src: '^/(?!\\.well-known)(.*)$',
+  has: [{ type: 'host', value: PROD_VERCEL_HOST_RE }],
+  dest: `${SITE_ORIGIN}/$1`,
+  status: 308,
+};
+const hostYa = config.routes.some(
+  (r) => r.has?.[0]?.type === 'host' && r.has[0].value === PROD_VERCEL_HOST_RE,
+);
+const legacyYa = config.routes.some((r) => r.src === '^/category/(?:[^/]+/)*[^/]+/?$');
 
 console.log(
   `${reglas.length} reglas legacy generadas (${rutas.size} rutas protegidas por el guard).`,
 );
+
 if (DRY_RUN) {
+  if (!hostYa) {
+    console.log(`  308  ${hostRule.src}  [host=${PROD_VERCEL_HOST_RE}]  →  ${hostRule.dest}`);
+  }
   for (const r of reglas) {
     const cond = r.has ? `  [${r.has.map((h) => `${h.key}=${h.value ?? '*'}`).join(', ')}]` : '';
     console.log(`  ${r.status}  ${r.src}${cond}  →  ${r.dest ?? '(410)'}`);
@@ -215,6 +242,26 @@ if (DRY_RUN) {
   process.exit(0);
 }
 
-config.routes.splice(idx, 0, ...reglas);
-writeFileSync(CONFIG_PATH, JSON.stringify(config, null, '\t'), 'utf8');
-console.log(`✓ Inyectadas en ${path.relative(ROOT, CONFIG_PATH)} antes de {handle:"filesystem"}.`);
+let cambios = false;
+
+if (!hostYa) {
+  config.routes.unshift(hostRule);
+  cambios = true;
+  console.log('✓ Añadida redirección 308 del host *.vercel.app al dominio canónico (posición 0).');
+}
+
+if (!legacyYa) {
+  const fsIdx = config.routes.findIndex((r) => r.handle === 'filesystem');
+  config.routes.splice(fsIdx, 0, ...reglas);
+  cambios = true;
+  console.log(`✓ Inyectadas ${reglas.length} reglas legacy antes de {handle:"filesystem"}.`);
+} else {
+  console.log('Redirecciones legacy ya presentes en config.json — nada que hacer.');
+}
+
+if (cambios) {
+  writeFileSync(CONFIG_PATH, JSON.stringify(config, null, '\t'), 'utf8');
+  console.log(`✓ Actualizado ${path.relative(ROOT, CONFIG_PATH)}.`);
+} else {
+  console.log('config.json ya al día — sin cambios.');
+}
