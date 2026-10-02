@@ -24,6 +24,17 @@ jobs:
       - run: npm run format:check
       - run: npx astro check
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage
+
   build:
     runs-on: ubuntu-latest
     env:
