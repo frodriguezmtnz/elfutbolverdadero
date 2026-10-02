@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # Checkpoint/logs del import WordPress->Sanity
 .import/
+
+# Cobertura de tests (Vitest)
+coverage/
