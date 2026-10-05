@@ -14,6 +14,14 @@ updates:
         update-types:
           - minor
           - patch
+    # Bloquea el bump mayor a TypeScript 7 mientras @astrojs/check (peer
+    # ^5||^6) y typescript-eslint (<6.1.0) no soporten TS 7. Al publicarse
+    # versiones compatibles, quitar este bloque para que Dependabot vuelva a
+    # proponerlo (ver PR #26, cerrada por ERESOLVE).
+    ignore:
+      - dependency-name: typescript
+        versions:
+          - '>= 7'
 
   - package-ecosystem: github-actions
     directory: /
