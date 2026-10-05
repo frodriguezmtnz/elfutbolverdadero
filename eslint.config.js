@@ -20,7 +20,13 @@ export default defineConfig([
   astro.configs['flat/recommended'],
   astro.configs['flat/jsx-a11y-recommended'],
   {
-    files: ['scripts/**/*.mjs', 'astro.config.mjs', 'sanity.config.ts', 'sanity.cli.ts'],
+    files: [
+      'scripts/**/*.mjs',
+      'tests/**/*.{ts,mjs}',
+      'astro.config.mjs',
+      'sanity.config.ts',
+      'sanity.cli.ts',
+    ],
     languageOptions: {
       globals: { ...globals.node },
     },

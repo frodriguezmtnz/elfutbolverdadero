@@ -21,6 +21,7 @@
 //   node scripts/legacy-redirects.mjs --dry-run   → imprime reglas + guard sin escribir
 import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import 'dotenv/config';
 import { createClient } from '@sanity/client';
 
@@ -36,7 +37,9 @@ const SITE_ORIGIN = 'https://www.elfutbolverdadero.com';
 const PROD_VERCEL_HOST_RE = '^elfutbolverdadero\\.vercel\\.app$';
 
 // ---- utilidades ----
-const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Se exportan las funciones puras/inyectables para poder unit-testearlas
+// (ver tests/unit/legacy-redirects.test.ts) sin ejecutar el flujo de escritura.
+export const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const subdirs = (dir) => {
   const abs = path.join(DIST, dir);
   if (!existsSync(abs)) return [];
@@ -48,13 +51,15 @@ const subdirs = (dir) => {
 const redirect = (src, dest, status = 301) => ({ src, dest, status });
 
 // ---- inventario de rutas generadas (para el guard anti-colisión) ----
-function rutasGeneradas(dir = DIST, acc = new Set()) {
+// `root` fija la base sobre la que se computan las rutas relativas: por defecto
+// el propio `dir` (en build es `dist/`), pero se puede pasar un fixture en tests.
+export function rutasGeneradas(dir = DIST, acc = new Set(), root = dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const abs = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      rutasGeneradas(abs, acc);
+      rutasGeneradas(abs, acc, root);
     } else if (entry.name.endsWith('.html')) {
-      const rel = path.relative(DIST, abs).replaceAll('\\', '/');
+      const rel = path.relative(root, abs).replaceAll('\\', '/');
       const ruta = rel === 'index.html' ? '/' : `/${rel.replace(/index\.html$/, '')}`;
       acc.add(ruta);
       acc.add(ruta === '/' ? '/' : ruta.replace(/\/$/, ''));
@@ -65,7 +70,7 @@ function rutasGeneradas(dir = DIST, acc = new Set()) {
 
 // ---- mapa de enlaces cortos heredados (?p=<ID> de WP → slug) ----
 // Best-effort: si Sanity no responde, se omiten esas reglas sin romper el build.
-async function mapaWpShortlinks() {
+export async function mapaWpShortlinks() {
   if (!process.env.SANITY_PROJECT_ID) return new Map();
   try {
     const client = createClient({
@@ -90,7 +95,13 @@ async function mapaWpShortlinks() {
 }
 
 // ---- reglas ----
-function construirReglas(mapaWp = new Map()) {
+// `categorias`/`etiquetas` son inyectables: por defecto se leen del `dist/` real
+// (comportamiento de build), pero los tests pasan listas explícitas para ser
+// deterministas sin necesidad de un árbol de ficheros.
+export function construirReglas(
+  mapaWp = new Map(),
+  { categorias = subdirs('categoria'), etiquetas = subdirs('etiqueta') } = {},
+) {
   const reglas = [];
 
   // Enlaces cortos y búsquedas del WP legacy: /?p=<ID> → slug actual y
@@ -106,12 +117,12 @@ function construirReglas(mapaWp = new Map()) {
   reglas.push({ src: '/', has: [{ type: 'query', key: 's' }], dest: '/buscar/', status: 301 });
 
   // Categorías WP (anidadas o no) → /categoria/<último segmento>/, solo si existe
-  for (const slug of subdirs('categoria')) {
+  for (const slug of categorias) {
     reglas.push(redirect(`^/category/(?:[^/]+/)*${esc(slug)}/?$`, `/categoria/${slug}/`));
   }
 
   // Etiquetas WP → /etiqueta/<slug>/, solo si existe
-  for (const slug of subdirs('etiqueta')) {
+  for (const slug of etiquetas) {
     reglas.push(redirect(`^/tag/${esc(slug)}/?$`, `/etiqueta/${slug}/`));
   }
 
@@ -161,7 +172,7 @@ function construirReglas(mapaWp = new Map()) {
 }
 
 // ---- guard anti-colisión + destinos válidos ----
-function verificar(reglas, rutas) {
+export function verificar(reglas, rutas, { dist = DIST } = {}) {
   const problemas = [];
   for (const { src, dest, has } of reglas) {
     if (!dest || has) continue;
@@ -177,7 +188,7 @@ function verificar(reglas, rutas) {
   for (const destino of estaticos) {
     if (
       !rutas.has(destino) &&
-      !(destino === '/rss.xml' && existsSync(path.join(DIST, 'rss.xml')))
+      !(destino === '/rss.xml' && existsSync(path.join(dist, 'rss.xml')))
     ) {
       problemas.push(`destino inexistente en el build: ${destino}`);
     }
@@ -185,83 +196,104 @@ function verificar(reglas, rutas) {
   return problemas;
 }
 
-// ---- main ----
-if (!existsSync(CONFIG_PATH)) {
-  console.error('No existe .vercel/output/config.json — ejecuta primero "astro build".');
-  process.exit(1);
-}
-
-const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
-const idx = config.routes.findIndex((r) => r.handle === 'filesystem');
-if (idx === -1) {
-  console.error('No se encontró {handle:"filesystem"} en config.json — revisar el adapter.');
-  process.exit(1);
-}
-
-const mapaWp = await mapaWpShortlinks();
-const reglas = construirReglas(mapaWp);
-const rutas = rutasGeneradas();
-const problemas = verificar(reglas, rutas);
-
-if (problemas.length) {
-  console.error(`✖ Guard anti-colisión (${problemas.length}):`);
-  for (const p of problemas) console.error(`  - ${p}`);
-  process.exit(1);
-}
-
-// Redirect 308 del host de producción *.vercel.app al dominio canónico.
+// ---- regla 308 del host de producción *.vercel.app al dominio canónico ----
 // Va al PRINCIPIO del array: Vercel evalúa las rutas en orden y gana la primera
 // coincidencia, así TODA ruta bajo ese host se redirige a www antes que cualquier
 // regla legacy. El `has` de host acota el match al dominio exacto, de modo que ni
 // los previews (*-git-*.vercel.app) ni www se ven afectados. Se excluye
 // /.well-known (ruta reservada por Vercel, no redirigible).
-const hostRule = {
-  src: '^/(?!\\.well-known)(.*)$',
-  has: [{ type: 'host', value: PROD_VERCEL_HOST_RE }],
-  dest: `${SITE_ORIGIN}/$1`,
-  status: 308,
-};
-const hostYa = config.routes.some(
-  (r) => r.has?.[0]?.type === 'host' && r.has[0].value === PROD_VERCEL_HOST_RE,
-);
-const legacyYa = config.routes.some((r) => r.src === '^/category/(?:[^/]+/)*[^/]+/?$');
+export function construirReglaHost() {
+  return {
+    src: '^/(?!\\.well-known)(.*)$',
+    has: [{ type: 'host', value: PROD_VERCEL_HOST_RE }],
+    dest: `${SITE_ORIGIN}/$1`,
+    status: 308,
+  };
+}
 
-console.log(
-  `${reglas.length} reglas legacy generadas (${rutas.size} rutas protegidas por el guard).`,
-);
+// ---- main: orquestación de build (lee/escribe .vercel/output/config.json) ----
+// Se excluye de cobertura: es E/S pura (fs + Sanity + process.exit) y se valida
+// con A/B del config.json en el build + `npm run redirects:dry`.
+/* v8 ignore start */
+async function main() {
+  if (!existsSync(CONFIG_PATH)) {
+    console.error('No existe .vercel/output/config.json — ejecuta primero "astro build".');
+    process.exit(1);
+  }
 
-if (DRY_RUN) {
+  const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+  const idx = config.routes.findIndex((r) => r.handle === 'filesystem');
+  if (idx === -1) {
+    console.error('No se encontró {handle:"filesystem"} en config.json — revisar el adapter.');
+    process.exit(1);
+  }
+
+  const mapaWp = await mapaWpShortlinks();
+  const reglas = construirReglas(mapaWp);
+  const rutas = rutasGeneradas();
+  const problemas = verificar(reglas, rutas);
+
+  if (problemas.length) {
+    console.error(`✖ Guard anti-colisión (${problemas.length}):`);
+    for (const p of problemas) console.error(`  - ${p}`);
+    process.exit(1);
+  }
+
+  const hostRule = construirReglaHost();
+  const hostYa = config.routes.some(
+    (r) => r.has?.[0]?.type === 'host' && r.has[0].value === PROD_VERCEL_HOST_RE,
+  );
+  const legacyYa = config.routes.some((r) => r.src === '^/category/(?:[^/]+/)*[^/]+/?$');
+
+  console.log(
+    `${reglas.length} reglas legacy generadas (${rutas.size} rutas protegidas por el guard).`,
+  );
+
+  if (DRY_RUN) {
+    if (!hostYa) {
+      console.log(`  308  ${hostRule.src}  [host=${PROD_VERCEL_HOST_RE}]  →  ${hostRule.dest}`);
+    }
+    for (const r of reglas) {
+      const cond = r.has ? `  [${r.has.map((h) => `${h.key}=${h.value ?? '*'}`).join(', ')}]` : '';
+      console.log(`  ${r.status}  ${r.src}${cond}  →  ${r.dest ?? '(410)'}`);
+    }
+    console.log('\n--dry-run: config.json NO modificado.');
+    return;
+  }
+
+  let cambios = false;
+
   if (!hostYa) {
-    console.log(`  308  ${hostRule.src}  [host=${PROD_VERCEL_HOST_RE}]  →  ${hostRule.dest}`);
+    config.routes.unshift(hostRule);
+    cambios = true;
+    console.log(
+      '✓ Añadida redirección 308 del host *.vercel.app al dominio canónico (posición 0).',
+    );
   }
-  for (const r of reglas) {
-    const cond = r.has ? `  [${r.has.map((h) => `${h.key}=${h.value ?? '*'}`).join(', ')}]` : '';
-    console.log(`  ${r.status}  ${r.src}${cond}  →  ${r.dest ?? '(410)'}`);
+
+  if (!legacyYa) {
+    const fsIdx = config.routes.findIndex((r) => r.handle === 'filesystem');
+    config.routes.splice(fsIdx, 0, ...reglas);
+    cambios = true;
+    console.log(`✓ Inyectadas ${reglas.length} reglas legacy antes de {handle:"filesystem"}.`);
+  } else {
+    console.log('Redirecciones legacy ya presentes en config.json — nada que hacer.');
   }
-  console.log('\n--dry-run: config.json NO modificado.');
-  process.exit(0);
+
+  if (cambios) {
+    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, '\t'), 'utf8');
+    console.log(`✓ Actualizado ${path.relative(ROOT, CONFIG_PATH)}.`);
+  } else {
+    console.log('config.json ya al día — sin cambios.');
+  }
 }
 
-let cambios = false;
-
-if (!hostYa) {
-  config.routes.unshift(hostRule);
-  cambios = true;
-  console.log('✓ Añadida redirección 308 del host *.vercel.app al dominio canónico (posición 0).');
+// Solo ejecuta el flujo de build cuando se invoca directamente
+// (`node scripts/legacy-redirects.mjs`); al importarlo en tests no hace E/S.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 }
-
-if (!legacyYa) {
-  const fsIdx = config.routes.findIndex((r) => r.handle === 'filesystem');
-  config.routes.splice(fsIdx, 0, ...reglas);
-  cambios = true;
-  console.log(`✓ Inyectadas ${reglas.length} reglas legacy antes de {handle:"filesystem"}.`);
-} else {
-  console.log('Redirecciones legacy ya presentes en config.json — nada que hacer.');
-}
-
-if (cambios) {
-  writeFileSync(CONFIG_PATH, JSON.stringify(config, null, '\t'), 'utf8');
-  console.log(`✓ Actualizado ${path.relative(ROOT, CONFIG_PATH)}.`);
-} else {
-  console.log('config.json ya al día — sin cambios.');
-}
+/* v8 ignore stop */
