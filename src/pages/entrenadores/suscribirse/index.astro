@@ -1,0 +1,64 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import Icon from '../../../components/Icon.astro';
+import { usuarioActual } from '../../../lib/supabase';
+import { obtenerMembresia, suscripcionActiva } from '../../../lib/membresias';
+import { crearCheckoutLs } from '../../../lib/lemonsqueezy';
+
+export const prerender = false;
+
+const usuario = await usuarioActual(Astro);
+if (!usuario) {
+  return Astro.redirect('/entrenadores/acceder/?next=%2Fentrenadores%2Fsuscribirse%2F', 302);
+}
+
+const { crearClienteSupabase } = await import('../../../lib/supabase');
+const supabase = crearClienteSupabase(Astro);
+const membresia = await obtenerMembresia(supabase, usuario.email);
+if (suscripcionActiva(membresia)) {
+  return Astro.redirect('/entrenadores/panel/?motivo=ya-suscrito', 302);
+}
+
+const checkoutUrl = await crearCheckoutLs(usuario.email, Astro.url.origin);
+if (checkoutUrl) {
+  return Astro.redirect(checkoutUrl, 302);
+}
+
+const errorConfig = true;
+---
+
+<Base title="Suscripción no disponible — Futbolverdadero Entrenadores" robots="noindex, nofollow">
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-muted">
+        <div class="mx-auto max-w-md px-4 py-16 lg:px-8">
+          <div class="rounded-xl border border-border bg-card p-8">
+            <h1 class="font-heading text-2xl font-semibold uppercase">Pago no disponible</h1>
+            {errorConfig && (
+              <p class="mt-4 text-sm leading-6 text-muted-foreground">
+                La pasarela de suscripción (Lemon Squeezy) todavía no está configurada en este
+                entorno: faltan <code class="text-xs">LS_API_KEY</code>,{' '}
+                <code class="text-xs">LS_STORE_ID</code>o <code class="text-xs">LS_VARIANT_ID</code>
+                .
+              </p>
+            )}
+            <p class="mt-4 text-sm text-muted-foreground">
+              Sesión iniciada como <strong class="text-foreground">{usuario.email}</strong>.
+            </p>
+            <a
+              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/entrenadores/panel/"
+            >
+              Volver a mi panel
+              <Icon name="arrow-right" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+</Base>
