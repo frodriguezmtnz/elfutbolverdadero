@@ -8,26 +8,30 @@ import FichaVista from '../../../../components/entrenadores/FichaVista.astro';
 import { getEjercicioBySlug } from '../../../../lib/entrenadores';
 import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
 import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
+import { puedeVerContenido } from '../../../../lib/acceso-entrenadores';
 
 export const prerender = false;
 
 const { slug } = Astro.params;
 const ej = await getEjercicioBySlug(slug!);
 
-// Gate por página: free se abre a todos; premium solo con suscripción viva.
+// Gate por página (decisión pura y testeada en acceso-entrenadores.ts):
+// free se abre a todos; premium solo con suscripción viva — el magic link
+// sin pagar NO desbloquea (identidad ≠ pago).
 // (No se usa rewrite('/404'): reescritura a ruta prerenderizada está prohibida
 // en SSR mixto → se sirve un 404 propio inline con el estado HTTP correcto.)
 let completa = false;
 if (ej) {
-  completa = ej.acceso !== 'premium';
-  if (!completa) {
+  let viva = false;
+  if (ej.acceso === 'premium') {
     const usuario = await usuarioActual(Astro);
     if (usuario) {
       const supabase = crearClienteSupabase(Astro);
       const membresia = await obtenerMembresia(supabase, usuario.email);
-      completa = suscripcionActiva(membresia);
+      viva = suscripcionActiva(membresia);
     }
   }
+  completa = puedeVerContenido(ej.acceso, viva);
 } else {
   Astro.response.status = 404;
 }

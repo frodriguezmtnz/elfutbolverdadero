@@ -17,6 +17,7 @@ export default defineConfig({
         'src/lib/texto.ts',
         'src/lib/entrenadores-textos.ts',
         'src/lib/membresias.ts',
+        'src/lib/acceso-entrenadores.ts',
         'src/lib/banco-filtros.ts',
         'src/lib/colores-categoria.ts',
         'scripts/lib/entidades.mjs',

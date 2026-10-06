@@ -58,3 +58,23 @@ El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nue
 - [ ] Cancelar en el portal → sigue dentro hasta `current_period_end` (status cancelled), luego el guard redirige.
 - [ ] Webhook con firma falsa → 401.
 - [ ] Sitemap/Google: solo `/entrenadores/` pública; el resto tiene `noindex` y no son prerenderizadas.
+
+## 5 · Magic link ≠ suscripción (checklist de acceso)
+
+El login solo **identifica**; el pago vive en `memberships` (lo escribe el webhook de
+Lemon Squeezy). Son dos llaves distintas y las rutas premium exigen **ambas**. Las
+decisiones son puras y están testeadas en `src/lib/acceso-entrenadores.ts`
+(`tests/unit/acceso-entrenadores.test.ts`); middleware y fichas solo las consumen.
+
+| Visitante                | Panel / suscribirse     | Ficha premium            | Rutas premium futuras (sesiones…) |
+| ------------------------ | ----------------------- | ------------------------ | --------------------------------- |
+| Anónimo                  | → `/acceder/?next=…`    | vista bloqueada de venta | → `/acceder/?next=…`              |
+| Magic link **sin pagar** | ✅ (ve su estado + CTA) | **sigue bloqueada**      | → `/panel/?motivo=suscripcion`    |
+| Magic link + pago activo | ✅                      | ✅ completa + imprimir   | ✅                                |
+
+Checklist tras configurar Supabase (antes no puede probarse el login real):
+
+- [ ] Anónimo: `/entrenadores/ejercicios/` → 200 con catálogo; ficha premium → vista bloqueada (nunca el desarrollo); `/entrenadores/panel/` → 302 a `/acceder/?next=…`.
+- [ ] Pide magic link un email **sin pagar**: llega el correo, el callback crea sesión y el panel muestra «sin suscripción» con CTA.
+- [ ] Ese mismo usuario, con sesión: ficha premium → **sigue bloqueada**; `/entrenadores/cualquier-cosa-premium` → 302 a `/panel/?motivo=suscripcion`.
+- [ ] Paga en LS test mode → webhook activa `memberships` → la ficha premium se ve completa y el botón de imprimir funciona.

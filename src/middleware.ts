@@ -1,61 +1,39 @@
 import { defineMiddleware } from 'astro:middleware';
 import { crearClienteSupabase, supabaseConfigurado } from './lib/supabase';
 import { obtenerMembresia, suscripcionActiva } from './lib/membresias';
+import { clasificarRuta, decidirAcceso } from './lib/acceso-entrenadores';
 
 // Guard de la zona FUTBOLVERDADERO ENTRENADORES.
 // Con output: 'static' este middleware solo corre en las rutas on-demand
 // (prerender = false): las páginas públicas no lo ejecutan ni en build.
-
-// Publicas: landing + login + callbacks del flujo de acceso/pago.
-const RUTAS_PUBLICAS = new Set([
-  '/entrenadores',
-  '/entrenadores/acceder',
-  '/entrenadores/auth/callback',
-  '/entrenadores/auth/magic',
-  '/entrenadores/auth/salir',
-  '/entrenadores/auth/suscrito',
-]);
-
-// Zona pública CON candado por página: el catálogo y las fichas se sirven sin
-// sesión, pero la ruta decide (según `acceso` del doc + estado del visitante)
-// si muestra la ficha completa o la vista bloqueada de venta. Así el banco
-// posiciona y vende sin desproteger el contenido premium.
-const PREFIJOS_TEASER = ['/entrenadores/ejercicios'];
-
-// Solo requieren sesión (no suscripción): panel = hub con CTA de pago,
-// suscribirse = página que redirige al checkout.
-const RUTAS_SOLO_SESION = new Set(['/entrenadores/panel', '/entrenadores/suscribirse']);
-
-function normalizar(pathname: string): string {
-  return pathname.replace(/\/+$/, '') || '/';
-}
+// La decisión pura (clasificar + decidir) vive en src/lib/acceso-entrenadores.ts
+// y está cubierta por tests unitarios (fail-closed).
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const ruta = normalizar(context.url.pathname);
-  if (ruta !== '/entrenadores' && !ruta.startsWith('/entrenadores/')) return next();
-  if (RUTAS_PUBLICAS.has(ruta)) return next();
-  if (PREFIJOS_TEASER.some((p) => ruta === p || ruta.startsWith(`${p}/`))) return next();
+  const clase = clasificarRuta(context.url.pathname);
+  if (clase === 'publica' || clase === 'teaser') return next();
 
-  if (!supabaseConfigurado()) {
-    return context.redirect('/entrenadores/acceder/?aviso=config', 302);
+  const configurado = supabaseConfigurado();
+  let email: string | null = null;
+  let suscripcionViva = false;
+  if (configurado) {
+    const supabase = crearClienteSupabase(context);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    email = user?.email ?? null;
+    if (email && clase === 'premium') {
+      const membresia = await obtenerMembresia(supabase, email.toLowerCase());
+      suscripcionViva = suscripcionActiva(membresia);
+    }
   }
 
-  const supabase = crearClienteSupabase(context);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
-    const nextParam = encodeURIComponent(context.url.pathname + context.url.search);
-    return context.redirect(`/entrenadores/acceder/?next=${nextParam}`, 302);
-  }
-
-  if (RUTAS_SOLO_SESION.has(ruta)) return next();
-
-  // Fail-closed: cualquier otra ruta bajo /entrenadores/ exige suscripción viva.
-  const membresia = await obtenerMembresia(supabase, user.email.toLowerCase());
-  if (!suscripcionActiva(membresia)) {
-    return context.redirect('/entrenadores/panel/?motivo=suscripcion', 302);
-  }
+  const decision = decidirAcceso(clase, {
+    configurado,
+    email,
+    origen: context.url.pathname + context.url.search,
+    suscripcionViva,
+  });
+  if (decision.accion === 'redirect') return context.redirect(decision.destino, 302);
   return next();
 });
