@@ -25,6 +25,9 @@
     "sanity:fix-entities:apply": "node scripts/fix-sanity-entities.mjs --apply",
     "sanity:fix-titles": "node scripts/fix-sanity-titles.mjs",
     "sanity:fix-titles:apply": "node scripts/fix-sanity-titles.mjs --apply",
+    "seed:entrenadores": "node scripts/seed-entrenadores.mjs",
+    "seed:entrenadores:apply": "node scripts/seed-entrenadores.mjs --apply",
+    "seed:entrenadores:limpiar": "node scripts/seed-entrenadores.mjs --limpiar --apply",
     "postinstall": "patch-package"
   },
   "dependencies": {
