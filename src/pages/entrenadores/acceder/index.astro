@@ -1,0 +1,98 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import Icon from '../../../components/Icon.astro';
+
+export const prerender = false;
+
+const enviado = Astro.url.searchParams.has('enviado');
+const avisoConfig = Astro.url.searchParams.has('aviso');
+const error = Astro.url.searchParams.has('error');
+const next = Astro.url.searchParams.get('next') ?? '/entrenadores/panel/';
+---
+
+<Base
+  title="Acceder — Futbolverdadero Entrenadores"
+  description="Entra con un enlace mágico enviado a tu correo."
+  robots="noindex, nofollow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-muted">
+        <div class="mx-auto max-w-md px-4 py-16 lg:px-8">
+          <div data-reveal="up" class="rounded-xl border border-border bg-card p-8 shadow-theme">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              Futbolverdadero Entrenadores
+            </p>
+            <h1 class="mt-2 font-heading text-2xl font-semibold uppercase">Acceder</h1>
+
+            {enviado ? (
+              <div class="mt-6 rounded-lg bg-secondary p-4 text-sm text-secondary-foreground">
+                <p class="flex items-start gap-2 font-semibold">
+                  <Icon name="mail" class="mt-0.5 shrink-0 text-primary" />
+                  Revisa tu correo
+                </p>
+                <p class="mt-2 text-muted-foreground">
+                  Te hemos enviado un enlace de acceso. Dura unos minutos y funciona solo una vez.
+                  Sin contraseñas: cada acceso es un enlace nuevo.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p class="mt-3 text-sm text-muted-foreground">
+                  Te enviamos un <strong>enlace mágico</strong> a tu correo. Nada de contraseñas.
+                </p>
+
+                {error && (
+                  <p class="mt-4 rounded-lg bg-destructive/10 p-3 text-sm font-semibold text-destructive">
+                    El enlace ha caducado o ya se usó. Pide uno nuevo.
+                  </p>
+                )}
+
+                {avisoConfig && (
+                  <p class="mt-4 rounded-lg bg-accent/20 p-3 text-sm text-tertiary-ink">
+                    El acceso todavía no está configurado en este entorno (faltan las claves de
+                    Supabase). En producción funcionará aquí mismo.
+                  </p>
+                )}
+
+                <form method="POST" action="/entrenadores/auth/magic" class="mt-6 space-y-3">
+                  <label class="block text-sm font-bold" for="email">
+                    Correo electrónico
+                  </label>
+                  <input
+                    class="min-h-11 w-full rounded-lg border border-input bg-card px-4 text-sm"
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autocomplete="email"
+                    placeholder="tu@email.com"
+                  />
+                  <input type="hidden" name="next" value={next} />
+                  <button
+                    class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground hover:brightness-110"
+                    type="submit"
+                  >
+                    Enviarme el enlace
+                    <Icon name="layout-arrow-right" class="text-lg" />
+                  </button>
+                </form>
+              </>
+            )}
+
+            <p class="mt-6 text-xs text-muted-foreground">
+              ¿Aún no eres socio?{' '}
+              <a class="font-bold text-primary hover:underline" href="/entrenadores/#suscribete">
+                Suscríbete por 12 € al año
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+</Base>
