@@ -1,0 +1,387 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
+import Icon from '../../../components/Icon.astro';
+import { getCatalogoEjercicios } from '../../../lib/entrenadores';
+import {
+  parseFiltros,
+  aplicarFiltros,
+  facetsCatalogo,
+  tieneFiltros,
+  contarFiltros,
+  urlConFiltro,
+  RANGOS_JUGADORES,
+  RANGOS_DURACION,
+  ETIQUETAS_JUGADORES,
+  ETIQUETAS_DURACION,
+  type FiltrosBanco,
+} from '../../../lib/banco-filtros';
+import {
+  etiquetaJugadores,
+  etiquetaDuracion,
+  etiquetaEspacio,
+  ETIQUETAS_CATEGORIA_EDAD,
+  ETIQUETAS_ESPACIO,
+} from '../../../lib/entrenadores-textos';
+import {
+  opcionesTipoTarea,
+  opcionesCategoriaEdad,
+} from '../../../../sanity/schemas/valoresComunes';
+
+export const prerender = false;
+
+const filtros: FiltrosBanco = parseFiltros(Astro.url.searchParams);
+const catalogo = await getCatalogoEjercicios();
+const visibles = aplicarFiltros(catalogo, filtros);
+const { categorias, objetivos } = facetsCatalogo(catalogo);
+const nActivos = contarFiltros(filtros);
+const base = '/entrenadores/ejercicios/';
+
+function opcion(name: keyof FiltrosBanco, value: string, label: string, actual: string | null) {
+  return { name, value, label, selected: actual === value };
+}
+
+const selects: {
+  id: string;
+  label: string;
+  opciones: { value: string; label: string; selected: boolean }[];
+}[] = [
+  {
+    id: 'cat',
+    label: 'Categoría',
+    opciones: [
+      opcion('cat', '', 'Todas', filtros.cat),
+      ...categorias.map(([slug, name]) => opcion('cat', slug, name, filtros.cat)),
+    ],
+  },
+  {
+    id: 'obj',
+    label: 'Objetivo',
+    opciones: [
+      opcion('obj', '', 'Todos', filtros.obj),
+      ...objetivos.map(([slug, name]) => opcion('obj', slug, name, filtros.obj)),
+    ],
+  },
+  {
+    id: 'tipo',
+    label: 'Tipo de tarea',
+    opciones: [
+      opcion('tipo', '', 'Todos', filtros.tipo),
+      ...opcionesTipoTarea.map((o) => opcion('tipo', o.value, o.title, filtros.tipo)),
+    ],
+  },
+  {
+    id: 'edad',
+    label: 'Edad',
+    opciones: [
+      opcion('edad', '', 'Todas', filtros.edad),
+      ...opcionesCategoriaEdad.map((o) => opcion('edad', o.value, o.title, filtros.edad)),
+    ],
+  },
+  {
+    id: 'espacio',
+    label: 'Espacio',
+    opciones: [
+      opcion('espacio', '', 'Todos', filtros.espacio),
+      ...Object.entries(ETIQUETAS_ESPACIO).map(([v, t]) =>
+        opcion('espacio', v, t, filtros.espacio),
+      ),
+    ],
+  },
+  {
+    id: 'jug',
+    label: 'Jugadores',
+    opciones: [
+      opcion('jug', '', 'Todos', filtros.jug),
+      ...Object.keys(RANGOS_JUGADORES).map((v) =>
+        opcion('jug', v, ETIQUETAS_JUGADORES[v], filtros.jug),
+      ),
+    ],
+  },
+  {
+    id: 'dur',
+    label: 'Duración',
+    opciones: [
+      opcion('dur', '', 'Todas', filtros.dur),
+      ...Object.keys(RANGOS_DURACION).map((v) =>
+        opcion('dur', v, ETIQUETAS_DURACION[v], filtros.dur),
+      ),
+    ],
+  },
+];
+
+const chips: { key: keyof FiltrosBanco; label: string }[] = [];
+if (filtros.q) chips.push({ key: 'q', label: `"${filtros.q}"` });
+if (filtros.cat)
+  chips.push({
+    key: 'cat',
+    label: categorias.find((c) => c[0] === filtros.cat)?.[1] ?? filtros.cat,
+  });
+if (filtros.obj)
+  chips.push({
+    key: 'obj',
+    label: objetivos.find((o) => o[0] === filtros.obj)?.[1] ?? filtros.obj,
+  });
+if (filtros.tipo)
+  chips.push({
+    key: 'tipo',
+    label: opcionesTipoTarea.find((t) => t.value === filtros.tipo)?.title ?? filtros.tipo,
+  });
+if (filtros.edad)
+  chips.push({
+    key: 'edad',
+    label: ETIQUETAS_CATEGORIA_EDAD[filtros.edad] ?? filtros.edad,
+  });
+if (filtros.espacio)
+  chips.push({ key: 'espacio', label: ETIQUETAS_ESPACIO[filtros.espacio] ?? filtros.espacio });
+if (filtros.jug) chips.push({ key: 'jug', label: ETIQUETAS_JUGADORES[filtros.jug] });
+if (filtros.dur) chips.push({ key: 'dur', label: ETIQUETAS_DURACION[filtros.dur] });
+
+const premium = catalogo.filter((e) => e.acceso === 'premium').length;
+---
+
+<Base
+  title="Banco de ejercicios — Futbolverdadero Entrenadores"
+  description="Catálogo de tareas de fútbol base filtrables por objetivo, jugadores, espacio y duración."
+  canonicalURL="/entrenadores/ejercicios/"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+            <a class="hover:underline" href="/entrenadores/">
+              Futbolverdadero Entrenadores
+            </a>
+          </p>
+          <h1 class="mt-2 font-heading text-2xl font-semibold uppercase sm:text-4xl">
+            Banco de ejercicios
+          </h1>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-primary-foreground/90">
+            El catálogo completo: {catalogo.length} tareas ({premium} premium)
+            {tieneFiltros(filtros)
+              ? `· ${visibles.length} coinciden con tu búsqueda`
+              : '· entra, filtra y monta tu sesión del martes'}
+            .
+          </p>
+        </div>
+      </section>
+
+      <!-- Barra de filtros (GET: URLs compartibles, sin JS obligatorio) -->
+      <section class="border-b border-border bg-card">
+        <div class="mx-auto max-w-7xl px-4 py-5 lg:px-8">
+          <form method="GET" action={base} class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="sm:col-span-2">
+              <label class="sr-only" for="q">
+                Buscar
+              </label>
+              <input
+                class="min-h-11 w-full rounded-lg border border-input bg-card px-4 text-sm"
+                id="q"
+                name="q"
+                type="search"
+                placeholder="Buscar por nombre o idea (ej. presión)"
+                value={filtros.q ?? ''}
+              />
+            </div>
+            {selects.map((s) => (
+              <div>
+                <label class="sr-only" for={s.id}>
+                  {s.label}
+                </label>
+                <select
+                  class="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm"
+                  id={s.id}
+                  name={s.id}
+                  data-filtro
+                >
+                  {s.opciones.map((o) => (
+                    <option value={o.value} selected={o.selected}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            <div class="flex items-center gap-2">
+              <button
+                class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground"
+                type="submit"
+              >
+                <Icon name="search" />
+                Filtrar
+              </button>
+              {tieneFiltros(filtros) && (
+                <a class="text-sm font-bold text-primary hover:underline" href={base}>
+                  Limpiar ({nActivos})
+                </a>
+              )}
+            </div>
+          </form>
+
+          {chips.length > 0 && (
+            <div class="mt-4 flex flex-wrap items-center gap-2" aria-label="Filtros activos">
+              <span class="text-xs font-bold uppercase text-muted-foreground">Filtros:</span>
+              {chips.map((c) => (
+                <a
+                  class="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground"
+                  href={urlConFiltro(base, filtros, { [c.key]: null })}
+                  aria-label={`Quitar filtro ${c.label}`}
+                >
+                  {c.label}
+                  <span aria-hidden="true">×</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section class="bg-muted">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          {visibles.length === 0 ? (
+            <div class="rounded-xl border border-border bg-card p-10 text-center">
+              <Icon name="goal" class="text-3xl text-primary" />
+              <p class="mt-4 text-sm leading-6 text-muted-foreground">
+                Ninguna tarea encaja con esos filtros. Prueba a quitar alguno: a veces la mejor
+                pregunta no es «¿qué ejercicio hago?» sino «¿qué comportamiento quiero ver».
+              </p>
+              <a
+                class="mt-4 inline-block text-sm font-bold text-primary hover:underline"
+                href={base}
+              >
+                Ver todo el banco
+              </a>
+            </div>
+          ) : (
+            <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {visibles.map((ej) => {
+                const esPremium = ej.acceso === 'premium';
+                return (
+                  <li
+                    data-reveal="up"
+                    class:list={{
+                      'flex flex-col gap-3 rounded-xl border bg-card p-6': true,
+                      'shadow-theme': !esPremium,
+                      'border-border': esPremium,
+                    }}
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <span
+                        class:list={{
+                          'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase': true,
+                          'bg-secondary text-primary': !esPremium,
+                          'bg-muted text-muted-foreground': esPremium,
+                        }}
+                      >
+                        {esPremium ? (
+                          <>
+                            <Icon name="lock" class="text-sm" /> Premium
+                          </>
+                        ) : (
+                          'Gratis'
+                        )}
+                      </span>
+                      {ej.tipoTarea && (
+                        <span class="text-xs font-semibold uppercase text-muted-foreground">
+                          {opcionesTipoTarea.find((t) => t.value === ej.tipoTarea)?.title ??
+                            ej.tipoTarea}
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 class="font-heading text-base font-semibold uppercase leading-tight">
+                      <a class="hover:text-primary" href={`/entrenadores/ejercicios/${ej.slug}/`}>
+                        {ej.title}
+                      </a>
+                    </h2>
+
+                    {ej.resumen && (
+                      <p class="text-sm leading-6 text-muted-foreground">{ej.resumen}</p>
+                    )}
+
+                    <ul class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax) && (
+                        <li class="inline-flex items-center gap-1">
+                          <Icon name="users" class="text-sm" />
+                          {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax)}
+                        </li>
+                      )}
+                      {etiquetaDuracion(ej.duracionMin) && (
+                        <li class="inline-flex items-center gap-1">
+                          <Icon name="clock" class="text-sm" />
+                          {etiquetaDuracion(ej.duracionMin)}
+                        </li>
+                      )}
+                      {etiquetaEspacio(ej.espacio, ej.espacioMedidas) && (
+                        <li class="inline-flex items-center gap-1">
+                          {etiquetaEspacio(ej.espacio, ej.espacioMedidas)}
+                        </li>
+                      )}
+                    </ul>
+
+                    <div class="mt-auto flex flex-wrap gap-1.5 pt-1">
+                      {(ej.categorias ?? []).map((c) => (
+                        <span class="rounded bg-secondary px-2 py-0.5 text-xs font-bold text-primary">
+                          {c.name}
+                        </span>
+                      ))}
+                      {(ej.objetivos ?? []).map((o) => (
+                        <span class="rounded bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                          {o.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    {esPremium && (
+                      <p id="premium-hint" class="text-xs text-muted-foreground">
+                        Ficha completa con desarrollo y claves, con tu suscripción.
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <div class="mt-10 rounded-xl bg-tertiary p-6 text-tertiary-foreground sm:flex sm:items-center sm:justify-between sm:p-8">
+            <div>
+              <p class="font-heading text-lg font-semibold uppercase">¿Sin suscripción todavía?</p>
+              <p class="mt-1 text-sm">
+                12 € al año: menos de 1 € al mes para el banco completo, sesiones y plantillas.
+              </p>
+            </div>
+            <a
+              class="mt-4 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary sm:mt-0"
+              href="/entrenadores/suscribirse/"
+            >
+              Suscribirme
+              <Icon name="layout-arrow-right" class="text-lg" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
+
+<script>
+  // Progresivo: sin JS el formulario funciona con el botón Filtrar; con JS,
+  // cualquier cambio de <select> reaplica el filtro al instante.
+  function vincularFiltros() {
+    const form = document.querySelector<HTMLFormElement>('form[method="get"]');
+    if (!form || form.dataset.vinculado) return;
+    form.dataset.vinculado = '1';
+    form
+      .querySelectorAll<HTMLSelectElement>('[data-filtro]')
+      .forEach((el) => el.addEventListener('change', () => form.requestSubmit()));
+  }
+  vincularFiltros();
+  document.addEventListener('astro:page-load', vincularFiltros);
+</script>

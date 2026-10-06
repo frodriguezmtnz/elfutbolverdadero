@@ -16,6 +16,12 @@ const RUTAS_PUBLICAS = new Set([
   '/entrenadores/auth/suscrito',
 ]);
 
+// Zona pública CON candado por página: el catálogo y las fichas se sirven sin
+// sesión, pero la ruta decide (según `acceso` del doc + estado del visitante)
+// si muestra la ficha completa o la vista bloqueada de venta. Así el banco
+// posiciona y vende sin desproteger el contenido premium.
+const PREFIJOS_TEASER = ['/entrenadores/ejercicios'];
+
 // Solo requieren sesión (no suscripción): panel = hub con CTA de pago,
 // suscribirse = página que redirige al checkout.
 const RUTAS_SOLO_SESION = new Set(['/entrenadores/panel', '/entrenadores/suscribirse']);
@@ -28,6 +34,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const ruta = normalizar(context.url.pathname);
   if (ruta !== '/entrenadores' && !ruta.startsWith('/entrenadores/')) return next();
   if (RUTAS_PUBLICAS.has(ruta)) return next();
+  if (PREFIJOS_TEASER.some((p) => ruta === p || ruta.startsWith(`${p}/`))) return next();
 
   if (!supabaseConfigurado()) {
     return context.redirect('/entrenadores/acceder/?aviso=config', 302);
