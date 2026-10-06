@@ -1,0 +1,120 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import MobileNav from '../../../../components/MobileNav.astro';
+import Icon from '../../../../components/Icon.astro';
+import FichaVista from '../../../../components/entrenadores/FichaVista.astro';
+import { getEjercicioBySlug } from '../../../../lib/entrenadores';
+import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
+import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const ej = await getEjercicioBySlug(slug!);
+
+// Gate por página: free se abre a todos; premium solo con suscripción viva.
+// (No se usa rewrite('/404'): reescritura a ruta prerenderizada está prohibida
+// en SSR mixto → se sirve un 404 propio inline con el estado HTTP correcto.)
+let completa = false;
+if (ej) {
+  completa = ej.acceso !== 'premium';
+  if (!completa) {
+    const usuario = await usuarioActual(Astro);
+    if (usuario) {
+      const supabase = crearClienteSupabase(Astro);
+      const membresia = await obtenerMembresia(supabase, usuario.email);
+      completa = suscripcionActiva(membresia);
+    }
+  }
+} else {
+  Astro.response.status = 404;
+}
+---
+
+<Base
+  title={
+    ej
+      ? `${ej.title} — ${completa ? 'Banco de ejercicios' : 'Ficha premium'}`
+      : 'Ejercicio no encontrado — Futbolverdadero Entrenadores'
+  }
+  description={ej?.resumen ?? 'Ejercicio de fútbol base.'}
+  robots={ej && completa ? undefined : 'noindex, follow'}
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      {ej ? (
+        <FichaVista ej={ej} completa={completa} />
+      ) : (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+            <Icon name="goal" class="text-3xl text-primary" />
+            <h1 class="mt-4 font-heading text-2xl font-semibold uppercase">
+              Ejercicio no encontrado
+            </h1>
+            <p class="mt-3 text-sm text-muted-foreground">
+              La ficha que buscas no existe o cambió de nombre. Vuelve al banco y prueba con otro
+              filtro.
+            </p>
+            <a
+              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/entrenadores/ejercicios/"
+            >
+              <Icon name="arrow-left" />
+              Volver al banco
+            </a>
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden no-print" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
+
+<style is:global>
+  @media print {
+    header.sticky,
+    footer,
+    nav[aria-label='Navegación móvil'],
+    .no-print {
+      display: none !important;
+    }
+    body {
+      background: #fff;
+    }
+    section,
+    article,
+    aside,
+    div {
+      background: #fff !important;
+      color: #1a1a1a !important;
+      border-color: #d7e0db !important;
+    }
+    .grid {
+      display: block !important;
+    }
+    aside {
+      margin-top: 1rem;
+    }
+    main {
+      padding: 0;
+    }
+  }
+</style>
+
+<script>
+  function vincularImpresion() {
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-imprimir]:not([data-imp-vinc])')
+      .forEach((b) => {
+        b.dataset.impVinc = '1';
+        b.addEventListener('click', () => window.print());
+      });
+  }
+  vincularImpresion();
+  document.addEventListener('astro:page-load', vincularImpresion);
+</script>
