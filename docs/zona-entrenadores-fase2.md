@@ -33,26 +33,28 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
 
 ## 3 · Rutas de la fase
 
-| Ruta                          | Render         | Quién entra                  |
-| ----------------------------- | -------------- | ---------------------------- |
-| `/entrenadores/`              | estático (SEO) | todos                        |
-| `/entrenadores/acceder/`      | on-demand      | todos (login)                |
-| `/entrenadores/auth/magic`    | on-demand      | POST form                    |
-| `/entrenadores/auth/callback` | on-demand      | link del email               |
-| `/entrenadores/auth/salir`    | on-demand      | con sesión                   |
-| `/entrenadores/auth/suscrito` | on-demand      | redirect post-checkout       |
-| `/entrenadores/suscribirse/`  | on-demand      | con sesión (sin suscripción) |
-| `/entrenadores/panel/`        | on-demand      | con sesión                   |
-| `/entrenadores/banco/`        | on-demand      | **suscripción activa**       |
-| `/api/webhooks/lemonsqueezy`  | on-demand      | solo LS (firma HMAC)         |
+| Ruta                               | Render         | Quién entra                                                                       |
+| ---------------------------------- | -------------- | --------------------------------------------------------------------------------- |
+| `/entrenadores/`                   | estático (SEO) | todos                                                                             |
+| `/entrenadores/acceder/`           | on-demand      | todos (login)                                                                     |
+| `/entrenadores/auth/magic`         | on-demand      | POST form                                                                         |
+| `/entrenadores/auth/callback`      | on-demand      | link del email                                                                    |
+| `/entrenadores/auth/salir`         | on-demand      | con sesión                                                                        |
+| `/entrenadores/auth/suscrito`      | on-demand      | redirect post-checkout                                                            |
+| `/entrenadores/suscribirse/`       | on-demand      | con sesión (sin suscripción)                                                      |
+| `/entrenadores/panel/`             | on-demand      | con sesión                                                                        |
+| `/entrenadores/ejercicios/`        | on-demand      | pública (catálogo con teasers; la ficha completa exige socio)                     |
+| `/entrenadores/ejercicios/[slug]/` | on-demand      | free = todos; premium = vista bloqueada sin socio, ficha con candado por servidor |
+| `/api/webhooks/lemonsqueezy`       | on-demand      | solo LS (firma HMAC)                                                              |
 
-El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nueva-ruta>` exige suscripción por defecto; las excepciones se declaran explícitamente en la lista blanca.
+El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nueva-ruta>` exige suscripción por defecto; las excepciones se declaran en la lista blanca (`PREFIJOS_TEASER` permite servir catálogo/fichas con candado por página).
 
 ## 4 · Verificación post-despliegue
 
-- [ ] `curl -I https://…/entrenadores/banco/` sin cookie → 302 a `/entrenadores/acceder/?next=…`
+- [ ] `curl -I https://…/entrenadores/panel/` sin cookie → 302 a `/entrenadores/acceder/?next=…`
+- [ ] `curl https://…/entrenadores/ejercicios/` sin cookie → 200 con catálogo y candados (nunca desarrollo)
 - [ ] Magic link llega y crea sesión; el panel muestra el correo.
-- [ ] Pago de prueba → webhook → `memberships` con `status=active` y `renews_at` futuro; `/entrenadores/banco/` responde 200.
+- [ ] Pago de prueba → webhook → `memberships` con `status=active` y `renews_at` futuro; ficha premium muestra desarrollo completo (200) y `window.print()` genera la ficha.
 - [ ] Cancelar en el portal → sigue dentro hasta `current_period_end` (status cancelled), luego el guard redirige.
 - [ ] Webhook con firma falsa → 401.
 - [ ] Sitemap/Google: solo `/entrenadores/` pública; el resto tiene `noindex` y no son prerenderizadas.
