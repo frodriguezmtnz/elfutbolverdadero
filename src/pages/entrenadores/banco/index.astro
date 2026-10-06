@@ -1,0 +1,96 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
+import Icon from '../../../components/Icon.astro';
+import { getEjerciciosGratis, getConteoEjerciciosPremium } from '../../../lib/entrenadores';
+import { etiquetaJugadores, etiquetaDuracion } from '../../../lib/entrenadores-textos';
+
+export const prerender = false;
+
+const ejerciciosGratis = await getEjerciciosGratis(12);
+const nPremium = await getConteoEjerciciosPremium();
+---
+
+<Base
+  title="Banco de ejercicios — Futbolverdadero Entrenadores"
+  description="Tu biblioteca de tareas filtrable."
+  robots="noindex, nofollow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+            Futbolverdadero Entrenadores
+          </p>
+          <h1 class="mt-2 font-heading text-2xl font-semibold uppercase sm:text-4xl">
+            Banco de ejercicios
+          </h1>
+          <p class="mt-3 max-w-xl text-sm leading-6 text-primary-foreground/90">
+            {nPremium > 0
+              ? `${nPremium} ejercicios premium disponibles. En la Fase 3 se activa la búsqueda por objetivo, jugadores, espacio y duración, con ficha imprimible por tarea.`
+              : 'El banco se está llenando: cada mes entren en nuevas tareas. Mientras, tienes aquí los ejercicios gratuitos de la casa.'}
+          </p>
+        </div>
+      </section>
+
+      <section class="bg-muted">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          {ejerciciosGratis.length === 0 ? (
+            <div class="rounded-xl border border-border bg-card p-8 text-center">
+              <Icon name="goal" class="text-3xl text-primary" />
+              <p class="mt-3 text-sm text-muted-foreground">
+                Todavía no hay ejercicios publicados. En cuanto Xabi suba el primero lo verás aquí,
+                con su ficha completa y su versión imprimible.
+              </p>
+            </div>
+          ) : (
+            <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {ejerciciosGratis.map((ej) => (
+                <li
+                  data-reveal="up"
+                  class="flex flex-col gap-3 rounded-xl border border-border bg-card p-6"
+                >
+                  <span class="inline-flex w-fit rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase text-primary">
+                    {ej.acceso === 'free' ? 'Gratis' : 'Premium'}
+                  </span>
+                  <h2 class="font-heading text-base font-semibold uppercase leading-tight">
+                    {ej.title}
+                  </h2>
+                  {ej.resumen && (
+                    <p class="text-sm leading-6 text-muted-foreground">{ej.resumen}</p>
+                  )}
+                  <div class="mt-auto flex flex-wrap gap-3 pt-2 text-xs text-muted-foreground">
+                    {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax) && (
+                      <span class="inline-flex items-center gap-1">
+                        <Icon name="users" class="text-sm" />
+                        {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax)}
+                      </span>
+                    )}
+                    {etiquetaDuracion(ej.duracionMin) && (
+                      <span class="inline-flex items-center gap-1">
+                        <Icon name="clock" class="text-sm" />
+                        {etiquetaDuracion(ej.duracionMin)}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <p class="mt-8 text-xs text-muted-foreground">
+            Estás viendo esto porque tu suscripción está activa. El banco completo con filtros y
+            fichas PDF (Fase 3) reemplazará a esta vista provisional.
+          </p>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
