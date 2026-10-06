@@ -4,6 +4,7 @@ import {
   opcionesCategoriaEdad,
   opcionesEspacio,
   opcionesMaterial,
+  opcionesTipoTarea,
 } from './valoresComunes';
 
 export const ejercicio = defineType({
@@ -47,6 +48,13 @@ export const ejercicio = defineType({
         'Comportamientos que se entrenan. El ejercicio no es el objetivo: el comportamiento sí.',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'objetivo' }] }],
+    },
+    {
+      name: 'tipoTarea',
+      title: 'Tipo de tarea',
+      description: 'Qué domina la tarea (filtro del banco).',
+      type: 'string',
+      options: { list: [...opcionesTipoTarea], layout: 'dropdown' },
     },
     {
       name: 'jugadoresMin',

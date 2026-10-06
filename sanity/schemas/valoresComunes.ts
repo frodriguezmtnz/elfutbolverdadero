@@ -31,3 +31,11 @@ export const opcionesMaterial = [
   'Aros',
   'Balones',
 ] as const;
+
+export const opcionesTipoTarea = [
+  { title: 'Técnica', value: 'tecnica' },
+  { title: 'Táctica', value: 'tactica' },
+  { title: 'Física (condicional integrada)', value: 'fisica' },
+  { title: 'Cognitiva / toma de decisiones', value: 'cognitiva' },
+  { title: 'Actitudinal / valores', value: 'actitudinal' },
+] as const;
