@@ -5,6 +5,7 @@ import Footer from '../../../../components/Footer.astro';
 import MobileNav from '../../../../components/MobileNav.astro';
 import Icon from '../../../../components/Icon.astro';
 import FichaVista from '../../../../components/entrenadores/FichaVista.astro';
+import Impresion from '../../../../components/entrenadores/Impresion.astro';
 import { getEjercicioBySlug } from '../../../../lib/entrenadores';
 import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
 import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
@@ -78,47 +79,4 @@ if (ej) {
     <MobileNav />
   </div>
 </Base>
-
-<style is:global>
-  @media print {
-    header.sticky,
-    footer,
-    nav[aria-label='Navegación móvil'],
-    .no-print {
-      display: none !important;
-    }
-    body {
-      background: #fff;
-    }
-    section,
-    article,
-    aside,
-    div {
-      background: #fff !important;
-      color: #1a1a1a !important;
-      border-color: #d7e0db !important;
-    }
-    .grid {
-      display: block !important;
-    }
-    aside {
-      margin-top: 1rem;
-    }
-    main {
-      padding: 0;
-    }
-  }
-</style>
-
-<script>
-  function vincularImpresion() {
-    document
-      .querySelectorAll<HTMLButtonElement>('[data-imprimir]:not([data-imp-vinc])')
-      .forEach((b) => {
-        b.dataset.impVinc = '1';
-        b.addEventListener('click', () => window.print());
-      });
-  }
-  vincularImpresion();
-  document.addEventListener('astro:page-load', vincularImpresion);
-</script>
+<Impresion />

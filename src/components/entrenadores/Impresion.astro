@@ -1,0 +1,49 @@
+---
+// Estilos y comportamiento de impresión compartidos por las fichas de la zona
+// (ejercicios y sesiones): ocultan la web, dejan la marca en el papel y
+// vinculan cualquier botón [data-imprimir] con window.print().
+---
+
+<style is:global>
+  @media print {
+    header.sticky,
+    footer,
+    nav[aria-label='Navegación móvil'],
+    .no-print {
+      display: none !important;
+    }
+    body {
+      background: #fff;
+    }
+    section,
+    article,
+    aside,
+    div {
+      background: #fff !important;
+      color: #1a1a1a !important;
+      border-color: #d7e0db !important;
+    }
+    .grid {
+      display: block !important;
+    }
+    aside {
+      margin-top: 1rem;
+    }
+    main {
+      padding: 0;
+    }
+  }
+</style>
+
+<script>
+  function vincularImpresion() {
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-imprimir]:not([data-imp-vinc])')
+      .forEach((b) => {
+        b.dataset.impVinc = '1';
+        b.addEventListener('click', () => window.print());
+      });
+  }
+  vincularImpresion();
+  document.addEventListener('astro:page-load', vincularImpresion);
+</script>
