@@ -39,3 +39,13 @@ export function etiquetaEspacio(espacio?: string | null, medidas?: string | null
   if (base && medidas) return `${base} · ${medidas}`;
   return base ?? medidas ?? null;
 }
+
+export const ETIQUETAS_FORMATO: Record<string, string> = {
+  pdf: 'PDF',
+  word: 'Word',
+  excel: 'Excel',
+};
+
+export function etiquetaFormato(formato?: string | null): string | null {
+  return formato ? (ETIQUETAS_FORMATO[formato] ?? formato.toUpperCase()) : null;
+}

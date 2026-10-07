@@ -40,6 +40,8 @@ describe('clasificarRuta', () => {
     expect(clasificarRuta('/entrenadores/ejercicios/rondos/')).toBe('teaser');
     expect(clasificarRuta('/entrenadores/sesiones/')).toBe('teaser');
     expect(clasificarRuta('/entrenadores/sesiones/presion-tras-perdida/')).toBe('teaser');
+    expect(clasificarRuta('/entrenadores/herramientas/')).toBe('teaser');
+    expect(clasificarRuta('/entrenadores/herramientas/plantilla-sesion/')).toBe('teaser');
   });
   it('panel y suscribirse solo exigen sesión', () => {
     expect(clasificarRuta('/entrenadores/panel/')).toBe('solo-sesion');
@@ -47,7 +49,7 @@ describe('clasificarRuta', () => {
   });
   it('cualquier otra ruta de la zona es premium (fail-closed)', () => {
     expect(clasificarRuta('/entrenadores/metodologia/mi-dossier/')).toBe('premium');
-    expect(clasificarRuta('/entrenadores/herramientas/')).toBe('premium');
+    expect(clasificarRuta('/entrenadores/voces/pregunta-del-mes/')).toBe('premium');
     expect(clasificarRuta('/entrenadores/no-existe')).toBe('premium');
   });
   it('rutas fuera de la zona y prefijos falsos no se ven afectados', () => {

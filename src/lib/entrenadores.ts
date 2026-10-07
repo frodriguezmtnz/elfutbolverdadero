@@ -59,7 +59,7 @@ const ejercicioCampos = `
   categoriasEdad,
   'categorias': categorias[]->{ name, 'slug': slug.current },
   'objetivos': objetivos[]->{ name, 'slug': slug.current },
-  diagrama { 'asset': asset->{_id, url}, alt }
+  diagrama { 'asset': coalesce(asset->{_id, url}, @->{_id, url}), alt }
 `;
 
 const SIN_BORRADORES = `!(_id in path('drafts.**'))`;
@@ -90,7 +90,7 @@ export async function getEjercicioBySlug(slug: string): Promise<EjercicioFicha |
   const doc = await sanityClient.fetch<EjercicioFicha>(
     `*[_type == 'ejercicio' && slug.current == $slug && ${SIN_BORRADORES}][0] {
       ${ejercicioCampos},
-      desarrollo[] { ..., 'asset': select(_type == 'image' => asset->{_id, url, 'dimensions': metadata.dimensions}, null) },
+      desarrollo[] { ..., 'asset': select(_type == 'image' => coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}), null) },
       claves,
       errores,
       variantes
@@ -117,6 +117,37 @@ export async function getHerramientasGratis(limit = 4): Promise<HerramientaTease
     { limit },
   );
   return docs ?? [];
+}
+
+// ————— Herramientas del entrenador (biblioteca premium) —————
+// Deliberado: ni el catálogo proyecta `archivo`. La URL del CDN solo llega al
+// HTML en la ficha, y dentro de la ficha solo si el gate (puedeVerContenido)
+// lo permite. Un archivo premium nunca debe aparecer en una página pública.
+
+export interface HerramientaFicha extends HerramientaTeaser {
+  publishedAt?: string;
+  archivo?: { asset?: { _id?: string; url?: string } | null; alt?: string } | null;
+}
+
+export async function getHerramientas(): Promise<HerramientaTeaser[]> {
+  const docs = await sanityClient.fetch<HerramientaTeaser[]>(
+    `*[_type == 'herramienta' && defined(slug.current) && ${SIN_BORRADORES}]
+        | order(orden asc, publishedAt desc) {
+        _id, title, 'slug': slug.current, acceso, description, formato
+       }`,
+  );
+  return docs ?? [];
+}
+
+export async function getHerramientaBySlug(slug: string): Promise<HerramientaFicha | null> {
+  const doc = await sanityClient.fetch<HerramientaFicha>(
+    `*[_type == 'herramienta' && slug.current == $slug && ${SIN_BORRADORES}][0] {
+      _id, title, 'slug': slug.current, acceso, description, formato, publishedAt,
+      archivo { 'asset': coalesce(asset->{_id, url}, @->{_id, url}), alt }
+    }`,
+    { slug },
+  );
+  return doc ?? null;
 }
 
 // Publicaciones de metodología gratuitas (Fase 4: la premium se servirá

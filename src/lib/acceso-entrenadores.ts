@@ -17,7 +17,11 @@ const RUTAS_PUBLICAS = new Set([
 
 // Zona pública CON candado por página: catálogo y fichas se sirven sin sesión,
 // pero la ruta decide (acceso del doc + estado del visitante) qué se pinta.
-const PREFIJOS_TEASER = ['/entrenadores/ejercicios', '/entrenadores/sesiones'];
+const PREFIJOS_TEASER = [
+  '/entrenadores/ejercicios',
+  '/entrenadores/sesiones',
+  '/entrenadores/herramientas',
+];
 
 // Solo requieren sesión (no suscripción): panel = hub con CTA de pago,
 // suscribirse = página que redirige al checkout.
