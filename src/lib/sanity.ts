@@ -58,9 +58,9 @@ const baseFields = `
   readingTime,
   wpId,
   wpUrl,
-  'author': author->{ name, role, 'image': image.asset->{ _id, url } },
+  'author': author->{ name, role, 'image': coalesce(image.asset->{ _id, url }, image->{ _id, url }) },
   'mainImage': mainImage {
-    'asset': asset->{ _id, url, 'dimensions': metadata.dimensions },
+    'asset': coalesce(asset->{ _id, url, 'dimensions': metadata.dimensions }, @->{ _id, url, 'dimensions': metadata.dimensions }),
     alt,
     caption
   },
@@ -70,7 +70,7 @@ const baseFields = `
 
 const publicacionFields = `
   ${baseFields},
-  'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url, 'dimensions': metadata.dimensions}, null) }
+  'body': body[]{ ..., 'asset': select(_type == 'image' => coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}), null) }
 `;
 
 interface BloqueBody {
@@ -275,7 +275,7 @@ export async function getWebsAmigas(): Promise<WebAmiga[]> {
       name,
       url,
       description,
-      'logo': { 'asset': logo.asset->{ _id, url } }
+      'logo': { 'asset': coalesce(logo.asset->{ _id, url }, logo->{ _id, url }) }
     }`,
   );
 }
