@@ -38,13 +38,15 @@ describe('clasificarRuta', () => {
   it('catálogo y fichas son teaser (públicas con candado por página)', () => {
     expect(clasificarRuta('/entrenadores/ejercicios')).toBe('teaser');
     expect(clasificarRuta('/entrenadores/ejercicios/rondos/')).toBe('teaser');
+    expect(clasificarRuta('/entrenadores/sesiones/')).toBe('teaser');
+    expect(clasificarRuta('/entrenadores/sesiones/presion-tras-perdida/')).toBe('teaser');
   });
   it('panel y suscribirse solo exigen sesión', () => {
     expect(clasificarRuta('/entrenadores/panel/')).toBe('solo-sesion');
     expect(clasificarRuta('/entrenadores/suscribirse')).toBe('solo-sesion');
   });
   it('cualquier otra ruta de la zona es premium (fail-closed)', () => {
-    expect(clasificarRuta('/entrenadores/sesiones/mi-sesion/')).toBe('premium');
+    expect(clasificarRuta('/entrenadores/metodologia/mi-dossier/')).toBe('premium');
     expect(clasificarRuta('/entrenadores/herramientas/')).toBe('premium');
     expect(clasificarRuta('/entrenadores/no-existe')).toBe('premium');
   });
