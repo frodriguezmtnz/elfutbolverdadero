@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Siembra el banco de ejercicios de Futbolverdadero Entrenadores con contenido de EJEMPLO
-// (2 fichas gratis + 2 premium, con categorías y objetivos de referencia) para poder ver
-// el catálogo y el candado funcionando antes de que Xabi cargue contenido real.
+// Siembra la zona Futbolverdadero Entrenadores con contenido de EJEMPLO: taxonomías,
+// 4 ejercicios (2 free + 2 premium), 2 sesiones (1 free + 1 premium) y 3 herramientas
+// con PDFs generados (2 free + 1 premium) para ver catálogo, candado y descargas
+// funcionando antes de que Xabi cargue contenido real.
 //
 // Todos los documentos usan _id fijo con prefijo «seed-» => --limpiar los borra sin
 // tocar nada más. createOrReplace: repetir el seed actualiza los mismos docs, no duplica.
@@ -393,7 +394,147 @@ const SESIONES = [
   },
 ];
 
-const DOCS = [...CATEGORIES, ...OBJETIVOS, ...EJERCICIOS, ...SESIONES];
+// ————— PDF mínimo sin dependencias —————
+// Genera un PDF de una página (A4, Helvetica ± negrita) con WinAnsi para que
+// las tildes y la ñ se vean bien. Suficiente para plantillas de ejemplo.
+function pdfSimple(titulo, lineas) {
+  const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  let stream = `BT /F1 16 Tf 56 782 Td (${esc(titulo)}) Tj ET\n`;
+  let y = 750;
+  for (const l of lineas) {
+    if (l) {
+      const bold = l.startsWith('## ');
+      const texto = bold ? l.slice(3) : l;
+      stream += `BT /${bold ? 'F1' : 'F2'} ${bold ? 12 : 10.5} Tf 56 ${y} Td (${esc(texto)}) Tj ET\n`;
+    }
+    y -= 20;
+  }
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>',
+    `<< /Length ${Buffer.byteLength(stream, 'latin1')} >>\nstream\n${stream}endstream`,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [];
+  objs.forEach((o, i) => {
+    offsets.push(Buffer.byteLength(pdf, 'latin1'));
+    pdf += `${i + 1} 0 obj\n${o}\nendobj\n`;
+  });
+  const xref = Buffer.byteLength(pdf, 'latin1');
+  pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
+  for (const off of offsets) pdf += `${String(off).padStart(10, '0')} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(pdf, 'latin1');
+}
+
+const HERRAMIENTAS = [
+  {
+    _id: 'seed-herr-plantilla-sesion',
+    _type: 'herramienta',
+    title: 'Plantilla de sesión de campo (A4)',
+    slug: { current: 'plantilla-de-sesion-de-campo' },
+    acceso: 'free',
+    description:
+      'Una página A4 con todos los huecos que importan el martes: objetivo general, bloques con minutos, material y la pregunta para la vuelta a la calma. Imprime dos: una para el bolsillo y otra para el bolso.',
+    formato: 'pdf',
+    orden: 1,
+    publishedAt: haceDias(2),
+    pdf: {
+      titulo: 'Futbolverdadero Entrenadores - Plantilla de sesion',
+      lineas: [
+        'Fecha: ____________  Categoria: ____________  Jugadores: ____/____',
+        'Objetivo general: ______________________________________________',
+        'Material: ______________________________________________________',
+        '',
+        '## 1. CALENTAMIENTO   ____ min',
+        '   Desarrollo: ________________________________________________',
+        '## 2. TAREA PRINCIPAL  ____ min',
+        '   Desarrollo: ________________________________________________',
+        '## 3. JUEGO CONDICIONADO ____ min',
+        '   Reglas: ___________________________________________________',
+        '## 4. PARTIDO FINAL   ____ min',
+        '   Que observo hoy: ___________________________________________',
+        '## 5. VUELTA A LA CALMA ____ min',
+        '   Pregunta al grupo: _________________________________________',
+        '',
+        'Lo que no se pregunta, no se aprende. (c) elfutbolverdadero.com',
+      ],
+    },
+  },
+  {
+    _id: 'seed-herr-planificacion-semanal',
+    _type: 'herramienta',
+    title: 'Planificación semanal del microciclo',
+    slug: { current: 'planificacion-semanal-del-microciclo' },
+    acceso: 'free',
+    description:
+      'El lunes ya sabe lo que pasa el martes, y el martes ya sabe lo que pasa el domingo. Una hoja con los 4 días, carga, foco táctico y el objetivo del partido. Sin PDFs de 30 páginas que nadie rellena.',
+    formato: 'pdf',
+    orden: 2,
+    publishedAt: haceDias(5),
+    pdf: {
+      titulo: 'Futbolverdadero Entrenadores - Microciclo semanal',
+      lineas: [
+        'Semana: __________  Rival domingo: __________  Casa/Fuera: ____',
+        '',
+        '## LUNES - Recuperacion / analisis',
+        '   Carga: baja   Foco: preguntas del ultimo partido',
+        '## MARTES - Adquisicion',
+        '   Carga: alta    Foco tactico: ______________________________',
+        '   Objetivo del entrenamiento: ______________________________',
+        '## MIERCOLES - Descanso / gimnasio',
+        '## JUEVES - Optimizacion',
+        '   Carga: media   Foco: situaciones del rival __________________',
+        '## VIERNES - Velocidad / activacion',
+        '   Carga: baja    Rituales y balón parado _____________________',
+        '## DOMINGO - COMPETICION',
+        '   Plan A: ____________________  Plan B: ____________________',
+        '',
+        'Si el plan no cabe en una hoja, es un deseo. (c) elfutbolverdadero.com',
+      ],
+    },
+  },
+  {
+    _id: 'seed-herr-informe-postpartido',
+    _type: 'herramienta',
+    title: 'Informe postpartido individual (jugador)',
+    slug: { current: 'informe-postpartido-individual' },
+    acceso: 'premium',
+    description:
+      'La herramienta que convierte «has jugado bien» en feedback útil: 8 comportamientos observables valorados 1-5 con ejemplos, una palanca para la semana y una frase que el jugador recuerde. Plantilla premium del banco de informes.',
+    formato: 'pdf',
+    orden: 3,
+    publishedAt: haceDias(8),
+    pdf: {
+      titulo: 'Futbolverdadero Entrenadores - Informe postpartido',
+      lineas: [
+        'Jugador: ______________  Posicion: ______  Partido: __________',
+        '',
+        '## COMPORTAMIENTOS (1 a 5 + ejemplo concreto)',
+        '1. Perfiles al recibir .......... /5  Ej: ____________________',
+        '2. Presion tras perdida ......... /5  Ej: ____________________',
+        '3. Conduccion hacia espacio ..... /5  Ej: ____________________',
+        '4. Decision pase/tiro/dribling .. /5  Ej: ____________________',
+        '5. Comunicacion con companeros .. /5  Ej: ____________________',
+        '6. Duelo defensivo .............. /5  Ej: ____________________',
+        '7. Ayuda al companero presionado  /5  Ej: ____________________',
+        '8. Actitud tras error ........... /5  Ej: ____________________',
+        '',
+        '## LA PALANCA DE LA SEMANA (una sola):',
+        '____________________________________________________________',
+        '## LA FRASE QUE SE LLEVA A CASA:',
+        '____________________________________________________________',
+        '',
+        'Se evalua lo que se entrena, no lo que brilla. (c) elfutbolverdadero.com',
+      ],
+    },
+  },
+];
+
+const DOCS = [...CATEGORIES, ...OBJETIVOS, ...EJERCICIOS, ...SESIONES, ...HERRAMIENTAS];
 const IDS = DOCS.map((d) => d._id);
 
 async function main() {
@@ -407,7 +548,7 @@ async function main() {
   console.log(`→ Modo: ${flags.apply ? 'ESCRITURA (--apply)' : 'DRY-RUN (no escribe)'}\n`);
 
   const existentes = await client.fetch(
-    `*[_id in $ids]{ _id, _type, "label": coalesce(title, name) }`,
+    `*[_id in $ids]{ _id, _type, "label": coalesce(title, name), "fileRef": archivo.asset._ref }`,
     {
       ids: IDS,
     },
@@ -422,8 +563,13 @@ async function main() {
     } else {
       const label = d.title ?? d.name;
       const acceso = d.acceso ? ` [${d.acceso}]` : '';
+      const asset = d.pdf
+        ? porId[d._id]?.fileRef
+          ? ' · reutiliza PDF'
+          : ' · subira PDF nuevo'
+        : '';
       console.log(
-        `  ${ya ? '↻ actualizar' : '+ crear   '} ${d._id}  (${d._type})  ${label}${acceso}`,
+        `  ${ya ? '↻ actualizar' : '+ crear   '} ${d._id}  (${d._type})  ${label}${acceso}${asset}`,
       );
     }
   }
@@ -446,6 +592,9 @@ async function main() {
     );
     console.log(
       ` Sesiones: ${SESIONES.filter((s) => s.acceso === 'free').length} free + ${SESIONES.filter((s) => s.acceso === 'premium').length} premium`,
+    );
+    console.log(
+      ` Herramientas: ${HERRAMIENTAS.filter((h) => h.acceso === 'free').length} free + ${HERRAMIENTAS.filter((h) => h.acceso === 'premium').length} premium (con PDF)`,
     );
   }
 
@@ -471,15 +620,38 @@ async function main() {
       }
       const tx = client.transaction();
       for (const id of aBorrar) tx.delete(id);
+      // Los PDFs subidos por el seed también: sin docs que los referencien, quedan huérfanos.
+      const assets = aBorrar.map((id) => porId[id]?.fileRef).filter(Boolean);
+      for (const a of assets) tx.delete(a);
       await tx.commit();
-      console.log(`\n✔ Borrados ${aBorrar.length} docs de ejemplo. Banco limpio de seed.`);
+      console.log(
+        `\n✔ Borrados ${aBorrar.length} docs de ejemplo${assets.length ? ` + ${assets.length} PDF(s)` : ''}. Banco limpio de seed.`,
+      );
     } else {
       const tx = client.transaction();
-      for (const d of DOCS) tx.createOrReplace(d);
+      for (const d of DOCS) {
+        const doc = { ...d };
+        if (doc.pdf) {
+          const reutilizar = porId[d._id]?.fileRef;
+          if (reutilizar) {
+            doc.archivo = { _type: 'file', _ref: reutilizar };
+          } else {
+            const asset = await client.assets.upload(
+              'file',
+              pdfSimple(doc.pdf.titulo, doc.pdf.lineas),
+              { contentType: 'application/pdf', filename: `${doc.slug.current}.pdf` },
+            );
+            doc.archivo = { _type: 'file', _ref: asset._id };
+            console.log(`  ↑ PDF subido: ${asset._id}`);
+          }
+          delete doc.pdf;
+        }
+        tx.createOrReplace(doc);
+      }
       await tx.commit();
       console.log(`\n✔ Sembrados ${DOCS.length} docs en ${projectId}/${dataset}.`);
       console.log(
-        '  Catálogo: /entrenadores/ejercicios/  ·  premium bloqueado: /entrenadores/ejercicios/salida-de-balon-contra-presion-zonal/',
+        '  Banco: /entrenadores/ejercicios/  ·  Sesiones: /entrenadores/sesiones/  ·  Herramientas: /entrenadores/herramientas/',
       );
     }
   } finally {
