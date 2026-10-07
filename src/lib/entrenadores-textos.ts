@@ -1,7 +1,11 @@
 // Etiquetas humanas para los valores de enumeración de Sanity.
 // Módulo puro (sin red) para poder testearlo con Vitest.
 
-import { opcionesCategoriaEdad, opcionesEspacio } from '../../sanity/schemas/valoresComunes';
+import {
+  opcionesCategoriaEdad,
+  opcionesEspacio,
+  fasesSesion,
+} from '../../sanity/schemas/valoresComunes';
 
 export const ETIQUETAS_CATEGORIA_EDAD: Record<string, string> = Object.fromEntries(
   opcionesCategoriaEdad.map((o) => [o.value, o.title]),
@@ -10,6 +14,14 @@ export const ETIQUETAS_CATEGORIA_EDAD: Record<string, string> = Object.fromEntri
 export const ETIQUETAS_ESPACIO: Record<string, string> = Object.fromEntries(
   opcionesEspacio.map((o) => [o.value, o.title]),
 );
+
+export const ETIQUETAS_FASE: Record<string, string> = Object.fromEntries(
+  fasesSesion.map((f) => [f.value, f.title]),
+);
+
+export function etiquetaFase(fase?: string | null): string | null {
+  return fase ? (ETIQUETAS_FASE[fase] ?? fase) : null;
+}
 
 export function etiquetaJugadores(min?: number | null, max?: number | null): string | null {
   if (min == null && max == null) return null;

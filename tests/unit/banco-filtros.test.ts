@@ -178,3 +178,28 @@ describe('utilidades de estado', () => {
     expect(tieneFiltros({ ...sinFiltros, q: 'x' })).toBe(true);
   });
 });
+
+describe('sesiones reutilizando el motor del banco', () => {
+  // SesionTeaser proyecta 'resumen': objetivoGeneral, encajando en ItemCatalogo.
+  const sesion: ItemCatalogo = {
+    acceso: 'premium',
+    slug: 'presion-tras-perdida-90',
+    title: 'Sesión: presión tras pérdida',
+    resumen: 'Reaccionar juntos en 5 segundos tras cada pérdida',
+    duracionMin: 90,
+    categoriasEdad: ['alevin', 'infantil'],
+    objetivos: [{ name: 'Presión tras pérdida', slug: 'presion-tras-perdida' }],
+  };
+  it('busca también en el objetivo general vía resumen', () => {
+    expect(cumpleFiltros(sesion, { ...sinFiltros, q: 'reaccionar' })).toBe(true);
+    expect(cumpleFiltros(sesion, { ...sinFiltros, q: 'portería' })).toBe(false);
+  });
+  it('filtra por edad y duración larga', () => {
+    expect(cumpleFiltros(sesion, { ...sinFiltros, edad: 'alevin', dur: 'larga' })).toBe(true);
+    expect(cumpleFiltros(sesion, { ...sinFiltros, edad: 'cadete', dur: 'larga' })).toBe(false);
+    expect(cumpleFiltros(sesion, { ...sinFiltros, dur: 'corta' })).toBe(false);
+  });
+  it('sin campos de ejercicio (espacio/jug/tipo) los filtros neutros pasan', () => {
+    expect(aplicarFiltros([sesion], sinFiltros)).toHaveLength(1);
+  });
+});

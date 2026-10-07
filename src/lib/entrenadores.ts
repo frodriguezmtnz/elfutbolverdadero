@@ -140,3 +140,76 @@ export async function getMetodologiaGratis(limit = 3): Promise<MetodologiaTeaser
   );
   return docs ?? [];
 }
+
+// ————— Sesiones completas —————
+// Mismo patrón que el banco: el catálogo (proyección ligera, compatible con
+// ItemCatalogo de banco-filtros vía 'resumen': objetivoGeneral) alimenta el
+// catálogo público; la ficha completa solo se consulta en rutas on-demand tras
+// decidir el acceso en servidor. Los bloques resuelven su ejercicio referenciado
+// (título/slug/acceso) para enlazar a la ficha del banco sin filtrar desarrollos.
+
+export interface SesionTeaser {
+  _id: string;
+  title: string;
+  slug: string;
+  acceso: string;
+  objetivoGeneral?: string;
+  duracionMin?: number;
+  material?: string[];
+  categoriasEdad?: string[];
+  objetivos?: { name: string; slug?: string }[];
+  nBloques?: number;
+}
+
+export interface BloqueSesionVista {
+  fase?: string;
+  duracionMin?: number;
+  notas?: string;
+  ejercicio?: { title: string; slug: string; acceso: string; duracionMin?: number } | null;
+}
+
+export interface SesionFicha extends SesionTeaser {
+  estructura?: BloqueSesionVista[];
+  claves?: string[];
+  variantes?: string[];
+}
+
+const sesionCampos = `
+  _id,
+  title,
+  'slug': slug.current,
+  acceso,
+  objetivoGeneral,
+  'resumen': objetivoGeneral,
+  duracionMin,
+  material,
+  categoriasEdad,
+  'objetivos': objetivos[]->{ name, 'slug': slug.current },
+  'nBloques': count(estructura)
+`;
+
+export async function getSesiones(): Promise<SesionTeaser[]> {
+  const docs = await sanityClient.fetch<SesionTeaser[]>(
+    `*[_type == 'sesion' && defined(slug.current) && ${SIN_BORRADORES}]
+        | order(publishedAt desc) { ${sesionCampos} }`,
+  );
+  return docs ?? [];
+}
+
+export async function getSesionBySlug(slug: string): Promise<SesionFicha | null> {
+  const doc = await sanityClient.fetch<SesionFicha>(
+    `*[_type == 'sesion' && slug.current == $slug && ${SIN_BORRADORES}][0] {
+      ${sesionCampos},
+      'estructura': estructura[] {
+        fase,
+        duracionMin,
+        notas,
+        'ejercicio': ejercicio->{ title, 'slug': slug.current, acceso, duracionMin }
+      },
+      claves,
+      variantes
+    }`,
+    { slug },
+  );
+  return doc ?? null;
+}

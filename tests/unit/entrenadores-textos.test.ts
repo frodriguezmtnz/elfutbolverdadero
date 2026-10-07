@@ -4,6 +4,7 @@ import {
   etiquetaDuracion,
   etiquetaEspacio,
   ETIQUETAS_CATEGORIA_EDAD,
+  etiquetaFase,
 } from '../../src/lib/entrenadores-textos';
 
 describe('etiquetaJugadores', () => {
@@ -59,5 +60,18 @@ describe('ETIQUETAS_CATEGORIA_EDAD', () => {
   it('incluye las categorías base en español', () => {
     expect(ETIQUETAS_CATEGORIA_EDAD.alevin).toBe('Alevín');
     expect(ETIQUETAS_CATEGORIA_EDAD.benjamin).toBe('Benjamín');
+  });
+});
+
+describe('etiquetaFase', () => {
+  it('traduce las fases de sesión', () => {
+    expect(etiquetaFase('calentamiento')).toBe('Calentamiento');
+    expect(etiquetaFase('juegoCondicionado')).toBe('Juego condicionado');
+    expect(etiquetaFase('vueltaCalma')).toBe('Vuelta a la calma');
+  });
+  it('pasa valores desconocidos y null para ausente', () => {
+    expect(etiquetaFase('rarisima')).toBe('rarisima');
+    expect(etiquetaFase(null)).toBeNull();
+    expect(etiquetaFase(undefined)).toBeNull();
   });
 });

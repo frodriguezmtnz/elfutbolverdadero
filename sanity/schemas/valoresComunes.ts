@@ -39,3 +39,11 @@ export const opcionesTipoTarea = [
   { title: 'Cognitiva / toma de decisiones', value: 'cognitiva' },
   { title: 'Actitudinal / valores', value: 'actitudinal' },
 ] as const;
+
+export const fasesSesion = [
+  { title: 'Calentamiento', value: 'calentamiento' },
+  { title: 'Tarea principal', value: 'tarea' },
+  { title: 'Juego condicionado', value: 'juegoCondicionado' },
+  { title: 'Partido / juego final', value: 'partido' },
+  { title: 'Vuelta a la calma', value: 'vueltaCalma' },
+] as const;

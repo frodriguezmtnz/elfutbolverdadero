@@ -1,12 +1,5 @@
 import { defineType } from 'sanity';
-
-const fasesSesion = [
-  { title: 'Calentamiento', value: 'calentamiento' },
-  { title: 'Tarea principal', value: 'tarea' },
-  { title: 'Juego condicionado', value: 'juegoCondicionado' },
-  { title: 'Partido / juego final', value: 'partido' },
-  { title: 'Vuelta a la calma', value: 'vueltaCalma' },
-] as const;
+import { fasesSesion } from './valoresComunes';
 
 export const bloqueSesion = defineType({
   name: 'bloqueSesion',
