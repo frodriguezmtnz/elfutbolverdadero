@@ -4,6 +4,7 @@ import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import MobileNav from '../../../components/MobileNav.astro';
 import Icon from '../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../components/entrenadores/EtiquetaAcceso.astro';
 import { getMetodologiaZona } from '../../../lib/entrenadores';
 import { limpiarDescripcion } from '../../../lib/texto';
 
@@ -67,21 +68,7 @@ const fecha = (iso?: string) =>
                 return (
                   <li data-reveal="up" class="p-6 sm:p-8">
                     <div class="flex flex-wrap items-center gap-3 text-xs font-bold uppercase">
-                      <span
-                        class:list={{
-                          'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
-                          'bg-secondary text-primary': !esPremium,
-                          'bg-muted text-muted-foreground': esPremium,
-                        }}
-                      >
-                        {esPremium ? (
-                          <>
-                            <Icon name="lock" class="text-sm" /> Premium
-                          </>
-                        ) : (
-                          'Gratis · en el blog'
-                        )}
-                      </span>
+                      <EtiquetaAcceso acceso={m.acceso} texto="Gratis · en el blog" />
                       {fecha(m.publishedAt) && (
                         <span class="text-muted-foreground">{fecha(m.publishedAt)}</span>
                       )}

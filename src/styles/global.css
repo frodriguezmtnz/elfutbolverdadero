@@ -56,6 +56,12 @@
   --color-card: #ffffff;
   --color-card-foreground: #1a1a1a;
   --color-destructive: #c62828;
+  /* Etiquetas de acceso (zona Entrenadores): verde clarito con texto casi negro
+     (AAA) y rojo con texto blanco (AA), distinguibles del verde oscuro de marca */
+  --color-free: #b9f2c7;
+  --color-free-foreground: #12331f;
+  --color-premium: #c62828;
+  --color-premium-foreground: #ffffff;
   --color-border: #d7e0db;
   --color-input: #d7e0db;
   --color-ring: #1b4d3e;

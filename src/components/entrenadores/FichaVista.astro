@@ -1,5 +1,6 @@
 ---
 import Icon from '../Icon.astro';
+import EtiquetaAcceso from './EtiquetaAcceso.astro';
 import PortableText from '../PortableText.astro';
 import { urlFor } from '../../lib/images';
 import {
@@ -56,16 +57,7 @@ const diagramaUrl = ej.diagrama?.asset ? urlFor(ej.diagrama.asset, 900) : null;
           {tiposTarea(ej.tipoTarea)}
         </span>
       )}
-      <span
-        class:list={{
-          'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
-          'bg-accent text-accent-foreground': completa,
-          'bg-primary-foreground/15': !completa,
-        }}
-      >
-        {!completa && <Icon name="lock" class="text-sm" />}
-        {ej.acceso === 'premium' ? 'Premium' : 'Gratis'}
-      </span>
+      <EtiquetaAcceso acceso={ej.acceso} />
       {completa && (
         <button
           type="button"

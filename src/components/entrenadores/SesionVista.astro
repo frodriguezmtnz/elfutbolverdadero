@@ -1,5 +1,6 @@
 ---
 import Icon from '../Icon.astro';
+import EtiquetaAcceso from './EtiquetaAcceso.astro';
 import {
   etiquetaDuracion,
   etiquetaFase,
@@ -46,16 +47,7 @@ const minutosBloques = bloques.reduce((n, b) => n + (b.duracionMin ?? 0), 0);
           {etiquetaDuracion(sesion.duracionMin)}
         </span>
       )}
-      <span
-        class:list={{
-          'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
-          'bg-accent text-accent-foreground': completa,
-          'bg-primary-foreground/15': !completa,
-        }}
-      >
-        {!completa && <Icon name="lock" class="text-sm" />}
-        {sesion.acceso === 'premium' ? 'Premium' : 'Gratis'}
-      </span>
+      <EtiquetaAcceso acceso={sesion.acceso} />
       {completa && (
         <button
           type="button"

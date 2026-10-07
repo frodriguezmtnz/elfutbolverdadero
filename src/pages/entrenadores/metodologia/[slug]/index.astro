@@ -4,6 +4,7 @@ import Header from '../../../../components/Header.astro';
 import Footer from '../../../../components/Footer.astro';
 import MobileNav from '../../../../components/MobileNav.astro';
 import Icon from '../../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
 import PortableText from '../../../../components/PortableText.astro';
 import Impresion from '../../../../components/entrenadores/Impresion.astro';
 import { getMetodologiaBySlug } from '../../../../lib/entrenadores';
@@ -81,16 +82,7 @@ const fecha = doc?.publishedAt
                 {fecha && <span>{fecha}</span>}
                 {lectura && <span>{lectura}</span>}
                 {doc.author?.name && <span>Por {doc.author.name}</span>}
-                <span
-                  class:list={{
-                    'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
-                    'bg-accent text-accent-foreground': completa,
-                    'bg-primary-foreground/15': !completa,
-                  }}
-                >
-                  {!completa && <Icon name="lock" class="text-sm" />}
-                  Premium
-                </span>
+                <EtiquetaAcceso acceso="premium" />
                 {completa && (
                   <button
                     type="button"

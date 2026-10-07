@@ -4,6 +4,7 @@ import Header from '../../../../components/Header.astro';
 import Footer from '../../../../components/Footer.astro';
 import MobileNav from '../../../../components/MobileNav.astro';
 import Icon from '../../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
 import { getHerramientaBySlug } from '../../../../lib/entrenadores';
 import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
 import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
@@ -60,16 +61,7 @@ const archivoUrl = puede ? (h?.archivo?.asset?.url ?? null) : null;
                 <span class="rounded-full bg-primary-foreground/15 px-3 py-1">
                   {etiquetaFormato(h.formato)}
                 </span>
-                <span
-                  class:list={{
-                    'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
-                    'bg-accent text-accent-foreground': puede,
-                    'bg-primary-foreground/15': !puede,
-                  }}
-                >
-                  {!puede && <Icon name="lock" class="text-sm" />}
-                  {h.acceso === 'premium' ? 'Premium' : 'Gratis'}
-                </span>
+                <EtiquetaAcceso acceso={h.acceso} />
               </div>
             </div>
           </section>

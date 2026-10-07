@@ -4,6 +4,7 @@ import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import MobileNav from '../../../components/MobileNav.astro';
 import Icon from '../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../components/entrenadores/EtiquetaAcceso.astro';
 import { getCatalogoEjercicios } from '../../../lib/entrenadores';
 import {
   parseFiltros,
@@ -270,21 +271,7 @@ const premium = catalogo.filter((e) => e.acceso === 'premium').length;
                     }}
                   >
                     <div class="flex items-center justify-between gap-2">
-                      <span
-                        class:list={{
-                          'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase': true,
-                          'bg-secondary text-primary': !esPremium,
-                          'bg-muted text-muted-foreground': esPremium,
-                        }}
-                      >
-                        {esPremium ? (
-                          <>
-                            <Icon name="lock" class="text-sm" /> Premium
-                          </>
-                        ) : (
-                          'Gratis'
-                        )}
-                      </span>
+                      <EtiquetaAcceso acceso={ej.acceso} />
                       {ej.tipoTarea && (
                         <span class="text-xs font-semibold uppercase text-muted-foreground">
                           {opcionesTipoTarea.find((t) => t.value === ej.tipoTarea)?.title ??

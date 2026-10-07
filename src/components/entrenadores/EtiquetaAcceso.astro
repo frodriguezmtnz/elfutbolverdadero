@@ -1,0 +1,26 @@
+---
+// Píldora unificada de acceso para toda la zona Entrenadores:
+// premium = rojo + blanco con candado; gratis = verde clarito + casi-negro.
+// Describe QUÉ es el contenido, nunca el estado del visitante.
+import Icon from '../Icon.astro';
+
+interface Props {
+  acceso: string;
+  /** Texto alternativo (p. ej. «Gratis · en el blog»). Por defecto, Gratis/Premium. */
+  texto?: string;
+}
+
+const { acceso, texto } = Astro.props;
+const premium = acceso === 'premium';
+---
+
+<span
+  class:list={{
+    'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase': true,
+    'bg-premium text-premium-foreground': premium,
+    'bg-free text-free-foreground': !premium,
+  }}
+>
+  {premium && <Icon name="lock" class="text-sm" />}
+  {texto ?? (premium ? 'Premium' : 'Gratis')}
+</span>
