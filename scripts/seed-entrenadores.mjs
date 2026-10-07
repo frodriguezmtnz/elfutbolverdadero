@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Siembra la zona Futbolverdadero Entrenadores con contenido de EJEMPLO: taxonomías,
-// 4 ejercicios (2 free + 2 premium), 2 sesiones (1 free + 1 premium) y 3 herramientas
-// con PDFs generados (2 free + 1 premium) para ver catálogo, candado y descargas
-// funcionando antes de que Xabi cargue contenido real.
+// 4 ejercicios (2 free + 2 premium), 2 sesiones (1 free + 1 premium), 3 herramientas
+// con PDFs generados (2 free + 1 premium) y 2 dossiers de metodología (1 free para el
+// blog + 1 premium) para ver catálogo, candado, descargas e impresión funcionando
+// antes de que Xabi cargue contenido real.
 //
 // Todos los documentos usan _id fijo con prefijo «seed-» => --limpiar los borra sin
 // tocar nada más. createOrReplace: repetir el seed actualiza los mismos docs, no duplica.
@@ -39,6 +40,7 @@ let ck = 0;
 const k = () => `seed${(++ck).toString(36).padStart(4, '0')}`;
 const span = (text) => ({ _key: k(), _type: 'span', text, marks: [] });
 const p = (text) => ({ _key: k(), _type: 'block', style: 'normal', children: [span(text)] });
+const h2 = (text) => ({ _key: k(), _type: 'block', style: 'h2', children: [span(text)] });
 const h3 = (text) => ({ _key: k(), _type: 'block', style: 'h3', children: [span(text)] });
 const ref = (_ref) => ({ _key: k(), _type: 'reference', _ref });
 
@@ -534,7 +536,78 @@ const HERRAMIENTAS = [
   },
 ];
 
-const DOCS = [...CATEGORIES, ...OBJETIVOS, ...EJERCICIOS, ...SESIONES, ...HERRAMIENTAS];
+// Metodología: la free se sirve en el blog (URL canónica /slug/); la premium, en la zona.
+const METODOLOGIA = [
+  {
+    _id: 'seed-met-error-informacion',
+    _type: 'publicacion',
+    title: 'El error como información: dar feedback que se entiende',
+    slug: { current: 'el-error-como-informacion' },
+    tipo: 'metodologia',
+    acceso: 'free',
+    description:
+      'Tres maneras de nombrar el mismo error y por qué solo una cambia la conducta del lunes. Feedback concreto, oportuno y que el jugador pueda accionar.',
+    publishedAt: haceDias(6),
+    body: [
+      p(
+        'Hay dos tipos de feedback que no cambian nada: el «muy bien» sin ancla y el «eso no se hace» sin alternativa. El jugador recuerda el tono, no la instrucción.',
+      ),
+      h2('El error como dato, no como identidad'),
+      p(
+        '«Has perdido tres balones por dentro» es información. «Eres desordenado» es un diagnóstico que el niño se pone como chaqueta y no se quita en un año. El feedback útil describe el momento, no a la persona.',
+      ),
+      h3('La regla de los tres segundos'),
+      p(
+        'Tras el error, tres segundos para conectar: señalar con la mirada, una palabra clave («perfil») y dejar jugar. La explicación larga es para el descanso o el vestuario, cuando el cerebro ya no está en partido.',
+      ),
+      h2('Una palanca por semana'),
+      p(
+        'Si corriges ocho cosas, no se corrige ninguna. Elige un comportamiento por jugador y semana, dáselo con nombre propio y pregúntalo al final del partido: «¿cuántas veces recibiste de perfil?». Lo que se pregunta, se entrena.',
+      ),
+    ],
+  },
+  {
+    _id: 'seed-met-presion-si-no',
+    _type: 'publicacion',
+    title: 'Presión: cuándo sí, cuándo no (y cómo explicarlo a un alevín)',
+    slug: { current: 'presion-cuando-si-cuando-no' },
+    tipo: 'metodologia',
+    acceso: 'premium',
+    description:
+      'Presionar no es correr hacia el balón: es un acuerdo colectivo con disparadores. Este dossier traduce cuándo presionar, cuándo aguantar y cómo entrenar ambos con lenguaje de fútbol base.',
+    publishedAt: haceDias(12),
+    body: [
+      p(
+        'Todo equipo presiona a veces. Pocos presionan por acuerdo. La diferencia entre una presión que roba y una presión que se come es si los once leen el mismo disparador.',
+      ),
+      h2('Los cuatro disparadores que sí existen en base'),
+      p(
+        '1) Pase flojo o al pie del rival. 2) El rival recibe de espaldas. 3) El balón va a una banda donde somos superiores. 4) Saque de puerta rival con portero que no conduce. Cuatro, y ninguno es «porque sí».',
+      ),
+      h2('Cuándo NO presionar'),
+      p(
+        'Con balón en el central rival que tiene tiempo: aguantar y orientar al 9 hacia la banda es más difícil que mandar a dos a morder, y mucho más rentable. Presionar sin acuerdo es regalar la superioridad por dentro.',
+      ),
+      h3('Cómo se lo cuentas a un alevín'),
+      p(
+        '«Cuando el balón llega flojo o al de espaldas:¡todos al balón! Cuando el central la tiene tranquila: puerta cerrada, nos movemos juntos». Dos frases, dos reglas. El resto son ejercicios del banco con nombres de siempre: rondos, 4v4 con porterías, salidas con presión.',
+      ),
+      h2('Cómo se entrena'),
+      p(
+        'La presión no se entrena con consignas: se entrena con tareas donde robar tiene premio inmediato (portería pequeña, salir conduciendo) y donde el espacio rival está cerrado si aguantas. En el banco tienes dos fichas que hacen exactamente eso: «4v4 con porterías laterales» y «Salida de balón contra presión zonal».',
+      ),
+    ],
+  },
+];
+
+const DOCS = [
+  ...CATEGORIES,
+  ...OBJETIVOS,
+  ...EJERCICIOS,
+  ...SESIONES,
+  ...HERRAMIENTAS,
+  ...METODOLOGIA,
+];
 const IDS = DOCS.map((d) => d._id);
 
 async function main() {
@@ -596,6 +669,9 @@ async function main() {
     console.log(
       ` Herramientas: ${HERRAMIENTAS.filter((h) => h.acceso === 'free').length} free + ${HERRAMIENTAS.filter((h) => h.acceso === 'premium').length} premium (con PDF)`,
     );
+    console.log(
+      ` Metodología: ${METODOLOGIA.filter((m) => m.acceso === 'free').length} free (blog) + ${METODOLOGIA.filter((m) => m.acceso === 'premium').length} premium (zona)`,
+    );
   }
 
   if (!flags.apply) {
@@ -651,7 +727,7 @@ async function main() {
       await tx.commit();
       console.log(`\n✔ Sembrados ${DOCS.length} docs en ${projectId}/${dataset}.`);
       console.log(
-        '  Banco: /entrenadores/ejercicios/  ·  Sesiones: /entrenadores/sesiones/  ·  Herramientas: /entrenadores/herramientas/',
+        '  Banco: /entrenadores/ejercicios/  ·  Sesiones: /entrenadores/sesiones/  ·  Herramientas: /entrenadores/herramientas/  ·  Metodología: /entrenadores/metodologia/',
       );
     }
   } finally {
