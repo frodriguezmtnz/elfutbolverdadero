@@ -172,6 +172,58 @@ export async function getMetodologiaGratis(limit = 3): Promise<MetodologiaTeaser
   return docs ?? [];
 }
 
+// ————— Metodología (zona de entrenadores) —————
+// Las publicaciones tipo 'metodologia' FREE se sirven en el blog estático (su URL
+// canónica es /slug/); la zona solo lista ambas clases y da ficha on-demand a las
+// premium. El build estático ya excluye las premium (QUERY_TODAS_PUBLICACIONES).
+
+export interface MetodologiaZonaItem {
+  _id: string;
+  title: string;
+  slug: string;
+  acceso: string;
+  description?: string;
+  publishedAt?: string;
+}
+
+export interface MetodologiaFicha extends MetodologiaZonaItem {
+  readingTime?: string;
+  body?: unknown[];
+  mainImage?: {
+    asset?: { _id?: string; url?: string; dimensions?: { width: number; height: number } } | null;
+    alt?: string;
+    caption?: string;
+  } | null;
+  author?: { name?: string; role?: string } | null;
+}
+
+export async function getMetodologiaZona(): Promise<MetodologiaZonaItem[]> {
+  const docs = await sanityClient.fetch<MetodologiaZonaItem[]>(
+    `*[_type == 'publicacion' && tipo == 'metodologia' && defined(slug.current) && ${SIN_BORRADORES}]
+       | order(publishedAt desc) {
+        _id, title, 'slug': slug.current, 'acceso': coalesce(acceso, 'free'), description, publishedAt
+       }`,
+  );
+  return docs ?? [];
+}
+
+export async function getMetodologiaBySlug(slug: string): Promise<MetodologiaFicha | null> {
+  const doc = await sanityClient.fetch<MetodologiaFicha>(
+    `*[_type == 'publicacion' && tipo == 'metodologia' && slug.current == $slug && ${SIN_BORRADORES}][0] {
+      _id, title, 'slug': slug.current, 'acceso': coalesce(acceso, 'free'),
+      description, publishedAt, readingTime,
+      'body': body[]{ ..., 'asset': select(_type == 'image' => coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}), null) },
+      'mainImage': mainImage {
+        'asset': coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}),
+        alt, caption
+      },
+      'author': author->{ name, role }
+    }`,
+    { slug },
+  );
+  return doc ?? null;
+}
+
 // ————— Sesiones completas —————
 // Mismo patrón que el banco: el catálogo (proyección ligera, compatible con
 // ItemCatalogo de banco-filtros vía 'resumen': objetivoGeneral) alimenta el

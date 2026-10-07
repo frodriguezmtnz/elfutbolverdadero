@@ -21,6 +21,7 @@ const PREFIJOS_TEASER = [
   '/entrenadores/ejercicios',
   '/entrenadores/sesiones',
   '/entrenadores/herramientas',
+  '/entrenadores/metodologia',
 ];
 
 // Solo requieren sesión (no suscripción): panel = hub con CTA de pago,
