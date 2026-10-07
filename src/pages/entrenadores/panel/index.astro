@@ -94,17 +94,24 @@ const motivo = Astro.url.searchParams.get('motivo');
               </span>
             </a>
 
-            <div class="flex flex-col gap-3 rounded-xl border border-dashed border-border bg-card p-6">
-              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-                <Icon name="lock" />
+            <a
+              href={activa ? '/entrenadores/sesiones/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="book-open" />
               </span>
-              <h2 class="font-heading text-lg font-semibold uppercase text-muted-foreground">
-                Sesiones completas
-              </h2>
+              <h2 class="font-heading text-lg font-semibold uppercase">Sesiones completas</h2>
               <p class="text-sm leading-6 text-muted-foreground">
-                De calentamiento a vuelta a la calma, listas para el martes. Llega en la Fase 3.
+                {activa
+                  ? 'De calentamiento a vuelta a la calma, con notas por bloque y listas para imprimir.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
               </p>
-            </div>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir las sesiones' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
 
             <div class="flex flex-col gap-3 rounded-xl border border-dashed border-border bg-card p-6">
               <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -114,7 +121,7 @@ const motivo = Astro.url.searchParams.get('motivo');
                 Herramientas y metodología
               </h2>
               <p class="text-sm leading-6 text-muted-foreground">
-                Plantillas descargables y dossiers de reflexión. Llega en la Fase 4.
+                Plantillas descargables y dossiers de reflexión. Muy pronto, con tu suscripción.
               </p>
             </div>
           </div>

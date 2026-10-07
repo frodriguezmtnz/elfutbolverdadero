@@ -29,33 +29,40 @@ const waitlist = {
   )}`,
 };
 
-const bloques = [
+const bloques: {
+  icono: 'goal' | 'layout-dashboard' | 'book-open' | 'pen-line' | 'quote';
+  titulo: string;
+  texto: string;
+  href?: string;
+}[] = [
   {
-    icono: 'goal' as const,
+    icono: 'goal',
     titulo: 'Banco de ejercicios',
     texto:
       'Biblioteca filtrable por objetivo, jugadores, espacio y duración. Entra, filtra y monta tu sesión.',
+    href: '/entrenadores/ejercicios/',
   },
   {
-    icono: 'layout-dashboard' as const,
+    icono: 'layout-dashboard',
     titulo: 'Sesiones completas',
     texto:
       'De calentamiento a vuelta a la calma, listas para llevar al campo: presión tras pérdida, salida de balón, transiciones…',
+    href: '/entrenadores/sesiones/',
   },
   {
-    icono: 'book-open' as const,
+    icono: 'book-open',
     titulo: 'Metodología',
     texto:
       'Dossiers para pensar tu manera de entrenar: toma de decisiones, correcciones, principios de juego. Sin verdades absolutas.',
   },
   {
-    icono: 'pen-line' as const,
+    icono: 'pen-line',
     titulo: 'Herramientas del entrenador',
     texto:
       'Plantillas de sesión, planificación semanal y mensual, evaluación del jugador, informe postpartido… descargables.',
   },
   {
-    icono: 'quote' as const,
+    icono: 'quote',
     titulo: 'Voces de entrenadores',
     texto: 'La pregunta del mes respondida por entrenadores reales de fútbol base y amateur.',
   },
@@ -184,7 +191,15 @@ const jsonLd = [
                 <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
                   <Icon name={b.icono} />
                 </span>
-                <h3 class="font-heading text-lg font-semibold uppercase">{b.titulo}</h3>
+                <h3 class="font-heading text-lg font-semibold uppercase">
+                  {b.href ? (
+                    <a class="hover:text-primary" href={b.href}>
+                      {b.titulo}
+                    </a>
+                  ) : (
+                    b.titulo
+                  )}
+                </h3>
                 <p class="text-sm leading-6 text-muted-foreground">{b.texto}</p>
               </li>
             ))}
