@@ -288,7 +288,112 @@ const EJERCICIOS = [
   },
 ];
 
-const DOCS = [...CATEGORIES, ...OBJETIVOS, ...EJERCICIOS];
+// Sesiones de ejemplo: la estructura enlaza los ejercicios sembrados (o bloques ad hoc).
+const bloque = (fase, duracionMin, notas, ejercicioId) => ({
+  _key: k(),
+  _type: 'bloqueSesion',
+  fase,
+  duracionMin,
+  notas,
+  ...(ejercicioId ? { ejercicio: ref(ejercicioId) } : {}),
+});
+
+const SESIONES = [
+  {
+    _id: 'seed-sesion-conservacion-75',
+    _type: 'sesion',
+    title: 'Sesión: conservación y cambio de orientación (75 min)',
+    slug: { current: 'sesion-conservacion-y-cambio-de-orientacion' },
+    acceso: 'free',
+    objetivoGeneral:
+      'Que el equipo mantenga el balón moviéndolo de lado a lado y que los apoyos se orienten antes de recibir. Todo la sesión gira alrededor de la superioridad por dentro.',
+    objetivos: [ref('seed-obj-superioridad')],
+    categoriasEdad: ['benjamin', 'alevin'],
+    duracionMin: 75,
+    material: ['Conos', 'Petos / chalecos', 'Balones'],
+    estructura: [
+      bloque(
+        'calentamiento',
+        10,
+        'Pases en cuadrado 4v1 libre: solo cuenta el primer toque hacia el espacio. Sin presión al hombre: el que roba sale del medio.',
+      ),
+      bloque('tarea', 20, null, 'seed-ej-rondos-orientacion'),
+      bloque(
+        'juegoCondicionado',
+        15,
+        'Posesión 6v6 en 30x20 con dos zonas: para puntuar, el balón debe cruzar la zona central en 4 toques máximo.',
+      ),
+      bloque(
+        'partido',
+        22,
+        '8v8 con porterías grandes. Regla: gol tras cambio de orientación vale doble. Sin correcciones durante el juego.',
+      ),
+      bloque(
+        'vueltaCalma',
+        8,
+        'Ronda de preguntas: «¿cuándo veis que el lado fuerte está cerrado?». Estiramiento en pareja con pases suaves.',
+      ),
+    ],
+    claves: [
+      'El rondo solo funciona si el exterior que recibe protege el balón con el cuerpo: sin eso, todo lo demás se cae.',
+      'En el partido final, deja que se equivoquen: el gol doble por orientación hace que ellos solos busquen el cambio.',
+      'Pregunta en la vuelta a la calma, no durante el partido: en el juego se entrena, después se piensa.',
+    ],
+    variantes: [
+      'Versión de 60 min: quita el juego condicionado y alarga el partido a 30.',
+      'Si el equipo es muy superior, pasa a 5v5 con comodín exterior por dentro.',
+    ],
+    publishedAt: haceDias(0),
+  },
+  {
+    _id: 'seed-sesion-presion-salida-90',
+    _type: 'sesion',
+    title: 'Sesión: presión tras pérdida y salida bajo presión (90 min)',
+    slug: { current: 'sesion-presion-tras-perdida-y-salida-bajo-presion' },
+    acceso: 'premium',
+    objetivoGeneral:
+      'Unir las dos caras del mismo comportamiento: reaccionar juntos al robo y, con el balón, salir de la presión sin patadones. La sesión entera alterna atacar-pressing y defender-pressing.',
+    objetivos: [ref('seed-obj-presion'), ref('seed-obj-decision')],
+    categoriasEdad: ['infantil', 'cadete'],
+    duracionMin: 90,
+    material: ['Picas', 'Conos', 'Porterías portátiles', 'Petos / chalecos', 'Balones'],
+    estructura: [
+      bloque(
+        'calentamiento',
+        12,
+        'Rondo 4v2 con norma de 3 toques: quien pierde, presiona al balón con las dos manos a la espalda (recordatorio de postura).',
+      ),
+      bloque('tarea', 18, null, 'seed-ej-4v4-porterias'),
+      bloque(
+        'tarea',
+        15,
+        'Mini 2v2+1 en 15x12: el comodín solo juega de cara. Tras pérdida, los dos de fuera atacan el balón antes del 2º toque.',
+      ),
+      bloque('juegoCondicionado', 25, null, 'seed-ej-salida-presion-zonal'),
+      bloque('partido', 14, null, 'seed-ej-finalizacion-segundo-palo'),
+      bloque(
+        'vueltaCalma',
+        6,
+        'Tira y afloja de preguntas: «¿cuándo presionamos juntos y cuándo no?» y «¿qué hicimos mejor al salir?». Vuelta a la calma con pases en círculo.',
+      ),
+    ],
+    claves: [
+      'No corrijas la salida Y la presión a la vez: elige una mira por bloque y pregúntala al final.',
+      'En el juego condicionado, si el rojo supera la presión con 2 pases seguidos, para y saca al azul: que sientan el error estructural, no el individual.',
+      'La vuelta a la calma verbal es parte del entrenamiento: el que no sabe explicar por qué presionó, mañana no presiona.',
+    ],
+    errores: [
+      'Presión sin cobertura: el primero salta y los demás miran. Corrige con el grito de «¡cerca-cubre!» antes de cada bloque.',
+    ],
+    variantes: [
+      'Versión de 75 min: quita el 2v2+1 y alarga el partido final a 25.',
+      'Si el equipo no tiene portero fiable, empieza la salida desde el mediocentro (sin portero) y añade al portero al final.',
+    ],
+    publishedAt: haceDias(1),
+  },
+];
+
+const DOCS = [...CATEGORIES, ...OBJETIVOS, ...EJERCICIOS, ...SESIONES];
 const IDS = DOCS.map((d) => d._id);
 
 async function main() {
@@ -338,6 +443,9 @@ async function main() {
     );
     console.log(
       ` Ejercicios: ${EJERCICIOS.filter((e) => e.acceso === 'free').length} free + ${EJERCICIOS.filter((e) => e.acceso === 'premium').length} premium`,
+    );
+    console.log(
+      ` Sesiones: ${SESIONES.filter((s) => s.acceso === 'free').length} free + ${SESIONES.filter((s) => s.acceso === 'premium').length} premium`,
     );
   }
 
