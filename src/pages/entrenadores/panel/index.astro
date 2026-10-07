@@ -113,15 +113,34 @@ const motivo = Astro.url.searchParams.get('motivo');
               </span>
             </a>
 
+            <a
+              href={activa ? '/entrenadores/herramientas/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="pen-line" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Herramientas</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'Plantillas descargables: sesión, microciclo e informe postpartido.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir la biblioteca' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+
             <div class="flex flex-col gap-3 rounded-xl border border-dashed border-border bg-card p-6">
               <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <Icon name="lock" />
               </span>
               <h2 class="font-heading text-lg font-semibold uppercase text-muted-foreground">
-                Herramientas y metodología
+                Metodología
               </h2>
               <p class="text-sm leading-6 text-muted-foreground">
-                Plantillas descargables y dossiers de reflexión. Muy pronto, con tu suscripción.
+                Dossiers para pensar tu manera de entrenar. Muy pronto, con tu suscripción.
               </p>
             </div>
           </div>
