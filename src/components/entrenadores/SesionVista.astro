@@ -1,0 +1,248 @@
+---
+import Icon from '../Icon.astro';
+import {
+  etiquetaDuracion,
+  etiquetaFase,
+  ETIQUETAS_CATEGORIA_EDAD,
+} from '../../lib/entrenadores-textos';
+import type { SesionFicha } from '../../lib/entrenadores';
+
+interface Props {
+  sesion: SesionFicha;
+  completa: boolean;
+}
+
+const { sesion, completa } = Astro.props;
+
+const edades = (sesion.categoriasEdad ?? [])
+  .map((c) => ETIQUETAS_CATEGORIA_EDAD[c])
+  .filter(Boolean);
+const bloques = sesion.estructura ?? [];
+const minutosBloques = bloques.reduce((n, b) => n + (b.duracionMin ?? 0), 0);
+---
+
+<header class="hidden print:block print:px-2 print:pt-2">
+  <p class="font-heading text-sm font-semibold uppercase">
+    El Fútbol Verdadero · Entrenadores — sesión de «{sesion.title}»
+  </p>
+</header>
+
+<section class="bg-primary text-primary-foreground">
+  <div class="mx-auto max-w-5xl px-4 py-9 lg:px-8">
+    <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+      <a class="hover:underline" href="/entrenadores/sesiones/">
+        Sesiones completas
+      </a>
+    </p>
+    <h1 class="mt-3 font-heading text-2xl font-semibold uppercase leading-none sm:text-4xl">
+      {sesion.title}
+    </h1>
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-bold uppercase">
+      <span class="rounded-full bg-accent px-3 py-1 text-accent-foreground">
+        {sesion.nBloques ?? bloques.length} bloques
+      </span>
+      {etiquetaDuracion(sesion.duracionMin) && (
+        <span class="rounded-full bg-primary-foreground/15 px-3 py-1">
+          {etiquetaDuracion(sesion.duracionMin)}
+        </span>
+      )}
+      <span
+        class:list={{
+          'inline-flex items-center gap-1 rounded-full px-3 py-1': true,
+          'bg-accent text-accent-foreground': completa,
+          'bg-primary-foreground/15': !completa,
+        }}
+      >
+        {!completa && <Icon name="lock" class="text-sm" />}
+        {sesion.acceso === 'premium' ? 'Premium' : 'Gratis'}
+      </span>
+      {completa && (
+        <button
+          type="button"
+          data-imprimir
+          class="no-print inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground hover:brightness-95"
+        >
+          <Icon name="pen-line" />
+          Descargar sesión (imprimir / PDF)
+        </button>
+      )}
+    </div>
+  </div>
+</section>
+
+{!completa ? (
+  <section class="bg-muted">
+    <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div class="rounded-xl border border-border bg-card p-6">
+          <h2 class="font-heading text-lg font-semibold uppercase">Qué necesitas saber</h2>
+          {sesion.objetivoGeneral && <p class="mt-4 text-sm leading-7">{sesion.objetivoGeneral}</p>}
+          <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {etiquetaDuracion(sesion.duracionMin) && (
+              <li class="inline-flex items-center gap-1.5">
+                <Icon name="clock" class="text-base text-primary" />
+                {etiquetaDuracion(sesion.duracionMin)}
+              </li>
+            )}
+            {edades.length > 0 && (
+              <li class="inline-flex items-center gap-1.5">
+                <Icon name="users" class="text-base text-primary" />
+                {edades.join(', ')}
+              </li>
+            )}
+          </ul>
+          {(sesion.objetivos ?? []).length > 0 && (
+            <p class="mt-4 text-sm text-muted-foreground">
+              Objetivos:{' '}
+              <strong class="text-foreground">
+                {(sesion.objetivos ?? []).map((o) => o.name).join(' · ')}
+              </strong>
+            </p>
+          )}
+          <div class="mt-6 overflow-hidden rounded-lg bg-muted p-8 text-center">
+            <Icon name="lock" class="text-2xl text-tertiary-ink" />
+            <p class="mt-2 text-sm font-bold uppercase text-tertiary-ink">
+              Notas de cada bloque, claves del entrenador, variantes y material
+            </p>
+            <p class="mt-1 text-xs text-muted-foreground">forman parte de la zona premium</p>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground">
+          <p class="font-heading text-xl font-semibold uppercase leading-tight">
+            Llévate esta sesión al campo
+          </p>
+          <p class="text-sm leading-6">
+            12 € al año · menos de 1 € al mes. Con tu suscripción se desbloquean las notas de cada
+            bloque, las claves, las variantes y la sesión imprimible.
+          </p>
+          <a
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary"
+            href="/entrenadores/suscribirse/"
+          >
+            Suscribirme
+            <Icon name="layout-arrow-right" class="text-lg" />
+          </a>
+          <a class="text-center text-sm font-bold underline" href="/entrenadores/acceder/">
+            Ya soy socio: acceder
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+) : (
+  <section class="bg-muted">
+    <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <article class="rounded-xl border border-border bg-card p-6 sm:p-8">
+          {sesion.objetivoGeneral && (
+            <p class="text-base leading-7 font-semibold">{sesion.objetivoGeneral}</p>
+          )}
+
+          <h2 class="mt-6 font-heading text-lg font-semibold uppercase">Estructura</h2>
+          <ol class="mt-4 space-y-5">
+            {bloques.map((b, i) => (
+              <li class="flex gap-4">
+                <div class="flex w-14 shrink-0 flex-col items-center">
+                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary font-heading text-sm font-semibold text-primary-foreground">
+                    {i + 1}
+                  </span>
+                  {etiquetaDuracion(b.duracionMin) && (
+                    <span class="mt-1 text-xs font-bold text-muted-foreground">
+                      {b.duracionMin}′
+                    </span>
+                  )}
+                </div>
+                <div class="min-w-0 flex-1 border-b border-border pb-4">
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-tertiary-ink">
+                    {etiquetaFase(b.fase) ?? 'Bloque'}
+                  </p>
+                  {b.ejercicio ? (
+                    <a
+                      class="mt-1 inline-block font-heading text-base font-semibold uppercase hover:text-primary"
+                      href={`/entrenadores/ejercicios/${b.ejercicio.slug}/`}
+                    >
+                      {b.ejercicio.title}
+                      {b.ejercicio.acceso === 'premium' && (
+                        <Icon name="lock" class="ml-1 inline text-sm text-muted-foreground" />
+                      )}
+                    </a>
+                  ) : (
+                    <p class="mt-1 font-heading text-base font-semibold uppercase">
+                      Bloque sin ejercicio asignado
+                    </p>
+                  )}
+                  {b.notas && <p class="mt-2 text-sm leading-6 text-muted-foreground">{b.notas}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </article>
+
+        <aside class="flex flex-col gap-5">
+          <div class="rounded-xl border border-border bg-card p-5">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              La sesión
+            </h2>
+            <dl class="mt-3 space-y-2 text-sm">
+              {etiquetaDuracion(sesion.duracionMin) && (
+                <div class="flex items-center gap-2">
+                  <Icon name="clock" class="text-base text-primary" />
+                  <dd>
+                    {etiquetaDuracion(sesion.duracionMin)}
+                    {minutosBloques > 0 && (
+                      <span class="text-muted-foreground"> · {minutosBloques}′ en bloques</span>
+                    )}
+                  </dd>
+                </div>
+              )}
+              {edades.length > 0 && (
+                <div class="flex items-start gap-2">
+                  <Icon name="users" class="mt-0.5 text-base text-primary" />
+                  <dd>{edades.join(', ')}</dd>
+                </div>
+              )}
+              {(sesion.material ?? []).length > 0 && (
+                <div class="flex items-start gap-2">
+                  <Icon name="layout-dashboard" class="mt-0.5 text-base text-primary" />
+                  <dd>{(sesion.material ?? []).join(', ')}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+
+          {(sesion.claves ?? []).length > 0 && (
+            <div class="rounded-xl bg-primary p-5 text-primary-foreground">
+              <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                Claves del entrenador
+              </h2>
+              <ul class="mt-3 space-y-2 text-sm leading-6">
+                {(sesion.claves ?? []).map((c, i) => (
+                  <li class="flex gap-2">
+                    <span class="font-heading font-semibold text-accent">{i + 1}.</span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {(sesion.variantes ?? []).length > 0 && (
+            <div class="rounded-xl border border-border bg-card p-5">
+              <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+                Variantes
+              </h2>
+              <ul class="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+                {(sesion.variantes ?? []).map((v) => (
+                  <li class="flex gap-2">
+                    <Icon name="arrow-right" class="mt-1 shrink-0 text-primary" />
+                    <span>{v}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  </section>
+)}
