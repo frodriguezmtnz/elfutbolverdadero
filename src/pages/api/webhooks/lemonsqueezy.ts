@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { crearClienteServicio, supabaseConfigurado } from '../../../lib/supabase';
+import { enviarBienvenida } from '../../../lib/emails';
 import {
   normalizarEventoLs,
   sincronizarMembresia,
@@ -45,6 +46,16 @@ export async function POST(context: APIContext): Promise<Response> {
       await sincronizarMembresia(crearClienteServicio(), evento);
     } catch {
       return new Response(null, { status: 500 });
+    }
+    // Bienvenida propia solo al nacer la suscripción. El fallo del email NUNCA
+    // puede romper el webhook (LS reintentaría y duplicaría sincronizaciones).
+    if (nombreEvento === 'subscription_created') {
+      const origin = String(context.site ?? new URL(context.url).origin);
+      await enviarBienvenida({
+        email: evento.email,
+        origin,
+        currentPeriodEnd: evento.currentPeriodEnd,
+      }).catch(() => false);
     }
   }
 

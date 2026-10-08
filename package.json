@@ -48,6 +48,7 @@
     "astro-reveal": "^0.3.1",
     "dotenv": "^18.0.1",
     "medium-zoom": "^1.1.0",
+    "nodemailer": "^10.0.16",
     "reading-time": "^1.5.0",
     "sanity": "^6.16.0",
     "styled-components": "^6.5.3",
