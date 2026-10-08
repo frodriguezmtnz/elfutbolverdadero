@@ -14,6 +14,10 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
 4. **SMTP**: configurar un proveedor real (Resend/Postmark/SES) en
    Authentication → SMTP; el envío gratis de Supabase caduca y cae rate-limit.
    Plantilla de Magic Link con: `{{ .ConfirmationURL }}` (por defecto ya funciona).
+   El **mismo SMTP** envía el email de bienvenida propio (webhook `subscription_created`):
+   añadir a `.env`/Vercel `SMTP_HOST`, `SMTP_PORT` (465; 587 solo con STARTTLS),
+   `SMTP_USER`, `SMTP_PASS` y opcionalmente `EMAIL_FROM`. Sin esas claves el
+   webhook ignora el email (no rompe la sincronización ni responde error).
 5. Claves → `.env` local y Vercel (Secrets, Production + Preview):
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
@@ -29,7 +33,7 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
    - `LS_WEBHOOK_SECRET`
    - `LS_PORTAL_URL` (portal de cliente para cancelar/descargar facturas)
    - `LS_TEST_MODE=1` **solo** en Preview; nunca en Production.
-5. Probar el ciclo completo en test mode: magic link → `/entrenadores/suscribirse/` → checkout → webhook → `/entrenadores/panel/` con acceso.
+5. Probar el ciclo completo en test mode: magic link → `/entrenadores/suscribirse/` (consentimiento) → checkout → webhook → `/entrenadores/panel/` con acceso y email de bienvenida recibido.
 
 ## 3 · Rutas de la fase
 
@@ -41,7 +45,7 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
 | `/entrenadores/auth/callback`        | on-demand      | link del email                                                                    |
 | `/entrenadores/auth/salir`           | on-demand      | con sesión                                                                        |
 | `/entrenadores/auth/suscrito`        | on-demand      | redirect post-checkout                                                            |
-| `/entrenadores/suscribirse/`         | on-demand      | con sesión (sin suscripción)                                                      |
+| `/entrenadores/suscribirse/`         | on-demand      | con sesión (sin suscripción); muestra el consentimiento y solo entonces abre LS   |
 | `/entrenadores/panel/`               | on-demand      | con sesión                                                                        |
 | `/entrenadores/ejercicios/`          | on-demand      | pública (catálogo con teasers; la ficha completa exige socio)                     |
 | `/entrenadores/ejercicios/[slug]/`   | on-demand      | free = todos; premium = vista bloqueada sin socio, ficha con candado por servidor |
@@ -65,6 +69,7 @@ El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nue
 - [ ] Pago de prueba → webhook → `memberships` con `status=active` y `renews_at` futuro; ficha premium muestra desarrollo completo (200) y `window.print()` genera la ficha.
 - [ ] Cancelar en el portal → sigue dentro hasta `current_period_end` (status cancelled), luego el guard redirige.
 - [ ] Webhook con firma falsa → 401.
+- [ ] `subscription_created` en test → webhook responde 204 y llega el **email de bienvenida** al comprador; sin `SMTP_*` configurados responde 204 igualmente (el email se omite en silencio).
 - [ ] `/entrenadores/suscribirse/` con sesión → página de **consentimiento** (casilla obligatoria de entrega inmediata + términos/privacidad); POST sin marcar → aviso y no se crea checkout; POST marcado → URL de LS con `custom.desistimiento='acceso-inmediato-consentido-v1'` (constancia auditable en la orden).
 - [ ] Lemon Squeezy · Store Settings → Checkout: enlaces a términos (`/terminos-de-venta/`) y privacidad (`/politica-de-privacidad/`) visibles en la pasarela.
 - [ ] Sitemap/Google: solo `/entrenadores/` pública; el resto tiene `noindex` y no son prerenderizadas.
