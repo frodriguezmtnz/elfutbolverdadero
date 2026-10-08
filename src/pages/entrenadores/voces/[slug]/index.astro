@@ -1,0 +1,170 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import MobileNav from '../../../../components/MobileNav.astro';
+import Icon from '../../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
+import PortableText from '../../../../components/PortableText.astro';
+import Impresion from '../../../../components/entrenadores/Impresion.astro';
+import { getVozBySlug } from '../../../../lib/entrenadores';
+import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
+import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
+import { puedeVerContenido } from '../../../../lib/acceso-entrenadores';
+import { urlFor } from '../../../../lib/images';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const voz = await getVozBySlug(slug!);
+
+let completa = false;
+if (voz) {
+  let viva = false;
+  const usuario = await usuarioActual(Astro);
+  if (usuario) {
+    const supabase = crearClienteSupabase(Astro);
+    const membresia = await obtenerMembresia(supabase, usuario.email);
+    viva = suscripcionActiva(membresia);
+  }
+  completa = puedeVerContenido(voz.acceso, viva);
+} else {
+  Astro.response.status = 404;
+}
+
+const mes = voz?.mesAnio
+  ? new Date(voz.mesAnio).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+  : null;
+const foto = voz?.imagen?.asset ? urlFor(voz.imagen.asset, 800) : null;
+---
+
+<Base
+  title={
+    voz
+      ? `«${voz.title}» — Voces de entrenadores · Futbolverdadero`
+      : 'Voz no encontrada — Futbolverdadero Entrenadores'
+  }
+  description={
+    voz
+      ? `La pregunta del mes: «${voz.title}». ${voz.entrenador ? `Responde ${voz.entrenador.name}.` : 'La experiencia de entrenadores reales.'}`
+      : 'Voz de entrenador no encontrada.'
+  }
+  canonicalURL={voz ? `/entrenadores/voces/${voz.slug}/` : undefined}
+  robots={voz && completa ? undefined : 'noindex, follow'}
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      {voz ? (
+        <>
+          <section class="bg-primary text-primary-foreground">
+            <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                <a class="hover:underline" href="/entrenadores/voces/">
+                  Voces de entrenadores
+                </a>
+              </p>
+              <p class="mt-6 text-xs font-bold uppercase text-primary-foreground/70">
+                La pregunta del mes
+              </p>
+              <h1 class="mt-2 font-heading text-2xl font-semibold uppercase leading-tight sm:text-4xl">
+                «{voz.title}»
+              </h1>
+              <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-bold uppercase">
+                <EtiquetaAcceso acceso={voz.acceso} />
+                {mes && <span class="text-primary-foreground/80">{mes}</span>}
+                {completa && (
+                  <button
+                    type="button"
+                    data-imprimir
+                    class="no-print inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground hover:brightness-95"
+                  >
+                    <Icon name="pen-line" />
+                    Descargar respuesta (imprimir / PDF)
+                  </button>
+                )}
+              </div>
+              {voz.entrenador && (
+                <div class="mt-6 flex items-center gap-4">
+                  {foto && (
+                    <img
+                      class="size-14 rounded-full object-cover"
+                      src={foto}
+                      alt={voz.imagen?.alt ?? voz.entrenador.name}
+                    />
+                  )}
+                  <p class="text-sm">
+                    <span class="text-primary-foreground/70">Responde</span>{' '}
+                    <strong>{voz.entrenador.name}</strong>
+                    {voz.entrenador.role && (
+                      <span class="block text-primary-foreground/70">{voz.entrenador.role}</span>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {completa ? (
+            <section class="bg-muted">
+              <article class="mx-auto max-w-3xl px-4 py-10 lg:px-8 print:px-2 print:py-2">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+                  La respuesta
+                </p>
+                <div class="mt-4 prose prose-slate max-w-none">
+                  <PortableText blocks={voz.respuesta ?? []} />
+                </div>
+              </article>
+            </section>
+          ) : (
+            <section class="bg-muted">
+              <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+                <div class="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+                  <Icon name="lock" class="text-3xl text-tertiary-ink" />
+                  <p class="mt-3 text-sm font-bold uppercase text-tertiary-ink">
+                    La respuesta de {voz.entrenador?.name ?? 'esta voz'} es premium
+                  </p>
+                  <p class="mt-1 text-xs text-muted-foreground">
+                    La pregunta es de todos; la experiencia contada sin pose, de la zona.
+                  </p>
+                  <a
+                    class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+                    href="/entrenadores/suscribirse/"
+                  >
+                    Suscribirme (12 €/año)
+                    <Icon name="layout-arrow-right" class="text-lg" />
+                  </a>
+                  <p class="mt-3 text-xs text-muted-foreground">
+                    ¿Ya suscrito?{' '}
+                    <a class="font-bold text-primary hover:underline" href="/entrenadores/acceder/">
+                      Entra con tu enlace mágico
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <section class="bg-card">
+          <div class="mx-auto max-w-3xl px-4 py-16 text-center lg:px-8">
+            <h1 class="font-heading text-2xl font-semibold uppercase">Voz no encontrada</h1>
+            <p class="mt-3 text-sm text-muted-foreground">
+              Esta pregunta del mes no existe o aún no se ha publicado.
+            </p>
+            <a
+              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/entrenadores/voces/"
+            >
+              Ver todas las voces
+            </a>
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
+<Impresion />
