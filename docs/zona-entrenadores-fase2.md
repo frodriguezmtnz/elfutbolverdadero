@@ -51,6 +51,8 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
 | `/entrenadores/herramientas/[slug]/` | on-demand      | free = descarga para todos; premium = enlace solo visible con suscripción viva    |
 | `/entrenadores/metodologia/`         | on-demand      | pública (lista free+premium; las free enlazan al blog, su URL canónica)           |
 | `/entrenadores/metodologia/[slug]/`  | on-demand      | free = 301 al blog; premium = dossier completo con socio, teaser de venta sin él  |
+| `/entrenadores/voces/`               | on-demand      | pública (pregunta del mes + archivo; nunca proyecta la respuesta)                 |
+| `/entrenadores/voces/[slug]/`        | on-demand      | pregunta pública siempre; la respuesta solo con suscripción viva                  |
 | `/api/webhooks/lemonsqueezy`         | on-demand      | solo LS (firma HMAC)                                                              |
 
 El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nueva-ruta>` exige suscripción por defecto; las excepciones se declaran en la lista blanca (`PREFIJOS_TEASER` permite servir catálogo/fichas con candado por página).
