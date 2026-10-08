@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Siembra la zona Futbolverdadero Entrenadores con contenido de EJEMPLO: taxonomías,
 // 4 ejercicios (2 free + 2 premium), 2 sesiones (1 free + 1 premium), 3 herramientas
-// con PDFs generados (2 free + 1 premium) y 2 dossiers de metodología (1 free para el
-// blog + 1 premium) para ver catálogo, candado, descargas e impresión funcionando
+// con PDFs generados (2 free + 1 premium), 2 dossiers de metodología (1 free para el
+// blog + 1 premium) y 2 voces de entrenadores premium con su autor de ejemplo, para
+// ver catálogo, candado, descargas e impresión funcionando
 // antes de que Xabi cargue contenido real.
 //
 // Todos los documentos usan _id fijo con prefijo «seed-» => --limpiar los borra sin
@@ -600,13 +601,81 @@ const METODOLOGIA = [
   },
 ];
 
+// Voces de entrenadores: la pregunta del mes (respuesta premium, pregunta pública).
+const AUTORES = [
+  {
+    _id: 'seed-autor-xabi',
+    _type: 'autor',
+    name: 'Xabi (voz de ejemplo)',
+    slug: { current: 'xabi-voz-de-ejemplo' },
+    role: 'Entrenador de fútbol base · 12 años en el banquillo',
+    bio: 'Entrenador de alevín e infantil. El primero de una serie de entrevistados reales de la red Futbolverdadero.',
+  },
+];
+
+const VOCES = [
+  {
+    _id: 'seed-voz-error-empezaste',
+    _type: 'vozEntrenador',
+    title: '¿Qué error cometías cuando empezaste?',
+    slug: { current: 'que-error-cometias-cuando-empezaste' },
+    acceso: 'premium',
+    entrenador: { _type: 'reference', _ref: 'seed-autor-xabi' },
+    mesAnio: '2026-10-01',
+    publishedAt: haceDias(2),
+    respuesta: [
+      p(
+        'Planificar el entrenamiento como si fuera una obra de teatro: doce ejercicios con nombre, tiempos exactos, conos contados. Y sobre todo: hablar demasiado. Yo creía que entrenar era explicar.',
+      ),
+      h3('El silencio que no dominaba'),
+      p(
+        'Paraba el juego a los dos minutos para «aclarar una idea». Aclaraba la mía, no la de ellos. Los niños esperaban el pitido como quien espera el descanso de un partido aburrido. Hoy sé que una pregunta en el momento justo enseña más que cinco minutos de monólogo.',
+      ),
+      h3('Copiar sin entender'),
+      p(
+        'Robaba sesiones de redes y de clínicos sin adaptarlas a lo que tenía delante: veinte niños, dos balones desinflados y un campo que compartíamos con los de juvenil. Empecé a mejorar cuando dejé de copiar modelos y empecé a observar los míos.',
+      ),
+      p(
+        'Mi consejo para el de hace diez años: pon menos conos y haz más preguntas. El error más caro del principio no fue ningún ejercicio mal diseñado; fue no dejar jugar.',
+      ),
+    ],
+  },
+  {
+    _id: 'seed-voz-entrenador-influjo',
+    _type: 'vozEntrenador',
+    title: '¿Qué entrenador te ha influido más?',
+    slug: { current: 'que-entrenador-te-ha-influido-mas' },
+    acceso: 'premium',
+    entrenador: { _type: 'reference', _ref: 'seed-autor-xabi' },
+    mesAnio: '2026-09-01',
+    publishedAt: haceDias(32),
+    respuesta: [
+      p(
+        'No fue el que más títulos tenía ni el que mejor hablaba de táctica. Fue Mikel, el entrenador de mi primer equipo infantil, que hacía algo rarísimo: se callaba y miraba.',
+      ),
+      h3('Qué hacía distinto'),
+      p(
+        'Antes del partido nos preguntaba a nosotros qué creíamos que debíamos hacer. Nadie tiene respuestas de quinceañeros, pero él las trataba como si fueran del vestuario, y lo eran. Aprendí que convencer empieza por preguntar.',
+      ),
+      p(
+        'Y otra cosa que he intentado copiar toda mi carrera: el último entrenamiento de la temporada no era un ejercicio. Era cada uno diciendo en voz alta qué había aprendido del resto. Cerrábamos el círculo.',
+      ),
+      p(
+        'Todo lo que sé de metodología viene de los libros; todo lo que sé de gestionar personas, de ver entrenar a alguien que prefería quedarse corto de contenido antes que perder al grupo.',
+      ),
+    ],
+  },
+];
+
 const DOCS = [
+  ...AUTORES,
   ...CATEGORIES,
   ...OBJETIVOS,
   ...EJERCICIOS,
   ...SESIONES,
   ...HERRAMIENTAS,
   ...METODOLOGIA,
+  ...VOCES,
 ];
 const IDS = DOCS.map((d) => d._id);
 
@@ -621,7 +690,7 @@ async function main() {
   console.log(`→ Modo: ${flags.apply ? 'ESCRITURA (--apply)' : 'DRY-RUN (no escribe)'}\n`);
 
   const existentes = await client.fetch(
-    `*[_id in $ids]{ _id, _type, "label": coalesce(title, name), "fileRef": archivo.asset._ref }`,
+    `*[_id in $ids]{ _id, _type, "label": coalesce(title, name), "fileRef": coalesce(archivo.asset._ref, archivo._ref) }`,
     {
       ids: IDS,
     },
@@ -672,6 +741,7 @@ async function main() {
     console.log(
       ` Metodología: ${METODOLOGIA.filter((m) => m.acceso === 'free').length} free (blog) + ${METODOLOGIA.filter((m) => m.acceso === 'premium').length} premium (zona)`,
     );
+    console.log(` Voces: ${VOCES.length} premium (con ${AUTORES.length} autor de ejemplo)`);
   }
 
   if (!flags.apply) {
@@ -727,7 +797,7 @@ async function main() {
       await tx.commit();
       console.log(`\n✔ Sembrados ${DOCS.length} docs en ${projectId}/${dataset}.`);
       console.log(
-        '  Banco: /entrenadores/ejercicios/  ·  Sesiones: /entrenadores/sesiones/  ·  Herramientas: /entrenadores/herramientas/  ·  Metodología: /entrenadores/metodologia/',
+        '  Banco: /entrenadores/ejercicios/  ·  Sesiones: /entrenadores/sesiones/  ·  Herramientas: /entrenadores/herramientas/  ·  Metodología: /entrenadores/metodologia/  ·  Voces: /entrenadores/voces/',
       );
     }
   } finally {
