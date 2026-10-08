@@ -1,4 +1,15 @@
 User-agent: *
 Allow: /
+Allow: /entrenadores/$
+Disallow: /api
+Disallow: /entrenadores/panel
+Disallow: /entrenadores/acceder
+Disallow: /entrenadores/auth
+Disallow: /entrenadores/suscribirse
+Disallow: /entrenadores/ejercicios
+Disallow: /entrenadores/sesiones
+Disallow: /entrenadores/herramientas
+Disallow: /entrenadores/metodologia
+Disallow: /entrenadores/voces
 
 Sitemap: https://www.elfutbolverdadero.com/sitemap-index.xml

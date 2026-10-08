@@ -27,7 +27,11 @@ import { createClient } from '@sanity/client';
 
 const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, '.vercel', 'output', 'config.json');
-const DIST = path.join(ROOT, 'dist');
+// Con output mixto (SSG + on-demand), el adapter de Vercel escribe el estático
+// en dist/client/ y el servidor en dist/server/. Sin rutas dinámicas, sigue en dist/.
+const DIST = existsSync(path.join(ROOT, 'dist', 'client'))
+  ? path.join(ROOT, 'dist', 'client')
+  : path.join(ROOT, 'dist');
 const DRY_RUN = process.argv.includes('--dry-run');
 
 const ENTREVISTAS = '/entrevistas/';

@@ -7,6 +7,7 @@ export interface Publicacion {
   title: string;
   slug: string;
   tipo: string;
+  acceso?: string;
   club?: string;
   description?: string;
   publishedAt?: string;
@@ -47,6 +48,7 @@ const baseFields = `
   title,
   'slug': slug.current,
   tipo,
+  acceso,
   club,
   description,
   publishedAt,
@@ -56,9 +58,9 @@ const baseFields = `
   readingTime,
   wpId,
   wpUrl,
-  'author': author->{ name, role, 'image': image.asset->{ _id, url } },
+  'author': author->{ name, role, 'image': coalesce(image.asset->{ _id, url }, image->{ _id, url }) },
   'mainImage': mainImage {
-    'asset': asset->{ _id, url, 'dimensions': metadata.dimensions },
+    'asset': coalesce(asset->{ _id, url, 'dimensions': metadata.dimensions }, @->{ _id, url, 'dimensions': metadata.dimensions }),
     alt,
     caption
   },
@@ -68,7 +70,7 @@ const baseFields = `
 
 const publicacionFields = `
   ${baseFields},
-  'body': body[]{ ..., 'asset': select(_type == 'image' => asset->{_id, url, 'dimensions': metadata.dimensions}, null) }
+  'body': body[]{ ..., 'asset': select(_type == 'image' => coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}), null) }
 `;
 
 interface BloqueBody {
@@ -125,8 +127,11 @@ async function fetchDocs(query: string, params?: QueryParams): Promise<Publicaci
 // UNA vez el dataset completo de publicaciones y el resto se deriva en memoria.
 // Sin esto, cada página de artículo lanzaba 2 consultas HTTP a Sanity (~400ms) y
 // el build de CI superaba los 8 minutos. En dev no se cachea para ver datos frescos.
+// IMPORTANTE: el filtro `coalesce(acceso,'free') != 'premium'` evita que cualquier
+// publicación premium se prerenderice en el build estático (no debe salir nunca en
+// HTML público). Las publicaciones legacy sin campo acceso se consideran 'free'.
 const QUERY_TODAS_PUBLICACIONES = `
-  *[_type == 'publicacion' && defined(slug.current)] | order(publishedAt desc) {
+  *[_type == 'publicacion' && defined(slug.current) && coalesce(acceso, 'free') != 'premium'] | order(publishedAt desc) {
     ${publicacionFields}
   }
 `;
@@ -204,7 +209,7 @@ async function loadCategorias(): Promise<CategoriaConteo[]> {
   const query = `*[_type == 'categoria' && defined(slug.current)] {
     'name': name,
     'slug': slug.current,
-    'n': count(*[_type == 'publicacion' && references(^._id)])
+    'n': count(*[_type == 'publicacion' && references(^._id) && coalesce(acceso, 'free') != 'premium'])
   } | order(n desc, name asc)`;
   if (import.meta.env.DEV) return sanityClient.fetch<CategoriaConteo[]>(query);
   if (!cacheCategorias) cacheCategorias = sanityClient.fetch<CategoriaConteo[]>(query);
@@ -233,7 +238,7 @@ async function loadEtiquetas(): Promise<EtiquetaConteo[]> {
   const query = `*[_type == 'etiqueta'] {
     'name': name,
     'slug': slug.current,
-    'n': count(*[_type == 'publicacion' && references(^._id)])
+    'n': count(*[_type == 'publicacion' && references(^._id) && coalesce(acceso, 'free') != 'premium'])
   } | order(n desc, name asc)`;
   if (import.meta.env.DEV) return sanityClient.fetch<EtiquetaConteo[]>(query);
   if (!cacheEtiquetas) cacheEtiquetas = sanityClient.fetch<EtiquetaConteo[]>(query);
@@ -270,7 +275,7 @@ export async function getWebsAmigas(): Promise<WebAmiga[]> {
       name,
       url,
       description,
-      'logo': { 'asset': logo.asset->{ _id, url } }
+      'logo': { 'asset': coalesce(logo.asset->{ _id, url }, logo->{ _id, url }) }
     }`,
   );
 }

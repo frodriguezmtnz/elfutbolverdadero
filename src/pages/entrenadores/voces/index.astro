@@ -1,0 +1,147 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
+import Icon from '../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../components/entrenadores/EtiquetaAcceso.astro';
+import { getVocesZona } from '../../../lib/entrenadores';
+
+export const prerender = false;
+
+const voces = await getVocesZona();
+const [destacada, ...archivo] = voces;
+
+const mes = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : null;
+---
+
+<Base
+  title="Voces de entrenadores — La pregunta del mes · Futbolverdadero Entrenadores"
+  description="Cada mes, una pregunta a un entrenador real de fútbol base: aprendizajes, errores, decisiones. La pregunta es de todos; la respuesta, de la zona."
+  canonicalURL="/entrenadores/voces/"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+            <a class="hover:underline" href="/entrenadores/">
+              Futbolverdadero Entrenadores
+            </a>
+          </p>
+          <h1 class="mt-2 font-heading text-2xl font-semibold uppercase sm:text-4xl">
+            Voces de entrenadores
+          </h1>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-primary-foreground/90">
+            La experiencia de entrenadores reales, contada sin pose. La pregunta se lee gratis; la
+            respuesta se vive con la suscripción.
+          </p>
+        </div>
+      </section>
+
+      {destacada ? (
+        <section class="bg-card">
+          <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              La pregunta del mes
+            </p>
+            <div data-reveal="up" class="mt-4 rounded-xl border border-border bg-muted p-6 sm:p-8">
+              <div class="flex flex-wrap items-center gap-3">
+                <EtiquetaAcceso acceso={destacada.acceso} />
+                {mes(destacada.mesAnio) && (
+                  <span class="text-xs font-bold uppercase text-muted-foreground">
+                    {mes(destacada.mesAnio)}
+                  </span>
+                )}
+              </div>
+              <h2 class="mt-4 font-heading text-xl font-semibold uppercase leading-tight sm:text-3xl">
+                <a class="hover:text-primary" href={`/entrenadores/voces/${destacada.slug}/`}>
+                  «{destacada.title}»
+                </a>
+              </h2>
+              {destacada.entrenador && (
+                <p class="mt-3 text-sm text-muted-foreground">
+                  Responde <strong class="text-foreground">{destacada.entrenador.name}</strong>
+                  {destacada.entrenador.role && <> · {destacada.entrenador.role}</>}
+                </p>
+              )}
+              <a
+                class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+                href={`/entrenadores/voces/${destacada.slug}/`}
+              >
+                Leer la respuesta
+                <Icon name="arrow-right" class="text-lg" />
+              </a>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section class="bg-card">
+          <div class="mx-auto max-w-5xl px-4 py-10 text-center lg:px-8">
+            <Icon name="quote" class="text-3xl text-primary" />
+            <p class="mt-4 text-sm text-muted-foreground">
+              La primera pregunta del mes está a punto de publicarse.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {archivo.length > 0 && (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              Archivo de preguntas
+            </p>
+            <ul class="mt-4 divide-y divide-border rounded-xl border border-border bg-card">
+              {archivo.map((v) => (
+                <li data-reveal="up" class="flex flex-wrap items-center gap-x-4 gap-y-2 p-5 sm:p-6">
+                  <EtiquetaAcceso acceso={v.acceso} />
+                  <a
+                    class="min-w-0 flex-1 font-heading text-sm font-semibold uppercase hover:text-primary sm:text-base"
+                    href={`/entrenadores/voces/${v.slug}/`}
+                  >
+                    «{v.title}»
+                  </a>
+                  {v.entrenador && (
+                    <span class="text-xs text-muted-foreground">{v.entrenador.name}</span>
+                  )}
+                  {mes(v.mesAnio) && (
+                    <span class="text-xs font-bold uppercase text-muted-foreground">
+                      {mes(v.mesAnio)}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <section class="bg-card">
+        <div class="mx-auto max-w-5xl px-4 pb-12 lg:px-8">
+          <div class="rounded-xl bg-tertiary p-6 text-tertiary-foreground sm:flex sm:items-center sm:justify-between sm:p-8">
+            <div>
+              <p class="font-heading text-lg font-semibold uppercase">¿Sin suscripción todavía?</p>
+              <p class="mt-1 text-sm">
+                12 € al año: menos de 1 € al mes por las respuestas, el banco, sesiones y
+                plantillas.
+              </p>
+            </div>
+            <a
+              class="mt-4 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary sm:mt-0"
+              href="/entrenadores/suscribirse/"
+            >
+              Suscribirme
+              <Icon name="layout-arrow-right" class="text-lg" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>

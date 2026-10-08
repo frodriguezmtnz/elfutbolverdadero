@@ -1,0 +1,31 @@
+---
+import Icon from './Icon.astro';
+---
+
+<section class="bg-tertiary text-tertiary-foreground">
+  <div class="mx-auto flex max-w-7xl flex-col items-start gap-5 px-4 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+    <div data-reveal="up" class="flex gap-4">
+      <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-card text-tertiary">
+        <Icon name="users" />
+      </span>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.2em]">Zona privada</p>
+        <h2 class="mt-1 font-heading font-semibold text-lg uppercase sm:text-2xl">
+          Futbolverdadero Entrenadores
+        </h2>
+        <p class="mt-2 max-w-xl text-sm leading-6">
+          Banco de ejercicios con filtros, sesiones completas y plantillas listas para el campo. 12
+          € al año: menos de 1 € al mes.
+        </p>
+      </div>
+    </div>
+    <a
+      data-reveal="up"
+      class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary hover:bg-secondary"
+      href="/entrenadores/"
+    >
+      Ver la zona
+      <Icon name="layout-arrow-right" class="text-lg" />
+    </a>
+  </div>
+</section>

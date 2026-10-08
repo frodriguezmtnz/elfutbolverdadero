@@ -56,4 +56,5 @@ jobs:
           urls: |
             http://127.0.0.1:4321/
             http://127.0.0.1:4321/entrevistas/
+            http://127.0.0.1:4321/entrenadores/
           uploadArtifacts: true

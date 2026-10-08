@@ -1,0 +1,195 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import MobileNav from '../../../../components/MobileNav.astro';
+import Icon from '../../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
+import PortableText from '../../../../components/PortableText.astro';
+import Impresion from '../../../../components/entrenadores/Impresion.astro';
+import { getMetodologiaBySlug } from '../../../../lib/entrenadores';
+import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
+import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
+import { puedeVerContenido } from '../../../../lib/acceso-entrenadores';
+import { limpiarDescripcion, sinBloquesTiempoLectura, tiempoLectura } from '../../../../lib/texto';
+import { urlFor, srcsetFor } from '../../../../lib/images';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const doc = await getMetodologiaBySlug(slug!);
+
+// Una metodología FREE se lee en el blog (su URL canónica, estática e indexada):
+// la zona redirige allí para no duplicar contenido. Aquí solo viven las premium.
+if (doc && doc.acceso !== 'premium') {
+  return Astro.redirect(`/${doc.slug}/`, 301);
+}
+
+let completa = false;
+if (doc) {
+  let viva = false;
+  const usuario = await usuarioActual(Astro);
+  if (usuario) {
+    const supabase = crearClienteSupabase(Astro);
+    const membresia = await obtenerMembresia(supabase, usuario.email);
+    viva = suscripcionActiva(membresia);
+  }
+  completa = puedeVerContenido(doc.acceso, viva);
+} else {
+  Astro.response.status = 404;
+}
+
+const body = doc ? sinBloquesTiempoLectura(doc.body) : [];
+const lectura = doc ? tiempoLectura(body, doc.readingTime) : null;
+const imagen = doc?.mainImage?.asset ? urlFor(doc.mainImage.asset, 1400) : null;
+const srcset = doc?.mainImage?.asset ? srcsetFor(doc.mainImage.asset, [640, 960, 1400]) : undefined;
+const fecha = doc?.publishedAt
+  ? new Date(doc.publishedAt).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
+---
+
+<Base
+  title={
+    doc ? `${doc.title} — Metodología` : 'Dossier no encontrado — Futbolverdadero Entrenadores'
+  }
+  description={
+    doc?.description
+      ? limpiarDescripcion(doc.description)
+      : 'Dossier de metodología de entrenamiento.'
+  }
+  robots="noindex, follow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      {doc ? (
+        <>
+          <section class="bg-primary text-primary-foreground">
+            <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                <a class="hover:underline" href="/entrenadores/metodologia/">
+                  Metodología
+                </a>
+              </p>
+              <h1 class="mt-3 font-heading text-2xl font-semibold uppercase leading-tight sm:text-4xl">
+                {doc.title}
+              </h1>
+              <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold uppercase text-primary-foreground/80">
+                {fecha && <span>{fecha}</span>}
+                {lectura && <span>{lectura}</span>}
+                {doc.author?.name && <span>Por {doc.author.name}</span>}
+                <EtiquetaAcceso acceso="premium" />
+                {completa && (
+                  <button
+                    type="button"
+                    data-imprimir
+                    class="no-print inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground hover:brightness-95"
+                  >
+                    <Icon name="pen-line" />
+                    Descargar dossier (imprimir / PDF)
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {completa ? (
+            <section class="bg-muted">
+              <article class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+                {doc.description && (
+                  <p class="text-base leading-7 font-semibold">
+                    {limpiarDescripcion(doc.description)}
+                  </p>
+                )}
+                {imagen && (
+                  <figure class="mt-6">
+                    <img
+                      class="w-full rounded-xl"
+                      src={imagen}
+                      srcset={srcset}
+                      sizes="(max-width: 768px) 100vw, 768px"
+                      alt={doc.mainImage?.alt ?? doc.title}
+                      loading="lazy"
+                    />
+                    {doc.mainImage?.caption && (
+                      <figcaption class="mt-2 text-xs text-muted-foreground">
+                        {doc.mainImage.caption}
+                      </figcaption>
+                    )}
+                  </figure>
+                )}
+                <div class="mt-6 space-y-4 text-[15px] leading-7">
+                  <PortableText blocks={body} />
+                </div>
+              </article>
+            </section>
+          ) : (
+            <section class="bg-muted">
+              <div class="mx-auto grid max-w-5xl gap-6 px-4 py-10 lg:grid-cols-[1.4fr_1fr] lg:px-8">
+                <div class="rounded-xl border border-border bg-card p-6">
+                  <h2 class="font-heading text-lg font-semibold uppercase">De qué va</h2>
+                  {doc.description && (
+                    <p class="mt-4 text-sm leading-7">{limpiarDescripcion(doc.description)}</p>
+                  )}
+                  <div class="mt-6 overflow-hidden rounded-lg bg-muted p-8 text-center">
+                    <Icon name="lock" class="text-2xl text-tertiary-ink" />
+                    <p class="mt-2 text-sm font-bold uppercase text-tertiary-ink">
+                      El dossier completo ({lectura ?? 'varios minutos'})
+                    </p>
+                    <p class="mt-1 text-xs text-muted-foreground">forma parte de la zona premium</p>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground">
+                  <p class="font-heading text-xl font-semibold uppercase leading-tight">
+                    Piensa tu manera de entrenar
+                  </p>
+                  <p class="text-sm leading-6">
+                    12 € al año · menos de 1 € al mes. Con tu suscripción se desbloquean todos los
+                    dossiers, el banco, las sesiones y las plantillas.
+                  </p>
+                  <a
+                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary"
+                    href="/entrenadores/suscribirse/"
+                  >
+                    Suscribirme
+                    <Icon name="layout-arrow-right" class="text-lg" />
+                  </a>
+                  <a class="text-center text-sm font-bold underline" href="/entrenadores/acceder/">
+                    Ya soy socio: acceder
+                  </a>
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+            <Icon name="book-open" class="text-3xl text-primary" />
+            <h1 class="mt-4 font-heading text-2xl font-semibold uppercase">
+              Dossier no encontrado
+            </h1>
+            <p class="mt-3 text-sm text-muted-foreground">
+              Esta metodología no existe o cambió de nombre.
+            </p>
+            <a
+              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/entrenadores/metodologia/"
+            >
+              <Icon name="arrow-left" />
+              Volver a metodología
+            </a>
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden no-print" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
+<Impresion />

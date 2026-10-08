@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Pizarra from '../components/Pizarra.astro';
 import Cuaderno from '../components/Cuaderno.astro';
+import EstandarteEntrenadores from '../components/EstandarteEntrenadores.astro';
 import Newsletter from '../components/Newsletter.astro';
 import Footer from '../components/Footer.astro';
 import MobileNav from '../components/MobileNav.astro';
@@ -42,6 +43,7 @@ const categorias = (await getCategoriasConConteo(1)).slice(0, 6);
       {destacada && <Hero pub={destacada} />}
       <Pizarra categorias={categorias} entrevistas={entrevistas} />
       <Cuaderno destacado={cuaderno} masLeidos={masLeidos} />
+      <EstandarteEntrenadores />
       <Newsletter />
     </main>
     <Footer />
