@@ -90,7 +90,7 @@ export async function crearCheckoutLs(email: string, origin: string): Promise<st
         type: 'checkouts',
         attributes: {
           checkout_data: {
-            custom: { email },
+            custom: { email, desistimiento: 'acceso-inmediato-consentido-v1' },
             pre_filled: portal ? { email } : undefined,
             product_options: { redirect: false },
             checkout_options: {

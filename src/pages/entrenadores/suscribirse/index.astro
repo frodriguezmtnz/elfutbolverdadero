@@ -21,43 +21,130 @@ if (suscripcionActiva(membresia)) {
   return Astro.redirect('/entrenadores/panel/?motivo=ya-suscrito', 302);
 }
 
-const checkoutUrl = await crearCheckoutLs(usuario.email, Astro.url.origin);
-if (checkoutUrl) {
-  return Astro.redirect(checkoutUrl, 302);
+let faltaConsentimiento = false;
+let errorConfig = false;
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (form.get('desistimiento') === 'on') {
+    const checkoutUrl = await crearCheckoutLs(usuario.email, Astro.url.origin);
+    if (checkoutUrl) {
+      return Astro.redirect(checkoutUrl, 302);
+    }
+    errorConfig = true;
+  } else {
+    faltaConsentimiento = true;
+  }
 }
-
-const errorConfig = true;
 ---
 
-<Base title="Suscripción no disponible — Futbolverdadero Entrenadores" robots="noindex, nofollow">
+<Base
+  title={
+    errorConfig
+      ? 'Suscripción no disponible — Futbolverdadero Entrenadores'
+      : 'Confirmar suscripción — Futbolverdadero Entrenadores'
+  }
+  robots="noindex, nofollow"
+>
   <div class="flex min-h-screen flex-col">
     <Header />
     <main class="flex-1">
-      <section class="bg-muted">
-        <div class="mx-auto max-w-md px-4 py-16 lg:px-8">
-          <div class="rounded-xl border border-border bg-card p-8">
-            <h1 class="font-heading text-2xl font-semibold uppercase">Pago no disponible</h1>
-            {errorConfig && (
+      {errorConfig ? (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-md px-4 py-16 lg:px-8">
+            <div class="rounded-xl border border-border bg-card p-8">
+              <h1 class="font-heading text-2xl font-semibold uppercase">Pago no disponible</h1>
               <p class="mt-4 text-sm leading-6 text-muted-foreground">
                 La pasarela de suscripción (Lemon Squeezy) todavía no está configurada en este
                 entorno: faltan <code class="text-xs">LS_API_KEY</code>,{' '}
-                <code class="text-xs">LS_STORE_ID</code>o <code class="text-xs">LS_VARIANT_ID</code>
-                .
+                <code class="text-xs">LS_STORE_ID</code> o{' '}
+                <code class="text-xs">LS_VARIANT_ID</code>.
               </p>
-            )}
-            <p class="mt-4 text-sm text-muted-foreground">
-              Sesión iniciada como <strong class="text-foreground">{usuario.email}</strong>.
-            </p>
-            <a
-              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
-              href="/entrenadores/panel/"
-            >
-              Volver a mi panel
-              <Icon name="arrow-right" />
-            </a>
+              <p class="mt-4 text-sm text-muted-foreground">
+                Sesión iniciada como <strong class="text-foreground">{usuario.email}</strong>.
+              </p>
+              <a
+                class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+                href="/entrenadores/panel/"
+              >
+                Volver a mi panel
+                <Icon name="arrow-right" />
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-xl px-4 py-12 lg:px-8">
+            <div class="rounded-xl border border-border bg-card p-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+                Último paso
+              </p>
+              <h1 class="mt-2 font-heading text-xl font-semibold uppercase sm:text-2xl">
+                Confirmar suscripción
+              </h1>
+              <p class="mt-3 text-sm leading-6 text-muted-foreground">
+                Sesión iniciada como <strong class="text-foreground">{usuario.email}</strong>. El
+                cobro se realiza en Lemon Squeezy, de forma segura y con factura.
+              </p>
+              <div class="mt-5 flex items-end justify-between rounded-lg bg-muted px-4 py-3">
+                <p class="text-sm font-bold uppercase">Futbolverdadero Entrenadores</p>
+                <p class="font-heading text-2xl font-semibold text-primary">
+                  12 €<span class="text-sm font-bold text-muted-foreground">/año</span>
+                </p>
+              </div>
+              <form method="POST" class="mt-6">
+                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4">
+                  <input
+                    type="checkbox"
+                    name="desistimiento"
+                    class="mt-0.5 size-5 shrink-0 accent-[#1b4d3e]"
+                  />
+                  <span class="text-xs leading-5 text-muted-foreground">
+                    Acepto los{' '}
+                    <a
+                      class="font-bold text-primary underline underline-offset-2"
+                      href="/terminos-de-venta/"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      términos de venta
+                    </a>{' '}
+                    y la{' '}
+                    <a
+                      class="font-bold text-primary underline underline-offset-2"
+                      href="/politica-de-privacidad/"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      política de privacidad
+                    </a>
+                    , y solicito que el acceso a la zona se active de inmediato al completar el
+                    pago. Entiendo que, al empezar la entrega del contenido digital antes de
+                    terminar los 14 días, pierdo el derecho de desistimiento sobre el período
+                    iniciado.
+                  </span>
+                </label>
+                {faltaConsentimiento && (
+                  <p class="mt-3 text-xs font-bold text-tertiary-ink" role="alert">
+                    Para continuar necesitas marcar la casilla de aceptación y entrega inmediata.
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground hover:brightness-110"
+                >
+                  Ir al pago seguro
+                  <Icon name="lock" class="text-base" />
+                </button>
+              </form>
+              <p class="mt-4 text-center text-xs text-muted-foreground">
+                Podrás cancelar la renovación cuando quieras; mantienes el acceso hasta el final del
+                período pagado.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
     </main>
     <Footer />
   </div>

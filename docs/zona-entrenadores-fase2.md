@@ -65,6 +65,8 @@ El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nue
 - [ ] Pago de prueba → webhook → `memberships` con `status=active` y `renews_at` futuro; ficha premium muestra desarrollo completo (200) y `window.print()` genera la ficha.
 - [ ] Cancelar en el portal → sigue dentro hasta `current_period_end` (status cancelled), luego el guard redirige.
 - [ ] Webhook con firma falsa → 401.
+- [ ] `/entrenadores/suscribirse/` con sesión → página de **consentimiento** (casilla obligatoria de entrega inmediata + términos/privacidad); POST sin marcar → aviso y no se crea checkout; POST marcado → URL de LS con `custom.desistimiento='acceso-inmediato-consentido-v1'` (constancia auditable en la orden).
+- [ ] Lemon Squeezy · Store Settings → Checkout: enlaces a términos (`/terminos-de-venta/`) y privacidad (`/politica-de-privacidad/`) visibles en la pasarela.
 - [ ] Sitemap/Google: solo `/entrenadores/` pública; el resto tiene `noindex` y no son prerenderizadas.
 
 ## 5 · Magic link ≠ suscripción (checklist de acceso)
