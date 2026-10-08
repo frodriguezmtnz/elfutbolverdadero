@@ -224,6 +224,54 @@ export async function getMetodologiaBySlug(slug: string): Promise<MetodologiaFic
   return doc ?? null;
 }
 
+// ————— Voces de entrenadores (la pregunta del mes) —————
+// Modelo: la PREGUNTA es pública (posiciona y capta); la RESPUESTA del
+// entrenador es premium. El catálogo nunca proyecta `respuesta`; la ficha
+// completa solo se consulta en rutas on-demand y se pinta según el gate.
+
+export interface VozTeaser {
+  _id: string;
+  title: string;
+  slug: string;
+  acceso: string;
+  mesAnio?: string;
+  entrenador?: { name: string; role?: string } | null;
+  imagen?: { asset?: { _id?: string; url?: string } | null; alt?: string } | null;
+}
+
+export interface VozFicha extends VozTeaser {
+  respuesta?: unknown[];
+}
+
+const vozCampos = `
+  _id,
+  title,
+  'slug': slug.current,
+  acceso,
+  mesAnio,
+  'entrenador': entrenador->{ name, role },
+  imagen { 'asset': coalesce(asset->{_id, url}, @->{_id, url}), alt }
+`;
+
+export async function getVocesZona(): Promise<VozTeaser[]> {
+  const docs = await sanityClient.fetch<VozTeaser[]>(
+    `*[_type == 'vozEntrenador' && defined(slug.current) && ${SIN_BORRADORES}]
+        | order(mesAnio desc, publishedAt desc) { ${vozCampos} }`,
+  );
+  return docs ?? [];
+}
+
+export async function getVozBySlug(slug: string): Promise<VozFicha | null> {
+  const doc = await sanityClient.fetch<VozFicha>(
+    `*[_type == 'vozEntrenador' && slug.current == $slug && ${SIN_BORRADORES}][0] {
+      ${vozCampos},
+      'respuesta': respuesta[]{ ..., 'asset': select(_type == 'image' => coalesce(asset->{_id, url, 'dimensions': metadata.dimensions}, @->{_id, url, 'dimensions': metadata.dimensions}), null) }
+    }`,
+    { slug },
+  );
+  return doc ?? null;
+}
+
 // ————— Sesiones completas —————
 // Mismo patrón que el banco: el catálogo (proyección ligera, compatible con
 // ItemCatalogo de banco-filtros vía 'resumen': objetivoGeneral) alimenta el
