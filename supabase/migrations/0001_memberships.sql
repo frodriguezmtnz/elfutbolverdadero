@@ -27,5 +27,11 @@ create policy memberships_select_own
   to authenticated
   using (lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
 
+-- Proyecto creado con «Automatically expose new tables» DESMARCADO: los grants
+-- por defecto a los roles del Data API no se aplican a las tablas nuevas, así que
+-- los concedemos aquí de forma explícita y con el mínimo privilegio:
+grant select on public.memberships to authenticated; -- lee su fila (RLS filtra por email)
+grant all on public.memberships to service_role; -- el webhook (upsert) y solo él
+
 create index if not exists memberships_ls_subscription_idx
   on public.memberships (ls_subscription_id);
