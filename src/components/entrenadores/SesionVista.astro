@@ -1,6 +1,7 @@
 ---
 import Icon from '../Icon.astro';
 import EtiquetaAcceso from './EtiquetaAcceso.astro';
+import CabeceraImpresion from './CabeceraImpresion.astro';
 import {
   etiquetaDuracion,
   etiquetaFase,
@@ -22,13 +23,13 @@ const bloques = sesion.estructura ?? [];
 const minutosBloques = bloques.reduce((n, b) => n + (b.duracionMin ?? 0), 0);
 ---
 
-<header class="hidden print:block print:px-2 print:pt-2">
-  <p class="font-heading text-sm font-semibold uppercase">
-    El Fútbol Verdadero · Entrenadores — sesión de «{sesion.title}»
-  </p>
-</header>
+<CabeceraImpresion
+  tipo="Sesión de entrenamiento"
+  titulo={sesion.title}
+  meta={etiquetaDuracion(sesion.duracionMin)}
+/>
 
-<section class="bg-primary text-primary-foreground">
+<section class="bg-primary text-primary-foreground no-print">
   <div class="mx-auto max-w-5xl px-4 py-9 lg:px-8">
     <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
       <a class="hover:underline" href="/entrenadores/sesiones/">
@@ -99,7 +100,7 @@ const minutosBloques = bloques.reduce((n, b) => n + (b.duracionMin ?? 0), 0);
             <p class="mt-1 text-xs text-muted-foreground">forman parte de la zona premium</p>
           </div>
         </div>
-        <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground">
+        <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground print-terciario">
           <p class="font-heading text-xl font-semibold uppercase leading-tight">
             Llévate esta sesión al campo
           </p>
@@ -203,7 +204,7 @@ const minutosBloques = bloques.reduce((n, b) => n + (b.duracionMin ?? 0), 0);
           </div>
 
           {(sesion.claves ?? []).length > 0 && (
-            <div class="rounded-xl bg-primary p-5 text-primary-foreground">
+            <div class="rounded-xl bg-primary p-5 text-primary-foreground print-marca">
               <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Claves del entrenador
               </h2>

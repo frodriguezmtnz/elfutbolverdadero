@@ -5,6 +5,7 @@ import Footer from '../../../../components/Footer.astro';
 import MobileNav from '../../../../components/MobileNav.astro';
 import Icon from '../../../../components/Icon.astro';
 import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
+import CabeceraImpresion from '../../../../components/entrenadores/CabeceraImpresion.astro';
 import PortableText from '../../../../components/PortableText.astro';
 import Impresion from '../../../../components/entrenadores/Impresion.astro';
 import { getMetodologiaBySlug } from '../../../../lib/entrenadores';
@@ -68,7 +69,7 @@ const fecha = doc?.publishedAt
     <main class="flex-1">
       {doc ? (
         <>
-          <section class="bg-primary text-primary-foreground">
+          <section class="bg-primary text-primary-foreground no-print">
             <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
               <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 <a class="hover:underline" href="/entrenadores/metodologia/">
@@ -100,6 +101,11 @@ const fecha = doc?.publishedAt
           {completa ? (
             <section class="bg-muted">
               <article class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+                <CabeceraImpresion
+                  tipo="Dossier de metodología"
+                  titulo={doc.title}
+                  meta={lectura}
+                />
                 {doc.description && (
                   <p class="text-base leading-7 font-semibold">
                     {limpiarDescripcion(doc.description)}
@@ -143,7 +149,7 @@ const fecha = doc?.publishedAt
                     <p class="mt-1 text-xs text-muted-foreground">forma parte de la zona premium</p>
                   </div>
                 </div>
-                <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground">
+                <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground print-terciario">
                   <p class="font-heading text-xl font-semibold uppercase leading-tight">
                     Piensa tu manera de entrenar
                   </p>
