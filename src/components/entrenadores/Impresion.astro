@@ -1,39 +1,142 @@
 ---
 // Estilos y comportamiento de impresión compartidos por las fichas de la zona
-// (ejercicios y sesiones): ocultan la web, dejan la marca en el papel y
-// vinculan cualquier botón [data-imprimir] con window.print().
+// (ejercicios, sesiones, metodología y voces).
+//
+// Diseño de papel: una columna, sin cortes dentro de tarjetas/bloques, las cajas
+// oscuras de marca pasan a versión clara con filo de color (legible aunque el
+// navegador no imprima fondos) y un pie promocional que se repite en cada página.
+// Vincula cualquier botón [data-imprimir] con window.print().
 ---
 
 <style is:global>
+  .print-pie {
+    display: none;
+  }
+
   @media print {
+    @page {
+      size: A4;
+      margin: 13mm 12mm 16mm;
+    }
+
+    body {
+      background: #fff;
+      color: #16221d;
+    }
+
+    /* Fuera el chrome de la web */
     header.sticky,
     footer,
     nav[aria-label='Navegación móvil'],
-    .no-print {
+    .no-print,
+    div[aria-hidden='true'] {
       display: none !important;
     }
-    body {
-      background: #fff;
+
+    /* Los contenedores centrados ocupan el ancho del papel */
+    [class*='max-w-'] {
+      max-width: 100% !important;
     }
-    section,
-    article,
-    aside,
-    div {
-      background: #fff !important;
-      color: #1a1a1a !important;
-      border-color: #d7e0db !important;
+
+    /* Nada de cortes a mitad de tarjeta, bloque o figura */
+    .rounded-xl,
+    .rounded-lg,
+    li,
+    figure,
+    table,
+    blockquote {
+      break-inside: avoid;
     }
+    h1,
+    h2,
+    h3 {
+      break-after: avoid;
+    }
+
+    img {
+      max-width: 100% !important;
+    }
+
+    /* Rejillas a una columna con aire entre bloques */
     .grid {
       display: block !important;
     }
-    aside {
-      margin-top: 1rem;
+    .grid > * + * {
+      margin-top: 1.2rem;
     }
-    main {
-      padding: 0;
+
+    /* Las cajas de marca oscuras pasan a papel legible sin necesidad de fondos */
+    /* Las cajas verdes de marca se imprimen legibles sin necesidad de fondos */
+    .bg-primary.text-primary-foreground {
+      background: #fff !important;
+      color: #16221d !important;
+      border: 1px solid #cfdcd6 !important;
+    }
+    .bg-primary.text-primary-foreground * {
+      color: #16221d !important;
+    }
+    /* Los números de bloque (círculos verdes) conservan el aro */
+    .bg-primary.text-primary-foreground.rounded-full {
+      color: #1b4d3e !important;
+      border: 1.5px solid #1b4d3e !important;
+      font-weight: 700;
+    }
+    .print-marca {
+      background: #fff !important;
+      color: #16221d !important;
+      border: 1px solid #cfdcd6 !important;
+      border-left: 4px solid #1b4d3e !important;
+    }
+    .print-marca * {
+      color: #16221d !important;
+    }
+    .print-marca .text-accent {
+      color: #1b4d3e !important;
+    }
+    /* Las cajas naranjas de marca también pasan a versión papel */
+    .bg-tertiary.text-tertiary-foreground {
+      background: #fff !important;
+      color: #16221d !important;
+      border: 1px solid #f0d9cf !important;
+    }
+    .bg-tertiary.text-tertiary-foreground * {
+      color: #16221d !important;
+    }
+    .print-terciario {
+      background: #fff !important;
+      color: #16221d !important;
+      border: 1px solid #f0d9cf !important;
+      border-left: 4px solid #ff5722 !important;
+    }
+    .print-terciario * {
+      color: #16221d !important;
+    }
+
+    /* Las píldoras Gratis/Premium se imprimen perfiladas y legibles */
+    .etiqueta-acceso {
+      background: #fff !important;
+      color: #12331f !important;
+      border: 1px solid #12331f !important;
+    }
+
+    .print-pie {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding-top: 2mm;
+      border-top: 1px solid #d7e0db;
+      font-size: 8pt;
+      text-align: center;
+      color: #63766c;
     }
   }
 </style>
+
+<div class="print-pie">
+  ¿Te sirve? Cada mes hay contenido nuevo en elfutbolverdadero.com/entrenadores
+</div>
 
 <script>
   function vincularImpresion() {
