@@ -1,0 +1,114 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
+import Icon from '../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../components/entrenadores/EtiquetaAcceso.astro';
+import { getMetodologiaZona } from '../../../lib/entrenadores';
+import { limpiarDescripcion } from '../../../lib/texto';
+
+export const prerender = false;
+
+const items = await getMetodologiaZona();
+const premium = items.filter((m) => m.acceso === 'premium').length;
+
+const fecha = (iso?: string) =>
+  iso
+    ? new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
+---
+
+<Base
+  title="Metodología — Futbolverdadero Entrenadores"
+  description="Dossiers para pensar tu manera de entrenar: toma de decisiones, correcciones y principios de juego sin verdades absolutas."
+  canonicalURL="/entrenadores/metodologia/"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+            <a class="hover:underline" href="/entrenadores/">
+              Futbolverdadero Entrenadores
+            </a>
+          </p>
+          <h1 class="mt-2 font-heading text-2xl font-semibold uppercase sm:text-4xl">
+            Metodología
+          </h1>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-primary-foreground/90">
+            {items.length} dossiers ({premium} premium). Lo que sigue siendo gratis se lee en el
+            blog; lo premium, aquí, con tu suscripción.
+          </p>
+        </div>
+      </section>
+
+      <section class="bg-muted">
+        <div class="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+          {items.length === 0 ? (
+            <div class="rounded-xl border border-border bg-card p-10 text-center">
+              <Icon name="book-open" class="text-3xl text-primary" />
+              <p class="mt-4 text-sm leading-6 text-muted-foreground">
+                El primer dossier se está escribiendo. Mientras tanto: el banco y las sesiones ya
+                trabajan.
+              </p>
+              <a
+                class="mt-4 inline-block text-sm font-bold text-primary hover:underline"
+                href="/entrenadores/ejercicios/"
+              >
+                Ver el banco
+              </a>
+            </div>
+          ) : (
+            <ul class="divide-y divide-border rounded-xl border border-border bg-card">
+              {items.map((m) => {
+                const esPremium = m.acceso === 'premium';
+                const href = esPremium ? `/entrenadores/metodologia/${m.slug}/` : `/${m.slug}/`;
+                return (
+                  <li data-reveal="up" class="p-6 sm:p-8">
+                    <div class="flex flex-wrap items-center gap-3 text-xs font-bold uppercase">
+                      <EtiquetaAcceso acceso={m.acceso} texto="Gratis · en el blog" />
+                      {fecha(m.publishedAt) && (
+                        <span class="text-muted-foreground">{fecha(m.publishedAt)}</span>
+                      )}
+                    </div>
+                    <h2 class="mt-3 font-heading text-lg font-semibold uppercase leading-tight sm:text-xl">
+                      <a class="hover:text-primary" href={href}>
+                        {m.title}
+                      </a>
+                    </h2>
+                    {m.description && (
+                      <p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                        {limpiarDescripcion(m.description)}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <div class="mt-10 rounded-xl bg-tertiary p-6 text-tertiary-foreground sm:flex sm:items-center sm:justify-between sm:p-8">
+            <div>
+              <p class="font-heading text-lg font-semibold uppercase">¿Sin suscripción todavía?</p>
+              <p class="mt-1 text-sm">
+                12 € al año: menos de 1 € al mes por dossiers, banco, sesiones y plantillas.
+              </p>
+            </div>
+            <a
+              class="mt-4 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary sm:mt-0"
+              href="/entrenadores/suscribirse/"
+            >
+              Suscribirme
+              <Icon name="layout-arrow-right" class="text-lg" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>

@@ -1,0 +1,212 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileNav from '../../../components/MobileNav.astro';
+import Icon from '../../../components/Icon.astro';
+import { crearClienteSupabase, usuarioActual } from '../../../lib/supabase';
+import { obtenerMembresia, estadoParaPanel, suscripcionActiva } from '../../../lib/membresias';
+
+export const prerender = false;
+
+const usuario = await usuarioActual(Astro);
+if (!usuario) {
+  return Astro.redirect('/entrenadores/acceder/', 302);
+}
+
+const supabase = crearClienteSupabase(Astro);
+const membresia = await obtenerMembresia(supabase, usuario.email);
+const estado = estadoParaPanel(membresia);
+const activa = suscripcionActiva(membresia);
+
+const portalUrl = process.env.LS_PORTAL_URL?.trim() || null;
+const motivo = Astro.url.searchParams.get('motivo');
+---
+
+<Base
+  title="Mi panel — Futbolverdadero Entrenadores"
+  description="Tu zona privada como entrenador."
+  robots="noindex, nofollow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">Tu panel</p>
+          <div class="mt-2 flex flex-wrap items-end justify-between gap-4">
+            <h1 class="font-heading text-2xl font-semibold uppercase sm:text-4xl">Hola, mister</h1>
+            <span
+              class:list={{
+                'rounded-full px-4 py-1 text-xs font-bold uppercase': true,
+                'bg-accent text-accent-foreground': activa,
+                'bg-card/20 text-primary-foreground': !activa,
+              }}
+            >
+              {estado.etiqueta}
+            </span>
+          </div>
+          <p class="mt-3 text-sm text-primary-foreground/80">
+            Sesión: <strong>{usuario.email}</strong>
+            {estado.hasta && <span class="ml-3">Válida hasta el {estado.hasta}</span>}
+          </p>
+        </div>
+      </section>
+
+      <section class="bg-muted">
+        <div class="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          {motivo === 'suscripcion' && (
+            <div class="mb-8 rounded-xl border border-border bg-card p-6">
+              <h2 class="font-heading text-lg font-semibold uppercase text-primary">
+                Falta un paso
+              </h2>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">
+                Has iniciado sesión pero aún no tienes una suscripción activa. Con 12 € al año
+                desbloqueas el banco de ejercicios, las sesiones, la metodología y las plantillas.
+              </p>
+              <a
+                class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+                href="/entrenadores/suscribirse/"
+              >
+                Suscribirme (12 €/año)
+                <Icon name="layout-arrow-right" class="text-lg" />
+              </a>
+            </div>
+          )}
+
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <a
+              href={activa ? '/entrenadores/ejercicios/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="goal" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Banco de ejercicios</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'Tareas filtrables por objetivo, jugadores, espacio y duración.'
+                  : 'Se desbloquea con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir el banco' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+
+            <a
+              href={activa ? '/entrenadores/sesiones/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="book-open" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Sesiones completas</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'De calentamiento a vuelta a la calma, con notas por bloque y listas para imprimir.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir las sesiones' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+
+            <a
+              href={activa ? '/entrenadores/herramientas/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="pen-line" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Herramientas</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'Plantillas descargables: sesión, microciclo e informe postpartido.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir la biblioteca' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+
+            <a
+              href={activa ? '/entrenadores/metodologia/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="book-open" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Metodología</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'Dossiers para pensar tu manera de entrenar, sin verdades absolutas.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Abrir los dossiers' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+
+            <a
+              href={activa ? '/entrenadores/voces/' : '/entrenadores/suscribirse/'}
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme hover:border-primary"
+            >
+              <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon name="quote" />
+              </span>
+              <h2 class="font-heading text-lg font-semibold uppercase">Voces</h2>
+              <p class="text-sm leading-6 text-muted-foreground">
+                {activa
+                  ? 'La pregunta del mes respondida por entrenadores reales, sin pose.'
+                  : 'Se desbloquean con tu suscripción: menos de 1 € al mes.'}
+              </p>
+              <span class="mt-auto inline-flex items-center gap-2 text-sm font-bold text-primary">
+                {activa ? 'Escuchar las voces' : 'Suscribirme'}
+                <Icon name="arrow-right" class="text-lg transition group-hover:translate-x-1" />
+              </span>
+            </a>
+          </div>
+
+          <div class="mt-10 flex flex-wrap items-center gap-4 border-t border-border pt-6 text-sm">
+            <p class="font-bold">Gestionar mi cuenta:</p>
+            {portalUrl && (
+              <a
+                class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 font-semibold hover:text-primary"
+                href={portalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="pen-line" />
+                Portal de facturación (Lemon Squeezy)
+              </a>
+            )}
+            <form method="POST" action="/entrenadores/auth/salir">
+              <button
+                class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 font-semibold hover:text-destructive"
+                type="submit"
+              >
+                <Icon name="arrow-left" />
+                Cerrar sesión
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
+
+<script is:inline define:vars={{ activa }}>
+  // Nada que hidratar: los estados se resuelven en servidor. Este script solo
+  // refresca el panel tras volver de Lemon Squeezy si la activación va retrasada.
+  if (new URLSearchParams(location.search).get('motivo') === 'suscripcion' && !activa) {
+    setTimeout(() => location.reload(), 8000);
+  }
+</script>

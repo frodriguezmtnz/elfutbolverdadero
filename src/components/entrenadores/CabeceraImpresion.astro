@@ -1,0 +1,102 @@
+---
+// Cabecera de papel de la zona: marca, tipo de documento, título, fecha.
+// Solo existe al imprimir. Está pensada en claro (fondo muy suave y tinta
+// oscura) para que siga siendo legible aunque el navegador no imprima fondos.
+interface Props {
+  tipo: string;
+  titulo: string;
+  meta?: string | null;
+}
+
+const { tipo, titulo, meta } = Astro.props;
+const hoy = new Date().toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<header class="cabecera-impresion">
+  <div class="fila">
+    <img src="/favicon.svg" alt="" width="44" height="44" />
+    <div class="marca">
+      <p class="nombre">El Fútbol Verdadero · Entrenadores</p>
+      <p class="tipo">{tipo}</p>
+    </div>
+    <div class="meta">
+      {meta && <p>{meta}</p>}
+      <p>{hoy}</p>
+    </div>
+  </div>
+  <h1 class="titulo">{titulo}</h1>
+  <div class="acento"></div>
+</header>
+
+<style>
+  .cabecera-impresion {
+    display: none;
+  }
+  @media print {
+    .cabecera-impresion {
+      display: block;
+      background: #e9f1ec;
+      border-bottom: 3px solid #1b4d3e;
+      padding: 4mm 5mm 3.5mm;
+      margin-bottom: 6mm;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .fila {
+      display: flex;
+      align-items: center;
+      gap: 4mm;
+    }
+    .fila img {
+      width: 11mm;
+      height: 11mm;
+      border-radius: 2mm;
+      background: #fff;
+    }
+    .marca {
+      flex: 1 1 auto;
+    }
+    .nombre {
+      font-family: 'Clash Display Variable', sans-serif;
+      font-weight: 600;
+      font-size: 10pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #12331f;
+    }
+    .tipo {
+      margin-top: 1mm;
+      font-family: 'Clash Display Variable', sans-serif;
+      font-weight: 600;
+      font-size: 8pt;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #bc3d0d;
+    }
+    .meta {
+      text-align: right;
+      font-size: 8pt;
+      line-height: 1.5;
+      color: #4b5b53;
+    }
+    .titulo {
+      margin-top: 3mm;
+      font-family: 'Clash Display Variable', sans-serif;
+      font-weight: 600;
+      font-size: 19pt;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12331f;
+    }
+    .acento {
+      margin-top: 2.5mm;
+      width: 18mm;
+      height: 1.6mm;
+      background: #ffc107;
+    }
+  }
+</style>

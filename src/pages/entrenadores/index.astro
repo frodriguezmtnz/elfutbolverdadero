@@ -1,0 +1,447 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import MobileNav from '../../components/MobileNav.astro';
+import Icon from '../../components/Icon.astro';
+import {
+  getEjerciciosGratis,
+  getHerramientasGratis,
+  getConteoEjerciciosPremium,
+} from '../../lib/entrenadores';
+import {
+  etiquetaJugadores,
+  etiquetaDuracion,
+  etiquetaEspacio,
+  ETIQUETAS_CATEGORIA_EDAD,
+} from '../../lib/entrenadores-textos';
+import { social } from '../../config/social';
+
+const ejerciciosGratis = await getEjerciciosGratis(6);
+const herramientasGratis = await getHerramientasGratis(4);
+const nEjerciciosPremium = await getConteoEjerciciosPremium();
+
+const waitlist = {
+  href: `mailto:${social.email}?subject=${encodeURIComponent(
+    'Quiero entrar en Futbolverdadero Entrenadores',
+  )}&body=${encodeURIComponent(
+    'Hola, quiero la zona de entrenadores (12 €/año). ¿Cómo me suscribo?',
+  )}`,
+};
+
+const bloques: {
+  icono: 'goal' | 'layout-dashboard' | 'book-open' | 'pen-line' | 'quote';
+  titulo: string;
+  texto: string;
+  href?: string;
+}[] = [
+  {
+    icono: 'goal',
+    titulo: 'Banco de ejercicios',
+    texto:
+      'Biblioteca filtrable por objetivo, jugadores, espacio y duración. Entra, filtra y monta tu sesión.',
+    href: '/entrenadores/ejercicios/',
+  },
+  {
+    icono: 'layout-dashboard',
+    titulo: 'Sesiones completas',
+    texto:
+      'De calentamiento a vuelta a la calma, listas para llevar al campo: presión tras pérdida, salida de balón, transiciones…',
+    href: '/entrenadores/sesiones/',
+  },
+  {
+    icono: 'book-open',
+    titulo: 'Metodología',
+    texto:
+      'Dossiers para pensar tu manera de entrenar: toma de decisiones, correcciones, principios de juego. Sin verdades absolutas.',
+    href: '/entrenadores/metodologia/',
+  },
+  {
+    icono: 'pen-line',
+    titulo: 'Herramientas del entrenador',
+    texto:
+      'Plantillas de sesión, planificación semanal y mensual, evaluación del jugador, informe postpartido… descargables.',
+    href: '/entrenadores/herramientas/',
+  },
+  {
+    icono: 'quote',
+    titulo: 'Voces de entrenadores',
+    texto: 'La pregunta del mes respondida por entrenadores reales de fútbol base y amateur.',
+    href: '/entrenadores/voces/',
+  },
+];
+
+const fichaEjemplo = {
+  nombre: 'Presión tras pérdida en 4v4+3',
+  objetivos: ['Presión tras pérdida', 'Transición defensiva'],
+  jugadores: etiquetaJugadores(11, 14),
+  edades: ['Infantil', 'Cadete'],
+  espacio: etiquetaEspacio('reducido', '30x25 m'),
+  duracion: etiquetaDuracion(18),
+  material: ['4 porterías pequeñas', 'petos'],
+};
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'Futbolverdadero Entrenadores',
+    description:
+      'Zona privada para entrenadores de fútbol base: banco de ejercicios, sesiones completas, metodología y herramientas por 12 € al año.',
+    brand: { '@type': 'Brand', name: 'Futbolverdadero' },
+    offers: {
+      '@type': 'Offer',
+      price: '12',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/PreOrder',
+      url: new URL('/entrenadores/', Astro.site).href,
+    },
+  },
+];
+---
+
+<Base
+  title="Futbolverdadero Entrenadores — Banco de ejercicios, sesiones y herramientas · 12 €/año"
+  description="Zona privada para entrenadores de fútbol base y amateur: banco de ejercicios filtrable, sesiones completas, metodología y plantillas descargables. Menos de 1 € al mes."
+  image="/og-entrenadores.png"
+  jsonLd={jsonLd}
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+
+    <main class="flex-1">
+      <!-- Hero -->
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:px-8 lg:py-16">
+          <div data-reveal="up">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-accent">
+              La zona privada para míster
+            </p>
+            <h1 class="mt-4 font-heading font-semibold text-3xl uppercase leading-none sm:text-5xl lg:text-6xl">
+              <span class="block">Futbolverdadero</span>
+              <span class="block">Entrenadores</span>
+            </h1>
+            <p class="mt-5 max-w-xl text-base leading-7 text-primary-foreground">
+              El banco de ejercicios, las sesiones y las herramientas que usas el martes en el
+              campo. Todo en un mismo sitio, pensado para el fútbol base y amateur.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-4">
+              <a
+                class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground hover:brightness-95"
+                href="#suscribete"
+              >
+                Entrar en la zona
+                <Icon name="layout-arrow-right" class="text-lg" />
+              </a>
+              <p class="text-sm font-semibold">
+                12 € <span class="text-primary-foreground/80">al año</span>
+                <span class="ml-2 text-xs font-normal text-primary-foreground/80">
+                  menos de 1 € al mes
+                </span>
+              </p>
+            </div>
+          </div>
+          <div
+            data-reveal="up"
+            class="rounded-xl border border-primary-foreground/25 p-6 sm:p-8"
+            aria-hidden="true"
+          >
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">Ejemplo de ficha</p>
+            <p class="mt-3 font-heading text-xl font-semibold uppercase leading-tight">
+              {fichaEjemplo.nombre}
+            </p>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li class="flex items-center gap-2">
+                <Icon name="goal" class="text-accent" />
+                {fichaEjemplo.objetivos.join(' · ')}
+              </li>
+              <li class="flex items-center gap-2">
+                <Icon name="users" class="text-accent" />
+                {fichaEjemplo.jugadores}
+              </li>
+              <li class="flex items-center gap-2">
+                <Icon name="clock" class="text-accent" />
+                {fichaEjemplo.duracion} · {fichaEjemplo.espacio}
+              </li>
+            </ul>
+            <p class="mt-4 text-xs text-primary-foreground/80">
+              {fichaEjemplo.edades.join(', ')} · {fichaEjemplo.material.join(', ')}
+            </p>
+            <div class="mt-5 flex items-center justify-between rounded-lg bg-primary-foreground/10 px-4 py-3 text-xs font-semibold">
+              <span>Claves del entrenador, variantes y PDF</span>
+              <Icon name="lock" class="text-accent" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Qué incluye -->
+      <section id="que-incluye" class="bg-muted">
+        <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
+          <div data-reveal="up" class="max-w-2xl">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              Qué vas a encontrar
+            </p>
+            <h2 class="mt-2 font-heading font-semibold text-2xl uppercase sm:text-3xl">
+              Cinco secciones para tu día a día
+            </h2>
+          </div>
+          <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {bloques.map((b) => (
+              <li
+                data-reveal="up"
+                class="flex flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-theme"
+              >
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                  <Icon name={b.icono} />
+                </span>
+                <h3 class="font-heading text-lg font-semibold uppercase">
+                  {b.href ? (
+                    <a class="hover:text-primary" href={b.href}>
+                      {b.titulo}
+                    </a>
+                  ) : (
+                    b.titulo
+                  )}
+                </h3>
+                <p class="text-sm leading-6 text-muted-foreground">{b.texto}</p>
+              </li>
+            ))}
+            <li
+              data-reveal="up"
+              class="flex flex-col justify-between gap-3 rounded-xl bg-tertiary p-6 text-tertiary-foreground"
+            >
+              <p class="font-heading text-lg font-semibold uppercase">
+                {nEjerciciosPremium > 0
+                  ? `Ya hay ${nEjerciciosPremium} ejercicios esperando`
+                  : 'El banco se llena cada mes'}
+              </p>
+              <p class="text-sm leading-6">
+                Contenido nuevo cada mes. Lo que se queda corto no es el calendario: es el plan.
+              </p>
+              <a
+                class="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
+                href={waitlist.href}
+              >
+                Avísame cuando abramos
+                <Icon name="arrow-right" />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Gratis vs premium -->
+      <section class="bg-card">
+        <div class="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
+          <div data-reveal="up" class="max-w-2xl">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">La idea</p>
+            <h2 class="mt-2 font-heading font-semibold text-2xl uppercase sm:text-3xl">
+              Gratis seguir leyendo. Premium, dejar de improvisar el martes.
+            </h2>
+          </div>
+          <div class="mt-8 grid gap-5 md:grid-cols-2">
+            <div data-reveal="up" class="rounded-xl border border-border p-6">
+              <h3 class="font-heading text-lg font-semibold uppercase text-primary">
+                Lo que sigue siendo gratis
+              </h3>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="flex gap-2">
+                  <Icon name="arrow-right" class="shrink-0 text-primary" />
+                  Entrevistas y voces de banquillo
+                </li>
+                <li class="flex gap-2">
+                  <Icon name="arrow-right" class="shrink-0 text-primary" />
+                  Artículos, opinión y actualidad de fútbol base
+                </li>
+                <li class="flex gap-2">
+                  <Icon name="arrow-right" class="shrink-0 text-primary" />
+                  Parte de la Pizarra y ejercicios sueltos
+                </li>
+              </ul>
+            </div>
+            <div data-reveal="up" class="rounded-xl border border-primary bg-secondary p-6">
+              <h3 class="font-heading text-lg font-semibold uppercase text-primary">
+                Lo que añade Entrenadores
+              </h3>
+              <ul class="mt-4 space-y-2 text-sm text-secondary-foreground">
+                <li class="flex gap-2">
+                  <Icon name="lock" class="shrink-0 text-tertiary-ink" />
+                  Banco completo con filtros: objetivo, jugadores, espacio, duración
+                </li>
+                <li class="flex gap-2">
+                  <Icon name="lock" class="shrink-0 text-tertiary-ink" />
+                  Sesiones cerradas, desarrolladas para llevar al campo
+                </li>
+                <li class="flex gap-2">
+                  <Icon name="lock" class="shrink-0 text-tertiary-ink" />
+                  Plantillas: sesión, planificación, evaluación, pretemporada…
+                </li>
+                <li class="flex gap-2">
+                  <Icon name="lock" class="shrink-0 text-tertiary-ink" />
+                  Dossiers de metodología, descargables y la pregunta del mes
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {(ejerciciosGratis.length > 0 || herramientasGratis.length > 0) && (
+            <div class="mt-10">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                Para ir probando — gratis hoy
+              </p>
+              <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {ejerciciosGratis.map((ej) => (
+                  <li
+                    data-reveal="up"
+                    class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5"
+                  >
+                    <span class="inline-flex w-fit rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase text-primary">
+                      Ejercicio gratis
+                    </span>
+                    <h3 class="font-heading text-base font-semibold uppercase leading-tight">
+                      <a href={`/entrenadores/ejercicios/${ej.slug}/`} class="hover:text-primary">
+                        {ej.title}
+                      </a>
+                    </h3>
+                    {ej.resumen && (
+                      <p class="text-sm leading-6 text-muted-foreground">{ej.resumen}</p>
+                    )}
+                    <div class="mt-auto flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
+                      {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax) && (
+                        <span class="inline-flex items-center gap-1">
+                          <Icon name="users" class="text-sm" />
+                          {etiquetaJugadores(ej.jugadoresMin, ej.jugadoresMax)}
+                        </span>
+                      )}
+                      {etiquetaDuracion(ej.duracionMin) && (
+                        <span class="inline-flex items-center gap-1">
+                          <Icon name="clock" class="text-sm" />
+                          {etiquetaDuracion(ej.duracionMin)}
+                        </span>
+                      )}
+                      {(ej.categoriasEdad ?? []).map(
+                        (c) =>
+                          ETIQUETAS_CATEGORIA_EDAD[c] && (
+                            <span class="rounded bg-muted px-2 py-0.5 font-semibold">
+                              {ETIQUETAS_CATEGORIA_EDAD[c]}
+                            </span>
+                          ),
+                      )}
+                    </div>
+                  </li>
+                ))}
+                {herramientasGratis.map((h) => (
+                  <li
+                    data-reveal="up"
+                    class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5"
+                  >
+                    <span class="inline-flex w-fit rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase text-primary">
+                      Herramienta gratis · {h.formato.toUpperCase()}
+                    </span>
+                    <h3 class="font-heading text-base font-semibold uppercase leading-tight">
+                      <a href={`/entrenadores/herramientas/${h.slug}/`} class="hover:text-primary">
+                        {h.title}
+                      </a>
+                    </h3>
+                    {h.description && (
+                      <p class="text-sm leading-6 text-muted-foreground">{h.description}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <!-- Precio -->
+      <section id="suscribete" class="bg-secondary">
+        <div class="mx-auto max-w-3xl px-4 py-14 text-center lg:px-8">
+          <div data-reveal="up" class="rounded-2xl bg-card p-8 shadow-theme sm:p-10">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">
+              Suscripción anual
+            </p>
+            <p class="mt-4 font-heading text-5xl font-semibold text-primary">
+              12 €<span class="text-xl align-top">/año</span>
+            </p>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Menos de 1 € al mes. IVA incluido. Cancela cuando quieras y sigues hasta el fin del
+              periodo contratado.
+            </p>
+            <a
+              class="mt-7 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground hover:brightness-110 sm:w-auto"
+              href="/entrenadores/suscribirse/"
+            >
+              <Icon name="users" class="text-lg" />
+              Quiero entrar
+            </a>
+            <p class="mt-2 text-xs">
+              ¿Ya eres socio?
+              <a class="font-bold text-primary hover:underline" href="/entrenadores/acceder/">
+                Accede con tu enlace mágico
+              </a>
+            </p>
+            <p class="mt-3 text-xs text-muted-foreground">
+              El pago se gestiona con Lemon Squeezy, con factura y portal de autogestión. Al
+              suscribirte aceptas los
+              <a class="font-bold underline underline-offset-2" href="/terminos-de-venta/">
+                términos de venta
+              </a>
+              y la
+              <a class="font-bold underline underline-offset-2" href="/politica-de-privacidad/">
+                política de privacidad
+              </a>
+              , y pides que el acceso se active de inmediato tras el pago.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="bg-card">
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8">
+          <h2 data-reveal="up" class="font-heading text-2xl font-semibold uppercase sm:text-3xl">
+            Preguntas frecuentes
+          </h2>
+          <div class="mt-6 divide-y divide-border border-y border-border">
+            {[
+              {
+                q: '¿Qué necesito para usar los ejercicios?',
+                a: 'Nada más que el móvil o el portátil. Cada ficha se puede imprimir o guardar como PDF directamente desde el navegador, lista para el bolsillo del chándal.',
+              },
+              {
+                q: '¿El pago es mensual?',
+                a: 'No: una cuota anual de 12 €. Se gestiona y factura a través de Lemon Squeezy, que actúa como tienda y se encarga del IVA.',
+              },
+              {
+                q: '¿Puedo cancelar?',
+                a: 'Sí, desde el portal de cliente en cualquier momento: la renovación se desactiva y mantienes el acceso hasta el final del periodo ya pagado. El contenido digital se entrega de inmediato al pagar, así que no hay reembolso del periodo en curso (lo explicamos en los términos de venta).',
+              },
+              {
+                q: '¿El contenido se actualiza?',
+                a: 'Cada mes entran ejercicios nuevos, al menos una sesión completa, una herramienta y la pregunta del mes de Voces de entrenadores.',
+              },
+              {
+                q: '¿Y el contenido gratuito?',
+                a: 'Sigue gratis y sin publicidad en la web: entrevistas, artículos y la Pizarra siguen siendo la casa de todos. Entrenadores es un extra para quien quiera ir más allá.',
+              },
+            ].map(({ q, a }) => (
+              <details class="group py-4">
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-sm font-bold marker:hidden">
+                  {q}
+                  <Icon name="arrow-right" class="text-primary transition group-open:rotate-90" />
+                </summary>
+                <p class="mt-2 text-sm leading-6 text-muted-foreground">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>

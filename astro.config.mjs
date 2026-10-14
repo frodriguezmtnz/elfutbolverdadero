@@ -32,6 +32,11 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
+  // El webhook de Lemon Squeezy POSTEA sin Origin y el endpoint de magic link es
+  // un form normal: checkOrigin (activo por defecto desde Astro 5) los mataría con
+  // 403. Seguridad real: firma HMAC en el webhook y el OTP de Supabase como prueba
+  // de posesión del correo. Ninguna ruta de estado sensible se ejecuta sin sesión.
+  security: { checkOrigin: false },
   redirects: {
     // Entrevista legacy con slug árabe (WP) → slug español tras la traducción
     '/مقابلة-الحسين-بلكبوس-أحاول-نقل-معلو':

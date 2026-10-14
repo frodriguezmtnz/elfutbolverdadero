@@ -1,0 +1,161 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import MobileNav from '../../../../components/MobileNav.astro';
+import Icon from '../../../../components/Icon.astro';
+import EtiquetaAcceso from '../../../../components/entrenadores/EtiquetaAcceso.astro';
+import { getHerramientaBySlug } from '../../../../lib/entrenadores';
+import { usuarioActual, crearClienteSupabase } from '../../../../lib/supabase';
+import { obtenerMembresia, suscripcionActiva } from '../../../../lib/membresias';
+import { puedeVerContenido } from '../../../../lib/acceso-entrenadores';
+import { etiquetaFormato } from '../../../../lib/entrenadores-textos';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const h = await getHerramientaBySlug(slug!);
+
+// Gate por página: la URL del archivo en el CDN SOLO se pinta si puedeVerContenido.
+let puede = false;
+if (h) {
+  let viva = false;
+  if (h.acceso === 'premium') {
+    const usuario = await usuarioActual(Astro);
+    if (usuario) {
+      const supabase = crearClienteSupabase(Astro);
+      const membresia = await obtenerMembresia(supabase, usuario.email);
+      viva = suscripcionActiva(membresia);
+    }
+  }
+  puede = puedeVerContenido(h.acceso, viva);
+} else {
+  Astro.response.status = 404;
+}
+const archivoUrl = puede ? (h?.archivo?.asset?.url ?? null) : null;
+---
+
+<Base
+  title={
+    h ? `${h.title} — Herramientas` : 'Herramienta no encontrada — Futbolverdadero Entrenadores'
+  }
+  description={h?.description ?? 'Plantilla descargable para entrenadores.'}
+  robots={h && puede ? undefined : 'noindex, follow'}
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      {h ? (
+        <>
+          <section class="bg-primary text-primary-foreground">
+            <div class="mx-auto max-w-3xl px-4 py-9 lg:px-8">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                <a class="hover:underline" href="/entrenadores/herramientas/">
+                  Herramientas del entrenador
+                </a>
+              </p>
+              <h1 class="mt-3 font-heading text-2xl font-semibold uppercase leading-none sm:text-4xl">
+                {h.title}
+              </h1>
+              <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-bold uppercase">
+                <span class="rounded-full bg-primary-foreground/15 px-3 py-1">
+                  {etiquetaFormato(h.formato)}
+                </span>
+                <EtiquetaAcceso acceso={h.acceso} />
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-muted">
+            <div class="mx-auto max-w-3xl px-4 py-10 lg:px-8">
+              {puede ? (
+                <div class="rounded-xl border border-border bg-card p-6 sm:p-8">
+                  {h.description && <p class="text-sm leading-7">{h.description}</p>}
+                  {archivoUrl ? (
+                    <a
+                      class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground hover:brightness-110"
+                      href={archivoUrl}
+                      download
+                    >
+                      <Icon name="pen-line" />
+                      Descargar {etiquetaFormato(h.formato)}
+                    </a>
+                  ) : (
+                    <p class="mt-6 text-sm text-muted-foreground">
+                      Estamos puliendo el documento: vuelve en unos días.
+                    </p>
+                  )}
+                  <p class="mt-4 text-xs text-muted-foreground">
+                    ¿La has usado esta semana? Cuéntanos qué le falta: se mejora entre todos.
+                  </p>
+                </div>
+              ) : (
+                <div class="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+                  <div class="rounded-xl border border-border bg-card p-6">
+                    <h2 class="font-heading text-lg font-semibold uppercase">
+                      Qué necesitas saber
+                    </h2>
+                    {h.description && <p class="mt-4 text-sm leading-7">{h.description}</p>}
+                    <div class="mt-6 overflow-hidden rounded-lg bg-muted p-8 text-center">
+                      <Icon name="lock" class="text-2xl text-tertiary-ink" />
+                      <p class="mt-2 text-sm font-bold uppercase text-tertiary-ink">
+                        La descarga {etiquetaFormato(h.formato)}
+                      </p>
+                      <p class="mt-1 text-xs text-muted-foreground">
+                        forma parte de la zona premium
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-4 rounded-xl bg-tertiary p-6 text-tertiary-foreground">
+                    <p class="font-heading text-xl font-semibold uppercase leading-tight">
+                      Descárgala hoy y úsala mañana
+                    </p>
+                    <p class="text-sm leading-6">
+                      12 € al año · menos de 1 € al mes. Con tu suscripción se desbloquean todas las
+                      plantillas y el banco completo.
+                    </p>
+                    <a
+                      class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-card px-5 text-sm font-bold text-tertiary"
+                      href="/entrenadores/suscribirse/"
+                    >
+                      Suscribirme
+                      <Icon name="layout-arrow-right" class="text-lg" />
+                    </a>
+                    <a
+                      class="text-center text-sm font-bold underline"
+                      href="/entrenadores/acceder/"
+                    >
+                      Ya soy socio: acceder
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      ) : (
+        <section class="bg-muted">
+          <div class="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+            <Icon name="pen-line" class="text-3xl text-primary" />
+            <h1 class="mt-4 font-heading text-2xl font-semibold uppercase">
+              Herramienta no encontrada
+            </h1>
+            <p class="mt-3 text-sm text-muted-foreground">
+              La plantilla que buscas no existe o cambió de nombre.
+            </p>
+            <a
+              class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground"
+              href="/entrenadores/herramientas/"
+            >
+              <Icon name="arrow-left" />
+              Volver a la biblioteca
+            </a>
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>

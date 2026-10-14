@@ -1,0 +1,216 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileNav from '../components/MobileNav.astro';
+import { social } from '../config/social';
+
+const actualizado = 'Octubre de 2026';
+---
+
+<Base
+  title="Términos de venta — Suscripción Futbolverdadero Entrenadores"
+  description="Condiciones de la suscripción de pago Futbolverdadero Entrenadores: objeto, precio, renovación, cancelación, derecho de desistimiento y uso del contenido."
+  canonicalURL="/terminos-de-venta/"
+  robots="noindex, follow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1 bg-muted">
+      <section>
+        <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8">
+          <div data-reveal="up" class="border-b border-border pb-6">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-tertiary-ink">Legal</p>
+            <h1 class="mt-2 font-heading font-semibold text-2xl uppercase sm:text-3xl">
+              Términos de venta
+            </h1>
+            <p class="mt-3 text-sm text-muted-foreground">
+              Suscripción «Futbolverdadero Entrenadores» · Última actualización: {actualizado}
+            </p>
+          </div>
+
+          <div data-reveal="fade" class="mt-8 space-y-8 text-sm leading-7 text-foreground/90">
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                1. Proveedor y contacto
+              </h2>
+              <p class="mt-3">
+                La suscripción «Futbolverdadero Entrenadores» (en adelante, «la Zona») es ofrecida
+                por <strong>El Fútbol Verdadero</strong>, proyecto divulgativo de fútbol base.
+              </p>
+              <p class="mt-2">
+                Cualquier consulta, reclamación o ejercicio de derechos sobre la suscripción puede
+                dirigirse a{' '}
+                <a
+                  class="font-semibold text-primary underline underline-offset-2"
+                  href={`mailto:${social.email}`}
+                >
+                  {social.email}
+                </a>
+                .
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                2. Objeto del servicio
+              </h2>
+              <p class="mt-3">
+                La Zona es un servicio digital de contenido de entrenamiento: banco de ejercicios,
+                sesiones completas, herramientas descargables (plantillas y dossiers), metodología y
+                la sección «Voces de entrenadores». El contenido se entrega íntegramente a través de
+                la web y puede ampliarse o actualizarse durante la vigencia de la suscripción.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                3. Precio y forma de pago
+              </h2>
+              <p class="mt-3">
+                El precio de la suscripción es de <strong>12 € al año</strong> (IVA incluido). El
+                pago se realiza con tarjeta a través de <strong>Lemon Squeezy</strong> (Uplend
+                Media, Ltd.), que actúa como
+                <em>Merchant of Record</em>: quien formaliza y factura la venta es Lemon Squeezy,
+                con sus propios términos de pago y gestión de disputas.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                4. Duración, renovación y cancelación
+              </h2>
+              <p class="mt-3">
+                La suscripción se activa al completarse el primer pago y tiene una validez de{' '}
+                <strong>12 meses</strong>, renovándose automáticamente por el mismo precio salvo
+                cancelación.
+              </p>
+              <p class="mt-2">
+                Puedes cancelar en cualquier momento desde el portal de cliente de Lemon Squeezy
+                (enlace «Gestionar suscripción» en el panel de la Zona o en los correos de Lemon
+                Squeezy). Al cancelar, conservas el acceso hasta el final del período ya pagado y no
+                se emitirá ningún cargo posterior.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                5. Derecho de desistimiento
+              </h2>
+              <p class="mt-3">
+                Las compras en línea tienen un derecho legal de desistimiento de 14 días naturales.
+                No obstante, la Zona es <strong>contenido digital entregado de inmediato</strong>:
+                al finalizar tu compra solicitamos tu consentimiento expreso de que el acceso se
+                activa en ese momento y tu reconocimiento de que eso hace perder el derecho de
+                desistimiento sobre el período iniciado.
+              </p>
+              <p class="mt-2">
+                En consecuencia,{' '}
+                <strong>
+                  una vez activada la suscripción no procede el reembolso del período en curso
+                </strong>
+                . Puedes cancelar la renovación automática en cualquier momento (apartado 4) y
+                mantienes el acceso hasta el final del período ya pagado.
+              </p>
+              <p class="mt-2">
+                Solo se reembolsará el importe correspondiente en casos tasados y verificables:
+                cobros duplicados o imposibilidad técnica imputable a nuestro servicio de acceder a
+                la Zona durante un período significativo del contrato. Escríbenos a{' '}
+                <a
+                  class="font-semibold text-primary underline underline-offset-2"
+                  href={`mailto:${social.email}`}
+                >
+                  {social.email}
+                </a>{' '}
+                y lo resolvemos.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                6. Uso de la cuenta y del contenido
+              </h2>
+              <ul class="mt-3 list-disc space-y-2 pl-6 marker:text-tertiary-ink">
+                <li>
+                  La suscripción es <strong>personal e intransferible</strong>: el acceso se vincula
+                  a un correo electrónico mediante enlace mágico, sin contraseña.
+                </li>
+                <li>
+                  Puedes descargar e imprimir el contenido para tu uso como entrenador o entrenadora
+                  (fichas, sesiones, plantillas) y aplicarlo en tu equipo.
+                </li>
+                <li>
+                  No está permitido revender, compartir la cuenta, redistribuir el contenido de
+                  forma pública ni volcarlo en otros cursos o productos.
+                </li>
+                <li>
+                  Un uso claramente abusivo (compartir credenciales, descargas masivas) puede
+                  comportar el cierre de la sesión y la suspensión del acceso sin devolución del
+                  importe.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                7. Propiedad intelectual
+              </h2>
+              <p class="mt-3">
+                Todos los textos, fichas, sesiones, plantillas y demás materiales de la Zona son
+                creación de El Fútbol Verdadero o de sus colaboradores. La suscripción concede una
+                licencia limitada, no exclusiva y vigente solo mientras dure la suscripción.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                8. Naturaleza del contenido
+              </h2>
+              <p class="mt-3">
+                El contenido es formativo y divulgativo: no es asesoramiento médico, jurídico ni una
+                garantía de resultados deportivos. Cada cuerpo técnico decide cómo aplicarlo en su
+                contexto.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                9. Cambios en el servicio y en estas condiciones
+              </h2>
+              <p class="mt-3">
+                Podemos ampliar o modificar el contenido de la Zona. Los cambios sustanciales se
+                anunciarán con antelación razonable; si afectan negativamente al servicio durante un
+                período ya pagado, podrás cancelarlo sin coste y se te reembolsará la parte
+                proporcional no consumida. Estas condiciones podrán actualizarse; a cada período de
+                suscripción le aplicarán las vigentes en el momento del cobro.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-heading font-semibold text-lg uppercase text-foreground">
+                10. Legislación y resolución de conflictos
+              </h2>
+              <p class="mt-3">
+                Estas condiciones se rigen por la legislación española. Para cualquier controversia
+                relacionada con la compra conservas la protección como consumidor y usuario,
+                incluido el uso de plataformas de resolución de litigios en línea de la Unión
+                Europea o la vía judicial. El tratamiento de tus datos personales se rige por
+                nuestra{' '}
+                <a
+                  class="font-semibold text-primary underline underline-offset-2"
+                  href="/politica-de-privacidad/"
+                >
+                  política de privacidad
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <div class="h-16 lg:hidden" aria-hidden="true"></div>
+    <MobileNav />
+  </div>
+</Base>
