@@ -2,6 +2,8 @@
 
 Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, artículos y opinión sobre fútbol base. Entrenar, pensar, compartir.
 
+[![CI](https://github.com/frodriguezmtnz/elfutbolverdadero/actions/workflows/ci.yml/badge.svg)](https://github.com/frodriguezmtnz/elfutbolverdadero/actions/workflows/ci.yml) [![Vercel](https://therealsujitk-vercel-badge.vercel.app/?app=elfutbolverdadero)](https://www.elfutbolverdadero.com) [![Sitio](https://img.shields.io/website?url=https%3A%2F%2Fwww.elfutbolverdadero.com&label=sitio)](https://www.elfutbolverdadero.com) [![Producción](https://img.shields.io/badge/producci%C3%B3n-main-007EC6?logo=git&logoColor=white)](https://github.com/frodriguezmtnz/elfutbolverdadero/tree/main) [![Astro](https://img.shields.io/badge/Astro-7.x-BC52EE?logo=astro&logoColor=white)](https://docs.astro.build) [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org) [![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+
 <img src="images/fullpage-elfutbolverdadero-v2.png" alt="Vista completa de la web elfutbolverdadero en localhost" width="100%">
 
 ## Stack
