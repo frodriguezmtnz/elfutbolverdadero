@@ -7,7 +7,7 @@
 - Cuenta con rol **Administrator** en el proyecto Sanity `s22b9256` (manage.sanity.io → Members)
 - Acceso al proyecto en **Vercel** (owner)
 - Acceso al **panel DNS** del dominio (registro A/CNAME/TXT; NO tocar MX)
-- Node.js ≥ 22 y deps instaladas (`npm ci`) en el portátil
+- Node.js ≥ 24.22.1 y deps instaladas (`npm ci`) en el portátil
 
 ---
 
