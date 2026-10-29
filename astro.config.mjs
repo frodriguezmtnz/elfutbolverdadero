@@ -32,11 +32,9 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
-  // El webhook de Lemon Squeezy POSTEA sin Origin y el endpoint de magic link es
-  // un form normal: checkOrigin (activo por defecto desde Astro 5) los mataría con
-  // 403. Seguridad real: firma HMAC en el webhook y el OTP de Supabase como prueba
-  // de posesión del correo. Ninguna ruta de estado sensible se ejecuta sin sesión.
-  security: { checkOrigin: false },
+  // checkOrigin sigue activo (CSRF). Astro solo lo aplica a POST/PATCH/PUT con
+  // formularios; el webhook de LS manda application/json y los formularios del
+  // site son same-origin. La seguridad del webhook es la firma HMAC.
   redirects: {
     // Entrevista legacy con slug árabe (WP) → slug español tras la traducción
     '/مقابلة-الحسين-بلكبوس-أحاول-نقل-معلو':
