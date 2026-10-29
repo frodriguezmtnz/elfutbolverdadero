@@ -2,6 +2,7 @@ import type { APIContext } from 'astro';
 import { crearClienteServicio, supabaseConfigurado } from '../../../lib/supabase';
 import { enviarBienvenida } from '../../../lib/emails';
 import {
+  esVarianteEsperada,
   normalizarEventoLs,
   sincronizarMembresia,
   verificarFirmaLs,
@@ -40,8 +41,13 @@ export async function POST(context: APIContext): Promise<Response> {
     (cuerpo as { meta?: { event_name?: string } })?.meta?.event_name ?? '',
   );
   const evento = normalizarEventoLs(cuerpo);
+  const variantEsperada = envVar('LS_VARIANT_ID') ?? null;
 
-  if (nombreEvento.startsWith('subscription') && evento) {
+  if (
+    nombreEvento.startsWith('subscription') &&
+    evento &&
+    esVarianteEsperada(evento, variantEsperada)
+  ) {
     try {
       await sincronizarMembresia(crearClienteServicio(), evento);
     } catch {
@@ -59,6 +65,6 @@ export async function POST(context: APIContext): Promise<Response> {
     }
   }
 
-  // 204 para el resto de eventos: LS deja de reintentar.
-  return new Response(null, { status: 204 });
+  // LS espera un 200 (otro status, incluido 204, puede disparar reintentos).
+  return new Response(null, { status: 200 });
 }
