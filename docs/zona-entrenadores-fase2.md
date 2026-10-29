@@ -3,6 +3,14 @@
 Checklist de puesta en marcha para la zona **Futbolverdadero Entrenadores**.
 Nada de esto toca el sitio público: las claves son solo para las rutas on-demand.
 
+## 0 · Revisión previa sin claves (Xabi)
+
+El deploy de la PR sirve la landing, catálogos, fichas gratuitas y el candado premium
+con el contenido `seed-*` de ejemplo. Para revisar la propuesta antes de configurar
+nada: `/entrenadores/` → catálogos → una ficha free (completa + imprimir) → una ficha
+premium (debe verse bloqueada) → `/terminos-de-venta/` → probar en móvil.
+El login y el pago todavía no funcionan en ese entorno.
+
 ## 1 · Supabase (auth magic link + Postgres)
 
 1. Crear proyecto (región `eu-west`/cercana; plan Free vale).
@@ -10,7 +18,9 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
 3. **Authentication → Providers → Email** y **URLs**:
    - Site URL: `https://www.elfutbolverdadero.com` (en el proyecto de Vercel).
    - Redirect URLs permitidas: `https://www.elfutbolverdadero.com/entrenadores/auth/callback` y `http://localhost:4321/entrenadores/auth/callback`.
-   - Activar **«Use token hash instead of the implicit link»`** (el callback del sitio maneja ambos formatos, pero con token hash la sesión se valida 100 % en servidor).
+   - Para probar el login en el deploy de la PR, añade también el dominio del preview
+     (Settings → Deployments → Preview URL) o un patrón `https://*-felipe-devs-projects-bd534893.vercel.app/**`.
+   - Activar **«Use token hash instead of the implicit link»** (el callback del sitio maneja ambos formatos, pero con token hash la sesión se valida 100 % en servidor).
 4. **SMTP**: configurar un proveedor real (Resend/Postmark/SES) en
    Authentication → SMTP; el envío gratis de Supabase caduca y cae rate-limit.
    Plantilla de Magic Link con: `{{ .ConfirmationURL }}` (por defecto ya funciona).
@@ -34,6 +44,16 @@ Nada de esto toca el sitio público: las claves son solo para las rutas on-deman
    - `LS_PORTAL_URL` (portal de cliente para cancelar/descargar facturas)
    - `LS_TEST_MODE=1` **solo** en Preview; nunca en Production.
 5. Probar el ciclo completo en test mode: magic link → `/entrenadores/suscribirse/` (consentimiento) → checkout → webhook → `/entrenadores/panel/` con acceso y email de bienvenida recibido.
+
+Notas de implementación (verificadas contra la API de LS):
+
+- El checkout prellena `checkout_data.email` y manda `custom.email` + `custom.desistimiento`.
+- El webhook liga la membresía por `meta.custom_data.email` (fallback: `user_email`)
+  y solo acepta eventos de la `LS_VARIANT_ID` configurada.
+- El webhook responde **200** (LS reintenta cualquier otro código, incluido 204).
+- `redirect_url` de vuelta va en `product_options`, no en `checkout_options`.
+- `security.checkOrigin` sigue activo: Astro solo lo aplica a formularios; el webhook
+  de LS es `application/json` y los formularios del site son same-origin.
 
 ## 3 · Rutas de la fase
 
@@ -68,8 +88,10 @@ El guard (`src/middleware.ts`) es **fail-closed**: cualquier `/entrenadores/<nue
 - [ ] Magic link llega y crea sesión; el panel muestra el correo.
 - [ ] Pago de prueba → webhook → `memberships` con `status=active` y `renews_at` futuro; ficha premium muestra desarrollo completo (200) y `window.print()` genera la ficha.
 - [ ] Cancelar en el portal → sigue dentro hasta `current_period_end` (status cancelled), luego el guard redirige.
-- [ ] Webhook con firma falsa → 401.
-- [ ] `subscription_created` en test → webhook responde 204 y llega el **email de bienvenida** al comprador; sin `SMTP_*` configurados responde 204 igualmente (el email se omite en silencio).
+- [ ] Webhook con firma falsa → 401 (no 403: checkOrigin está activo y exime JSON).
+- [ ] `subscription_created` en test → webhook responde **200** y llega el **email de bienvenida** al comprador; sin `SMTP_*` configurados responde 200 igualmente (el email se omite en silencio).
+- [ ] El checkout de LS abre con el email prellenado; al pagar vuelve a `/entrenadores/auth/suscrito/` (no a la página genérica de LS).
+- [ ] Si se paga con otro email en LS, la membresía se crea con el email de la cuenta del magic link (`meta.custom_data.email`).
 - [ ] `/entrenadores/suscribirse/` con sesión → página de **consentimiento** (casilla obligatoria de entrega inmediata + términos/privacidad); POST sin marcar → aviso y no se crea checkout; POST marcado → URL de LS con `custom.desistimiento='acceso-inmediato-consentido-v1'` (constancia auditable en la orden).
 - [ ] Lemon Squeezy · Store Settings → Checkout: enlaces a términos (`/terminos-de-venta/`) y privacidad (`/politica-de-privacidad/`) visibles en la pasarela.
 - [ ] Sitemap/Google: solo `/entrenadores/` pública; el resto tiene `noindex` y no son prerenderizadas.
