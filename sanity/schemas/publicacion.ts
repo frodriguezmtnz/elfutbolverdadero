@@ -1,4 +1,5 @@
 import { defineType } from 'sanity';
+import { opcionesAcceso } from './valoresComunes';
 
 export const publicacion = defineType({
   name: 'publicacion',
@@ -36,10 +37,21 @@ export const publicacion = defineType({
           { title: 'Entrevista', value: 'entrevista' },
           { title: 'Artículo', value: 'articulo' },
           { title: 'Opinión', value: 'opinion' },
+          { title: 'Metodología', value: 'metodologia' },
         ],
         layout: 'radio',
       },
       initialValue: 'entrevista',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'acceso',
+      title: 'Acceso',
+      description:
+        '«Premium» (metodología exclusiva) queda fuera de RSS, buscador y build estático.',
+      type: 'string',
+      options: { list: [...opcionesAcceso], layout: 'radio' },
+      initialValue: 'free',
       validation: (Rule) => Rule.required(),
     },
     {

@@ -4,9 +4,13 @@
 // complica el `startServerCommand` de LHCI; esto es un servidor en primer plano.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-const DIST = path.resolve('dist');
+// Con SSR mixto el estático se emite en dist/client/; sin rutas dinámicas queda en dist/.
+const DIST = existsSync(path.resolve('dist/client'))
+  ? path.resolve('dist/client')
+  : path.resolve('dist');
 const PORT = Number(process.env.PORT ?? 4321);
 const HOST = process.env.HOST ?? '127.0.0.1';
 

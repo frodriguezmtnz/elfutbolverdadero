@@ -1,0 +1,41 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import Icon from '../../../../components/Icon.astro';
+
+export const prerender = false;
+---
+
+<Base
+  title="¡Gracias por suscribirte! — Futbolverdadero Entrenadores"
+  description="Tu suscripción se está activando."
+  robots="noindex, nofollow"
+>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <section class="bg-primary text-primary-foreground">
+        <div class="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-accent">Pago realizado</p>
+          <h1 class="mt-4 font-heading text-3xl font-semibold uppercase sm:text-4xl">
+            Gracias por entrenar con nosotros
+          </h1>
+          <p class="mt-5 text-sm leading-7 text-primary-foreground/90">
+            Tu suscripción se está activando ahora mismo en segundo plano (el webhook de Lemon
+            Squeezy tarda unos segundos). Si el panel aún no te deja entrar, espera un momento y
+            recarga.
+          </p>
+          <a
+            class="mt-8 inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground"
+            href="/entrenadores/panel/"
+          >
+            Ir a mi panel
+            <Icon name="layout-arrow-right" class="text-lg" />
+          </a>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+</Base>

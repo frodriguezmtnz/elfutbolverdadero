@@ -32,6 +32,9 @@ export default defineConfig({
     }),
   ],
   adapter: vercel(),
+  // checkOrigin sigue activo (CSRF). Astro solo lo aplica a POST/PATCH/PUT con
+  // formularios; el webhook de LS manda application/json y los formularios del
+  // site son same-origin. La seguridad del webhook es la firma HMAC.
   redirects: {
     // Entrevista legacy con slug árabe (WP) → slug español tras la traducción
     '/مقابلة-الحسين-بلكبوس-أحاول-نقل-معلو':

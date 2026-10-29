@@ -8,9 +8,11 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 
 ## Stack
 
-- **[Astro 7](https://docs.astro.build)** (SSG, output estático) + **TypeScript strict**
+- **[Astro 7](https://docs.astro.build)** (estático + rutas on-demand) + **TypeScript strict**
 - **[Sanity.io](https://www.sanity.io)** como headless CMS (contenido e imágenes)
 - **[Tailwind CSS 4](https://tailwindcss.com)** vía plugin Vite
+- **[Supabase](https://supabase.com)** para el login por enlace mágico y la tabla de membresías
+- **[Lemon Squeezy](https://www.lemonsqueezy.com)** como Merchant of Record de la suscripción
 - **[Vercel](https://vercel.com)** para hosting/deploys · **GitHub Actions** para CI
 
 ## Comandos
@@ -30,6 +32,9 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 | `npm run sanity:fix-entities:apply` | Idem, escribiendo los cambios en Sanity                    |
 | `npm run sanity:fix-titles`         | Quita almohadillas `#` de títulos WP en Sanity (dry-run)   |
 | `npm run sanity:fix-titles:apply`   | Idem, escribiendo los cambios en Sanity                    |
+| `npm run seed:entrenadores`         | Contenido de ejemplo de la zona (dry-run)                  |
+| `npm run seed:entrenadores:apply`   | Siembra el contenido de ejemplo en Sanity                  |
+| `npm run seed:entrenadores:limpiar` | Borra los documentos `seed-*` (contenido real intacto)     |
 
 ## Estructura
 
@@ -37,14 +42,15 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 /
 ├── images/            # Capturas del README (no se incluyen en el build)
 ├── public/            # Estáticos (favicon, fonts, og.png)
-├── sanity/            # Schemas del CMS (publicacion, autor, categoria, etiqueta, embed, webAmiga)
-├── scripts/           # Utilidades (import WP, generación de og.png)
+├── sanity/            # Schemas del CMS (publicación, autor, taxonomías y zona de entrenadores)
+├── scripts/           # Utilidades (import WP, seed de entrenadores, og.png)
+├── supabase/          # Migraciones SQL (membresías de la zona)
 └── src/
     ├── components/    # Componentes Astro (cards, navegación, Portable Text…)
     ├── config/        # Config (enlaces sociales)
     ├── layouts/       # Base.astro: SEO, OG, JSON-LD, skip link
-    ├── lib/           # Queries GROQ y helpers (sanity.ts, images.ts, texto.ts…)
-    ├── pages/         # Rutas estáticas
+    ├── lib/           # Queries GROQ, acceso, membresías y Lemon Squeezy
+    ├── pages/         # Rutas estáticas y on-demand (/entrenadores/*)
     └── styles/        # Tokens de diseño (global.css)
 ```
 
@@ -53,6 +59,16 @@ Web de [elfutbolverdadero.com](https://www.elfutbolverdadero.com): entrevistas, 
 - `/` · `/entrevistas/` (paginada) · `/categoria/[slug]/` · `/etiqueta/[slug]/` (paginadas)
 - `/buscar/` (índice de búsqueda dividido: `busqueda.json` + `busqueda-cuerpo.json`)
 - `/rss.xml` · `/politica-de-privacidad/` · `/colaboraciones/`
+
+### Zona de entrenadores (on-demand)
+
+- `/entrenadores/` — landing pública de la suscripción (12 €/año)
+- `/entrenadores/acceder/` · `/entrenadores/auth/*` — login por enlace mágico (Supabase)
+- `/entrenadores/panel/` — estado de la suscripción y accesos
+- `/entrenadores/suscribirse/` — consentimiento y checkout (Lemon Squeezy)
+- `/entrenadores/ejercicios|sesiones|herramientas|metodologia|voces/` — catálogo público con
+  candado por página; el contenido premium nunca se sirve sin suscripción activa
+- Runbook de configuración: [`docs/zona-entrenadores-fase2.md`](docs/zona-entrenadores-fase2.md)
 
 ## Variables de entorno
 
@@ -63,14 +79,25 @@ Copia `.env.example` a `.env` y rellena los valores. En Sanity:
 - `SANITY_STUDIO_PROJECT_ID` / `SANITY_STUDIO_DATASET` — Studio (corre en navegador)
 - `DEV_ALLOWED_HOSTS` — hosts extra permitidos en `astro dev`
 
+Zona de entrenadores (solo rutas on-demand; en Vercel van como Secret):
+
+- `SUPABASE_URL` / `SUPABASE_ANON_KEY` — login por enlace mágico y lectura RLS
+- `SUPABASE_SERVICE_ROLE_KEY` — solo servidor (webhook de membresías)
+- `LS_API_KEY` / `LS_STORE_ID` / `LS_VARIANT_ID` — checkout de Lemon Squeezy
+- `LS_WEBHOOK_SECRET` — verificación HMAC del webhook
+- `LS_PORTAL_URL` — portal de cliente para gestionar/cancelar la suscripción
+- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `EMAIL_FROM` — email de bienvenida
+
 > El dataset de desarrollo local es `production` (el mismo que producción).
 > Un webhook de Sanity → Vercel dispara el build al publicar en el Studio.
+> Las rutas `/entrenadores/*` se renderizan on-demand y no se prerenderizan.
 
 ## Contenido y despliegue
 
 1. Se publica en el Sanity Studio (dataset `production`).
-2. El sitio es estático: cada publicación requiere un build. El webhook de Sanity
-   llama al Deploy Hook de Vercel, que lo lanza automáticamente.
+2. El contenido público es estático: cada publicación requiere un build. El webhook de
+   Sanity llama al Deploy Hook de Vercel, que lo lanza automáticamente. La zona de
+   entrenadores se sirve on-demand (login, panel, checkout y fichas con candado).
 3. CI (`.github/workflows/ci.yml`): en cada push/PR ejecuta `lint`, `format:check`,
    `astro check` y `build` (Lighthouse solo en PRs).
 
