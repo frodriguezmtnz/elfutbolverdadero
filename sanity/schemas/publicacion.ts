@@ -43,6 +43,15 @@ export const publicacion = defineType({
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'destacada',
+      title: 'Destacar en el hero (entrevista de la semana)',
+      description:
+        'Marca la entrevista que debe abrir la portada. Si hay varias marcadas gana la más reciente; si no hay ninguna, se usa la última entrevista con imagen. Requiere imagen destacada.',
+      type: 'boolean',
+      initialValue: false,
+      hidden: ({ parent }) => (parent as { tipo?: string } | undefined)?.tipo !== 'entrevista',
+    },
+    {
       name: 'author',
       title: 'Autor',
       type: 'reference',
