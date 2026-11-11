@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   sinBloquesTiempoLectura,
   extraerTexto,
+  extractoDeBody,
   tiempoLectura,
   slugDeEtiqueta,
 } from '../../src/lib/texto';
@@ -29,6 +30,38 @@ describe('extraerTexto', () => {
 
   it('null → cadena vacía', () => {
     expect(extraerTexto(null)).toBe('');
+  });
+});
+
+describe('extractoDeBody', () => {
+  it('devuelve el texto cuando cabe en el máximo', () => {
+    expect(extractoDeBody([bloque('Somos equipo, somos familia.')])).toBe(
+      'Somos equipo, somos familia.',
+    );
+  });
+
+  it('ignora títulos, imágenes y el bloque de tiempo de lectura', () => {
+    const blocks = [
+      { _type: 'block', style: 'h2', children: [{ _type: 'span', text: 'Un título' }] },
+      { _type: 'image' },
+      bloque('Tiempo de lectura: 4 minutos'),
+      bloque('Primer párrafo real.'),
+    ];
+    expect(extractoDeBody(blocks)).toBe('Primer párrafo real.');
+  });
+
+  it('une párrafos y recorta en límite de palabra con elipsis', () => {
+    const blocks = [bloque('palabra '.repeat(40).trim())];
+    const out = extractoDeBody(blocks, 30)!;
+    expect(out.endsWith('…')).toBe(true);
+    expect(out.length).toBeLessThanOrEqual(31);
+    expect(out).not.toContain('palabrapalabra');
+  });
+
+  it('sin párrafos con texto → undefined', () => {
+    expect(extractoDeBody(null)).toBeUndefined();
+    expect(extractoDeBody([])).toBeUndefined();
+    expect(extractoDeBody([bloque('   ')])).toBeUndefined();
   });
 });
 

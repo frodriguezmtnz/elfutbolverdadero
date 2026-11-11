@@ -1,7 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { urlFor, srcsetFor } from '../lib/images';
-import { limpiarDescripcion, tiempoLectura } from '../lib/texto';
+import { limpiarDescripcion, extractoDeBody, tiempoLectura } from '../lib/texto';
 import { estiloChipCategoria } from '../lib/colores-categoria';
 import type { Publicacion } from '../lib/sanity';
 
@@ -20,7 +20,7 @@ const imagenSrcset = pub.mainImage?.asset
   : null;
 const altImagen = pub.mainImage?.alt || pub.title;
 const pieImagen = pub.mainImage?.caption;
-const descripcion = limpiarDescripcion(pub.description);
+const descripcion = limpiarDescripcion(pub.description) || extractoDeBody(pub.body);
 const lectura = tiempoLectura(pub.body, pub.readingTime);
 ---
 
