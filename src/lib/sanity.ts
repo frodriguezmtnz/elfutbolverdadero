@@ -1,12 +1,14 @@
 import { sanityClient } from 'sanity:client';
 import type { QueryParams } from '@sanity/client';
 import { decodificarEntidades } from './entidades';
+import { elegirDestacada } from './destacada';
 
 export interface Publicacion {
   _id: string;
   title: string;
   slug: string;
   tipo: string;
+  destacada?: boolean;
   club?: string;
   description?: string;
   publishedAt?: string;
@@ -47,6 +49,7 @@ const baseFields = `
   title,
   'slug': slug.current,
   tipo,
+  destacada,
   club,
   description,
   publishedAt,
@@ -160,12 +163,7 @@ export interface CategoriaConteo {
 }
 
 export async function getEntrevistaDestacada(): Promise<Publicacion | null> {
-  const todas = await loadPublicaciones();
-  return (
-    todas.find(
-      (p) => p.tipo === 'entrevista' && p.description != null && p.mainImage?.asset != null,
-    ) ?? null
-  );
+  return elegirDestacada(await loadPublicaciones());
 }
 
 export async function getUltimasEntrevistas(limit = 3, excludeId = ''): Promise<Publicacion[]> {
