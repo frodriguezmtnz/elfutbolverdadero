@@ -40,7 +40,7 @@
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.5",
-    "astro-reveal": "^0.3.1",
+    "astro-reveal": "^0.3.2",
     "dotenv": "^18.0.1",
     "medium-zoom": "^1.1.0",
     "reading-time": "^1.5.0",
