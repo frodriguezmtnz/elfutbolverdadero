@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
+import AnimataText from './AnimataText.astro';
 
 interface Props {
   lecturaHref?: string;
@@ -17,10 +18,14 @@ const { lecturaHref = '/entrevistas/', mode = 'sticky' } = Astro.props;
       <Logo class="h-12 w-auto" />
       <span class="leading-none">
         <span class="block font-heading font-semibold text-lg uppercase tracking-tight text-foreground">
-          El Fútbol
+          <AnimataText preset="bottom-up-letters" trigger="load" once="marca" speed={1.9}>
+            El Fútbol
+          </AnimataText>
         </span>
         <span class="block font-heading font-semibold text-lg uppercase tracking-tight text-tertiary-ink">
-          Verdadero
+          <AnimataText preset="bottom-up-letters" trigger="load" once="marca" speed={1.9}>
+            Verdadero
+          </AnimataText>
         </span>
       </span>
     </a>
