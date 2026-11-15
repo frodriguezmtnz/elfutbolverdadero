@@ -1,0 +1,134 @@
+/*
+  Animata (port vanilla, MIT · codse/animata)
+  Motor WAAPI + micro-efectos CSS. El texto SSR nunca se oculta:
+  las unidades solo existen cuando el JS trocea el texto.
+*/
+
+.animata-stage {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.animata-unit {
+  display: inline-block;
+  white-space: pre;
+  backface-visibility: hidden;
+}
+
+.animata-line {
+  display: block;
+}
+
+/* Micro-efectos */
+
+/* Subrayado que aparece al hover/focus (títulos de tarjetas) */
+.underline-hover-text {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 250ms ease;
+}
+
+.underline-hover-text:hover,
+.underline-hover-text:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* Barrido de brillo al hover (chips) */
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in oklab, currentColor 16%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 600ms ease;
+}
+
+.shimmer-sweep:hover::after,
+.shimmer-sweep:focus-visible::after {
+  transform: translateX(120%);
+}
+
+/* Glitch sutil y esporádico (404) */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.glitch-text::before {
+  color: var(--color-tertiary, #ff5722);
+  clip-path: inset(0 0 55% 0);
+  animation: animata-glitch-top 3.2s steps(2, end) infinite;
+}
+
+.glitch-text::after {
+  color: var(--color-accent, #ffc107);
+  clip-path: inset(60% 0 0 0);
+  animation: animata-glitch-bottom 2.7s steps(2, end) infinite;
+}
+
+@keyframes animata-glitch-top {
+  0%,
+  92%,
+  100% {
+    transform: translate(0, 0);
+  }
+  94% {
+    transform: translate(-2px, -1px);
+  }
+  96% {
+    transform: translate(2px, 0);
+  }
+}
+
+@keyframes animata-glitch-bottom {
+  0%,
+  90%,
+  100% {
+    transform: translate(0, 0);
+  }
+  93% {
+    transform: translate(2px, 1px);
+  }
+  95% {
+    transform: translate(-2px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .underline-hover-text,
+  .shimmer-sweep::after {
+    transition: none;
+  }
+
+  .shimmer-sweep::after {
+    display: none;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    animation: none;
+    transform: none;
+  }
+}
