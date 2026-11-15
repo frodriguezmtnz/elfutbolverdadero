@@ -32,6 +32,12 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      globals: { ...globals.browser },
+    },
+  },
+  {
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',

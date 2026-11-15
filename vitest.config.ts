@@ -17,6 +17,8 @@ export default defineConfig({
         'src/lib/texto.ts',
         'src/lib/destacada.ts',
         'src/lib/colores-categoria.ts',
+        'src/lib/animata/core.ts',
+        'src/lib/animata/presets.ts',
         'scripts/lib/entidades.mjs',
         'scripts/lib/portable-text.mjs',
         'scripts/lib/checkpoint.mjs',
