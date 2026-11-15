@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import AnimataText from './AnimataText.astro';
 ---
 
 <section id="ejercicios" class="bg-secondary">
@@ -11,7 +12,9 @@ import Icon from './Icon.astro';
       <div>
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">La pizarra semanal</p>
         <h2 class="mt-1 font-heading font-semibold text-lg uppercase sm:text-3xl">
-          Ideas para llevar al campo
+          <AnimataText preset="line-by-line-slide" trigger="visible" exit="leave">
+            Ideas para llevar al campo
+          </AnimataText>
         </h2>
         <p class="mt-2 text-sm text-muted-foreground">
           Una selección semanal de entrevistas, tareas y reflexiones para entrenar mejor.

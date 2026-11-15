@@ -1,0 +1,43 @@
+---
+import type { PresetId } from '../lib/animata/presets';
+
+export interface Props {
+  preset: PresetId;
+  /** `load` anima al cargar · `visible` al entrar en el viewport */
+  trigger?: 'load' | 'visible';
+  /** Repetir la animación inversa cuando el bloque sale del viewport */
+  exit?: 'leave';
+  /** Clave para animar solo una vez por sesión (p. ej. la marca del header) */
+  once?: string;
+  speed?: number;
+  class?: string;
+  as?: 'span' | 'div';
+}
+
+const {
+  preset,
+  trigger = 'visible',
+  exit,
+  once,
+  speed,
+  class: className,
+  as: Tag = 'span',
+} = Astro.props;
+---
+
+<Tag
+  class:list={['animata-stage', className]}
+  data-animata={preset}
+  data-animata-trigger={trigger}
+  data-animata-exit={exit}
+  data-animata-once={once}
+  data-animata-speed={speed}
+>
+  <slot />
+</Tag>
+
+<script>
+  import { initAnimata } from '../lib/animata/text-animator';
+
+  initAnimata();
+</script>
