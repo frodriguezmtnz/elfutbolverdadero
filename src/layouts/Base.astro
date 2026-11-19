@@ -44,6 +44,10 @@ const websiteJsonLd = {
   name: siteName,
   url: new URL('/', Astro.site).href,
 };
+
+// Escapa '<' como \u003c para que un título con '</script>' (posible, viene
+// de Sanity) no pueda cerrar el bloque JSON-LD e inyectar HTML/script.
+const jsonLdSeguro = (data: object) => JSON.stringify(data).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
@@ -108,9 +112,9 @@ const websiteJsonLd = {
     )}
 
     <!-- Estructura de datos JSON-LD -->
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+    <script is:inline type="application/ld+json" set:html={jsonLdSeguro(websiteJsonLd)} />
     {jsonLd.map((data) => (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />
+      <script is:inline type="application/ld+json" set:html={jsonLdSeguro(data)} />
     ))}
   </head>
   <body>
