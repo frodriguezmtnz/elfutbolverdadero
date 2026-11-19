@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/legacy-redirects.mjs",
+    "build": "astro build && node scripts/legacy-redirects.mjs && node scripts/security-headers.mjs",
     "redirects:dry": "node scripts/legacy-redirects.mjs --dry-run",
+    "headers:dry": "node scripts/security-headers.mjs --dry-run",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
