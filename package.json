@@ -25,8 +25,7 @@
     "sanity:fix-entities": "node scripts/fix-sanity-entities.mjs",
     "sanity:fix-entities:apply": "node scripts/fix-sanity-entities.mjs --apply",
     "sanity:fix-titles": "node scripts/fix-sanity-titles.mjs",
-    "sanity:fix-titles:apply": "node scripts/fix-sanity-titles.mjs --apply",
-    "postinstall": "patch-package"
+    "sanity:fix-titles:apply": "node scripts/fix-sanity-titles.mjs --apply"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
@@ -65,7 +64,6 @@
     "eslint": "^10.14.0",
     "eslint-plugin-astro": "^3.2.1",
     "globals": "^17.14.0",
-    "patch-package": "^8.0.1",
     "prettier": "^3.10.0",
     "prettier-plugin-astro": "^1.1.2",
     "sanity": "^6.23.0",
