@@ -44,6 +44,9 @@ export const SCRIPTS_INLINE_PERMITIDOS = [
 //  - cdn.sanity.io: imágenes del CMS (único CDN de imágenes del sitio)
 //  - cloud.umami.is: script de analítica (solo si PUBLIC_UMAMI_WEBSITE_ID
 //    está definida) y sus beacons
+//  - gateway.umami.is: endpoint real de los beacons de Umami Cloud
+//    (el script se carga desde cloud.umami.is pero hace POST a
+//    https://gateway.umami.is/api/send)
 //  - youtube[-nocookie].com: iframes de embeds del cuerpo (los 53 embeds
 //    del dataset son www.youtube.com o self)
 //  - vercel.live: toolbar que Vercel SOLO inyecta en deployments de
@@ -58,7 +61,7 @@ export const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://cdn.sanity.io",
   "font-src 'self'",
-  "connect-src 'self' https://cloud.umami.is https://vercel.live",
+  "connect-src 'self' https://cloud.umami.is https://gateway.umami.is https://vercel.live",
   "media-src 'self'",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://youtube-nocookie.com https://vercel.live",
   "object-src 'none'",

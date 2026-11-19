@@ -83,6 +83,12 @@ describe('CSP', () => {
     expect(scriptSrc).toContain('https://vercel.live');
     expect(CSP).toContain('connect-src');
   });
+
+  it('connect-src permite el script y el gateway de Umami Cloud', () => {
+    const connectSrc = CSP.split('; ').find((d) => d.startsWith('connect-src'));
+    expect(connectSrc).toContain('https://cloud.umami.is');
+    expect(connectSrc).toContain('https://gateway.umami.is');
+  });
 });
 
 describe('construirRutaCabeceras', () => {
