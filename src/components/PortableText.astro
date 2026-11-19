@@ -1,5 +1,6 @@
 ---
 import { urlFor, srcsetFor } from '../lib/images';
+import { esExterno, esHrefSeguro, esEmbedPermitido } from '../lib/embeds';
 
 interface Child {
   _type?: string;
@@ -49,10 +50,6 @@ function esc(texto: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function esExterno(href: string): boolean {
-  return /^https?:\/\//i.test(href) && !/elfutbolverdadero\.com(\/|$)/i.test(href);
-}
-
 function renderInline(children: Child[], markDefs: MarkDef[]): string {
   return (children ?? [])
     .map((child) => {
@@ -71,7 +68,7 @@ function renderInline(children: Child[], markDefs: MarkDef[]): string {
           html = `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]">${html}</code>`;
         } else {
           const def = (markDefs ?? []).find((d) => d._key === marca);
-          if (def?._type === 'link' && def.href) {
+          if (def?._type === 'link' && def.href && esHrefSeguro(def.href)) {
             const href = esc(def.href);
             const externo = esExterno(def.href);
             html = `<a class="font-semibold text-primary underline decoration-tertiary/60 decoration-2 underline-offset-2 hover:text-tertiary-ink" href="${href}"${
@@ -126,7 +123,12 @@ for (const block of lista) {
       caption: block.caption,
     });
   } else if (block._type === 'embed' && block.url) {
-    grupos.push({ kind: 'embed', url: block.url, title: block.title ?? 'Audio/vídeo' });
+    const url = esEmbedPermitido(block.url) ? block.url : null;
+    grupos.push({
+      kind: 'embed',
+      url: url ?? '',
+      title: block.title ?? 'Audio/vídeo',
+    });
   }
 }
 ---
@@ -194,16 +196,27 @@ for (const block of lista) {
         </figure>
       );
     }
-    return (
-      <div class="overflow-hidden rounded-xl border border-border bg-muted">
-        <iframe
-          src={grupo.url}
-          title={grupo.title}
-          loading="lazy"
-          class="aspect-video w-full"
-          allowfullscreen
-        />
-      </div>
-    );
+    if (grupo.kind === 'embed') {
+      // Dominio fuera de la allowlist → texto informativo en lugar de iframe
+      // (la URL no se enlaza: podría contener un esquema peligroso)
+      if (!grupo.url) {
+        return (
+          <p class="text-sm text-muted-foreground">Contenido embebido no permitido en esta web.</p>
+        );
+      }
+      return (
+        <div class="overflow-hidden rounded-xl border border-border bg-muted">
+          <iframe
+            src={grupo.url}
+            title={grupo.title}
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            class="aspect-video w-full"
+            allowfullscreen
+          />
+        </div>
+      );
+    }
+    return null;
   })}
 </div>

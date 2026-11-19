@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/legacy-redirects.mjs",
+    "build": "astro build && node scripts/legacy-redirects.mjs && node scripts/security-headers.mjs",
     "redirects:dry": "node scripts/legacy-redirects.mjs --dry-run",
+    "headers:dry": "node scripts/security-headers.mjs --dry-run",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
@@ -24,8 +25,7 @@
     "sanity:fix-entities": "node scripts/fix-sanity-entities.mjs",
     "sanity:fix-entities:apply": "node scripts/fix-sanity-entities.mjs --apply",
     "sanity:fix-titles": "node scripts/fix-sanity-titles.mjs",
-    "sanity:fix-titles:apply": "node scripts/fix-sanity-titles.mjs --apply",
-    "postinstall": "patch-package"
+    "sanity:fix-titles:apply": "node scripts/fix-sanity-titles.mjs --apply"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
@@ -44,13 +44,19 @@
     "dotenv": "^18.0.10",
     "medium-zoom": "^1.1.2",
     "reading-time": "^1.5.0",
-    "sanity": "^6.23.0",
-    "styled-components": "^6.6.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "overrides": {
+    "@vercel/routing-utils": {
+      "path-to-regexp": "6.3.0"
+    },
+    "@vercel/frameworks": {
+      "smol-toml": "^1.9.1"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -58,9 +64,10 @@
     "eslint": "^10.14.0",
     "eslint-plugin-astro": "^3.2.1",
     "globals": "^17.14.0",
-    "patch-package": "^8.0.1",
     "prettier": "^3.10.0",
     "prettier-plugin-astro": "^1.1.2",
+    "sanity": "^6.23.0",
+    "styled-components": "^6.6.0",
     "typescript-eslint": "^8.72.2",
     "vitest": "^5.0.3"
   }
