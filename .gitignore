@@ -37,3 +37,6 @@ pnpm-debug.log*
 
 # Cobertura de tests (Vitest)
 coverage/
+
+# Logs del servidor Playwright MCP
+.playwright-mcp/

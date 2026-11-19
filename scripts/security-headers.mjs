@@ -24,6 +24,11 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // que se permiten por hash. Si una dependencia (Astro, astro-reveal...)
 // muta uno de estos scripts, el guard de build rompe CI con el hash nuevo
 // en el mensaje: se añade aquí y listo.
+//
+// IMPORTANTE: aquí van SIN comillas (el guard compara contra el valor
+// calculado). Al construir la CSP hay que entrecomillarlos: la gramática
+// CSP exige `'sha256-...='`; sin comillas el navegador descarta el token
+// como fuente inválida y bloquea TODOS los scripts inline.
 export const SCRIPTS_INLINE_PERMITIDOS = [
   // Boot de astro-reveal: window.__ASTRO_REVEAL__ + IntersectionObserver
   'sha256-MlTpMj8chxZeS1vRfdYTZwKrqVU7c8iP8aPhKP4JWj4=',
@@ -39,6 +44,9 @@ export const SCRIPTS_INLINE_PERMITIDOS = [
 //  - cdn.sanity.io: imágenes del CMS (único CDN de imágenes del sitio)
 //  - cloud.umami.is: script de analítica (solo si PUBLIC_UMAMI_WEBSITE_ID
 //    está definida) y sus beacons
+//  - gateway.umami.is: endpoint real de los beacons de Umami Cloud
+//    (el script se carga desde cloud.umami.is pero hace POST a
+//    https://gateway.umami.is/api/send)
 //  - youtube[-nocookie].com: iframes de embeds del cuerpo (los 53 embeds
 //    del dataset son www.youtube.com o self)
 //  - vercel.live: toolbar que Vercel SOLO inyecta en deployments de
@@ -49,11 +57,11 @@ export const SCRIPTS_INLINE_PERMITIDOS = [
 //  - frame-ancestors 'none' + X-Frame-Options DENY: evita clickjacking
 export const CSP = [
   "default-src 'self'",
-  `script-src 'self' https://cloud.umami.is https://vercel.live ${SCRIPTS_INLINE_PERMITIDOS.join(' ')}`,
+  `script-src 'self' https://cloud.umami.is https://vercel.live ${SCRIPTS_INLINE_PERMITIDOS.map((h) => `'${h}'`).join(' ')}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://cdn.sanity.io",
   "font-src 'self'",
-  "connect-src 'self' https://cloud.umami.is https://vercel.live",
+  "connect-src 'self' https://cloud.umami.is https://gateway.umami.is https://vercel.live",
   "media-src 'self'",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://youtube-nocookie.com https://vercel.live",
   "object-src 'none'",

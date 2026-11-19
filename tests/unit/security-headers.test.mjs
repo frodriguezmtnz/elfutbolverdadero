@@ -58,6 +58,17 @@ describe('CSP', () => {
     expect(scriptSrc).not.toContain('unsafe-eval');
   });
 
+  it('los hashes inline van entrecomillados (gramática CSP)', () => {
+    const scriptSrc = CSP.split('; ').find((d) => d.startsWith('script-src'));
+    for (const hash of SCRIPTS_INLINE_PERMITIDOS) {
+      expect(scriptSrc).toContain(`'${hash}'`);
+    }
+  });
+
+  it('no queda ningún token sha256- sin comillas en la CSP', () => {
+    expect(CSP.match(/(?<!')sha256-[A-Za-z0-9+/]{43}=/g) ?? []).toEqual([]);
+  });
+
   it('frame-ancestors none (clickjacking) e iframe de YouTube permitido', () => {
     expect(CSP).toContain("frame-ancestors 'none'");
     expect(CSP).toContain('https://www.youtube.com');
@@ -71,6 +82,12 @@ describe('CSP', () => {
     const scriptSrc = CSP.split('; ').find((d) => d.startsWith('script-src'));
     expect(scriptSrc).toContain('https://vercel.live');
     expect(CSP).toContain('connect-src');
+  });
+
+  it('connect-src permite el script y el gateway de Umami Cloud', () => {
+    const connectSrc = CSP.split('; ').find((d) => d.startsWith('connect-src'));
+    expect(connectSrc).toContain('https://cloud.umami.is');
+    expect(connectSrc).toContain('https://gateway.umami.is');
   });
 });
 
