@@ -24,6 +24,11 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // que se permiten por hash. Si una dependencia (Astro, astro-reveal...)
 // muta uno de estos scripts, el guard de build rompe CI con el hash nuevo
 // en el mensaje: se añade aquí y listo.
+//
+// IMPORTANTE: aquí van SIN comillas (el guard compara contra el valor
+// calculado). Al construir la CSP hay que entrecomillarlos: la gramática
+// CSP exige `'sha256-...='`; sin comillas el navegador descarta el token
+// como fuente inválida y bloquea TODOS los scripts inline.
 export const SCRIPTS_INLINE_PERMITIDOS = [
   // Boot de astro-reveal: window.__ASTRO_REVEAL__ + IntersectionObserver
   'sha256-MlTpMj8chxZeS1vRfdYTZwKrqVU7c8iP8aPhKP4JWj4=',
@@ -49,7 +54,7 @@ export const SCRIPTS_INLINE_PERMITIDOS = [
 //  - frame-ancestors 'none' + X-Frame-Options DENY: evita clickjacking
 export const CSP = [
   "default-src 'self'",
-  `script-src 'self' https://cloud.umami.is https://vercel.live ${SCRIPTS_INLINE_PERMITIDOS.join(' ')}`,
+  `script-src 'self' https://cloud.umami.is https://vercel.live ${SCRIPTS_INLINE_PERMITIDOS.map((h) => `'${h}'`).join(' ')}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://cdn.sanity.io",
   "font-src 'self'",

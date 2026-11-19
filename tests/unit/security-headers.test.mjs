@@ -58,6 +58,17 @@ describe('CSP', () => {
     expect(scriptSrc).not.toContain('unsafe-eval');
   });
 
+  it('los hashes inline van entrecomillados (gramática CSP)', () => {
+    const scriptSrc = CSP.split('; ').find((d) => d.startsWith('script-src'));
+    for (const hash of SCRIPTS_INLINE_PERMITIDOS) {
+      expect(scriptSrc).toContain(`'${hash}'`);
+    }
+  });
+
+  it('no queda ningún token sha256- sin comillas en la CSP', () => {
+    expect(CSP.match(/(?<!')sha256-[A-Za-z0-9+/]{43}=/g) ?? []).toEqual([]);
+  });
+
   it('frame-ancestors none (clickjacking) e iframe de YouTube permitido', () => {
     expect(CSP).toContain("frame-ancestors 'none'");
     expect(CSP).toContain('https://www.youtube.com');
